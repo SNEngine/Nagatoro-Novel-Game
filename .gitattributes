@@ -1,0 +1,4 @@
+*.asset !text !filter !merge !diff
+*.dll !text !filter !merge !diff
+*.fbx !text !filter !merge !diff
+... !text !filter !merge !diff
