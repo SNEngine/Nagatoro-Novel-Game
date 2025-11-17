@@ -2,6 +2,7 @@
 using SNEngine.Services;
 using System.Linq;
 using UnityEngine;
+using SNEngine.Utils;
 
 namespace SNEngine.Repositories
 {
@@ -10,9 +11,20 @@ namespace SNEngine.Repositories
     {
         [SerializeField] private RepositoryBase[] _repositories;
 
+        private RepositoryBase[] _allRepositories;
+
+        private const string RepositoryResourcePath = "Repositories";
+
         public void Initialize()
         {
-            foreach (var repository in _repositories)
+            RepositoryBase[] customRepositories = ResourceLoader.LoadAllCustomizable<RepositoryBase>(RepositoryResourcePath);
+
+            _allRepositories = _repositories
+                .Concat(customRepositories)
+                .Distinct()
+                .ToArray();
+
+            foreach (var repository in _allRepositories)
             {
                 repository.Initialize();
             }
@@ -20,7 +32,7 @@ namespace SNEngine.Repositories
 
         internal T Get<T>() where T : RepositoryBase
         {
-            return _repositories.FirstOrDefault(x => x is T) as T;
+            return _allRepositories?.FirstOrDefault(x => x is T) as T;
         }
     }
 }

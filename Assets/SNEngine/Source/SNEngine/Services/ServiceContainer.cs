@@ -1,6 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
+using SNEngine.Utils;
 
 namespace SNEngine.Services
 {
@@ -9,9 +9,20 @@ namespace SNEngine.Services
     {
         [SerializeField] private ServiceBase[] _services;
 
-        public void Initialize ()
+        private ServiceBase[] _allServices;
+
+        private const string ServiceResourcePath = "Services";
+
+        public void Initialize()
         {
-            foreach (var service in _services)
+            ServiceBase[] customServices = ResourceLoader.LoadAllCustomizable<ServiceBase>(ServiceResourcePath);
+
+            _allServices = _services
+                .Concat(customServices)
+                .Distinct()
+                .ToArray();
+
+            foreach (var service in _allServices)
             {
                 service.Initialize();
             }
@@ -19,12 +30,14 @@ namespace SNEngine.Services
 
         internal T Get<T>() where T : ServiceBase
         {
-            return _services.FirstOrDefault(x => x is T) as T;
+            return _allServices?.FirstOrDefault(x => x is T) as T;
         }
 
         internal void ResetState()
         {
-            foreach (var item in _services)
+            if (_allServices is null) return;
+
+            foreach (var item in _allServices)
             {
                 item.ResetState();
             }
