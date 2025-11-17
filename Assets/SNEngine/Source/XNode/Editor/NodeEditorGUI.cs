@@ -378,14 +378,17 @@ namespace XNodeEditor {
             if (Event.current.type != EventType.Layout && currentActivity == NodeActivity.DragGrid) selectedReroutes = selection;
         }
 
-        private void DrawNodes() {
+        private void DrawNodes()
+        {
             Event e = Event.current;
-            if (e.type == EventType.Layout) {
+            if (e.type == EventType.Layout)
+            {
                 selectionCache = new List<UnityEngine.Object>(Selection.objects);
             }
 
             System.Reflection.MethodInfo onValidate = null;
-            if (Selection.activeObject != null && Selection.activeObject is XNode.Node) {
+            if (Selection.activeObject != null && Selection.activeObject is XNode.Node)
+            {
                 onValidate = Selection.activeObject.GetType().GetMethod("OnValidate");
                 if (onValidate != null) EditorGUI.BeginChangeCheck();
             }
@@ -394,7 +397,8 @@ namespace XNodeEditor {
 
             Vector2 mousePos = Event.current.mousePosition;
 
-            if (e.type != EventType.Layout) {
+            if (e.type != EventType.Layout)
+            {
                 hoveredNode = null;
                 hoveredPort = null;
             }
@@ -414,22 +418,27 @@ namespace XNodeEditor {
             List<XNode.NodePort> removeEntries = new List<XNode.NodePort>();
 
             if (e.type == EventType.Layout) culledNodes = new List<XNode.Node>();
-            for (int n = 0; n < graph.nodes.Count; n++) {
+            for (int n = 0; n < graph.nodes.Count; n++)
+            {
                 // Skip null nodes. The user could be in the process of renaming scripts, so removing them at this point is not advisable.
                 if (graph.nodes[n] == null) continue;
                 if (n >= graph.nodes.Count) return;
                 XNode.Node node = graph.nodes[n];
 
                 // Culling
-                if (e.type == EventType.Layout) {
+                if (e.type == EventType.Layout)
+                {
                     // Cull unselected nodes outside view
-                    if (!Selection.Contains(node) && ShouldBeCulled(node)) {
+                    if (!Selection.Contains(node) && ShouldBeCulled(node))
+                    {
                         culledNodes.Add(node);
                         continue;
                     }
-                } else if (culledNodes.Contains(node)) continue;
+                }
+                else if (culledNodes.Contains(node)) continue;
 
-                if (e.type == EventType.Repaint) {
+                if (e.type == EventType.Repaint)
+                {
                     removeEntries.Clear();
                     foreach (var kvp in _portConnectionPoints)
                         if (kvp.Key.node == node) removeEntries.Add(kvp.Key);
@@ -450,7 +459,8 @@ namespace XNodeEditor {
 
                 bool selected = selectionCache.Contains(graph.nodes[n]);
 
-                if (selected) {
+                if (selected)
+                {
                     GUIStyle style = new GUIStyle(nodeEditor.GetBodyStyle());
                     GUIStyle highlightStyle = new GUIStyle(nodeEditor.GetBodyHighlightStyle());
                     highlightStyle.padding = style.padding;
@@ -459,7 +469,9 @@ namespace XNodeEditor {
                     GUILayout.BeginVertical(style);
                     GUI.color = NodeEditorPreferences.GetSettings().highlightColor;
                     GUILayout.BeginVertical(new GUIStyle(highlightStyle));
-                } else {
+                }
+                else
+                {
                     GUIStyle style = new GUIStyle(nodeEditor.GetBodyStyle());
                     GUI.color = nodeEditor.GetTint();
                     GUILayout.BeginVertical(style);
@@ -473,7 +485,8 @@ namespace XNodeEditor {
                 nodeEditor.OnBodyGUI();
 
                 //If user changed a value, notify other scripts through onUpdateNode
-                if (EditorGUI.EndChangeCheck()) {
+                if (EditorGUI.EndChangeCheck())
+                {
                     if (NodeEditor.onUpdateNode != null) NodeEditor.onUpdateNode(node);
                     EditorUtility.SetDirty(node);
                     nodeEditor.serializedObject.ApplyModifiedProperties();
@@ -482,12 +495,14 @@ namespace XNodeEditor {
                 GUILayout.EndVertical();
 
                 //Cache data about the node for next frame
-                if (e.type == EventType.Repaint) {
+                if (e.type == EventType.Repaint)
+                {
                     Vector2 size = GUILayoutUtility.GetLastRect().size;
                     if (nodeSizes.ContainsKey(node)) nodeSizes[node] = size;
                     else nodeSizes.Add(node, size);
 
-                    foreach (var kvp in NodeEditor.portPositions) {
+                    foreach (var kvp in NodeEditor.portPositions)
+                    {
                         Vector2 portHandlePos = kvp.Value;
                         portHandlePos += node.position;
                         Rect rect = new Rect(portHandlePos.x - 8, portHandlePos.y - 8, 16, 16);
@@ -497,27 +512,31 @@ namespace XNodeEditor {
 
                 if (selected) GUILayout.EndVertical();
 
-                if (e.type != EventType.Layout) {
+                if (e.type != EventType.Layout)
+                {
                     //Check if we are hovering this node
                     Vector2 nodeSize = GUILayoutUtility.GetLastRect().size;
                     Rect windowRect = new Rect(nodePos, nodeSize);
                     if (windowRect.Contains(mousePos)) hoveredNode = node;
 
                     //If dragging a selection box, add nodes inside to selection
-                    if (currentActivity == NodeActivity.DragGrid) {
+                    if (currentActivity == NodeActivity.DragGrid)
+                    {
                         if (windowRect.Overlaps(selectionBox)) preSelection.Add(node);
                     }
 
                     //Check if we are hovering any of this nodes ports
                     //Check input ports
-                    foreach (XNode.NodePort input in node.Inputs) {
+                    foreach (XNode.NodePort input in node.Inputs)
+                    {
                         //Check if port rect is available
                         if (!portConnectionPoints.ContainsKey(input)) continue;
                         Rect r = GridToWindowRectNoClipped(portConnectionPoints[input]);
                         if (r.Contains(mousePos)) hoveredPort = input;
                     }
                     //Check all output ports
-                    foreach (XNode.NodePort output in node.Outputs) {
+                    foreach (XNode.NodePort output in node.Outputs)
+                    {
                         //Check if port rect is available
                         if (!portConnectionPoints.ContainsKey(output)) continue;
                         Rect r = GridToWindowRectNoClipped(portConnectionPoints[output]);
@@ -534,7 +553,13 @@ namespace XNodeEditor {
             //If a change in is detected in the selected node, call OnValidate method. 
             //This is done through reflection because OnValidate is only relevant in editor, 
             //and thus, the code should not be included in build.
-            if (onValidate != null && EditorGUI.EndChangeCheck()) onValidate.Invoke(Selection.activeObject, null);
+            if (onValidate != null && EditorGUI.EndChangeCheck())
+            {
+                if (Selection.activeObject != null)
+                { // <-- Исправление: Добавлена проверка на null
+                    onValidate.Invoke(Selection.activeObject, null);
+                }
+            }
         }
 
         private bool ShouldBeCulled(XNode.Node node) {
