@@ -165,9 +165,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
-  _hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _textComponent: {fileID: 2140852855586076983}
 --- !u!1 &1572547234466706920
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,9 +551,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
-  _hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _textComponent: {fileID: 3537548454291799238}
 --- !u!1 &5610391363608905672
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,8 +589,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.34991455, y: 0}
-  m_SizeDelta: {x: -0.6999512, y: 0}
+  m_AnchoredPosition: {x: 0.000061035156, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1211010127261524189
 CanvasRenderer:
@@ -793,9 +795,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
-  _hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _textComponent: {fileID: 6345823620520672722}
 --- !u!1 &7037754512418038386
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,8 +924,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.34991455, y: -0.06500244}
-  m_SizeDelta: {x: -0.6999512, y: 0.12999725}
+  m_AnchoredPosition: {x: 0.000061035156, y: -0.06500244}
+  m_SizeDelta: {x: 0, y: 0.13}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5568465987559371807
 CanvasRenderer:
@@ -1205,6 +1208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
-  _hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _textComponent: {fileID: 697550479458273362}

@@ -7,5 +7,6 @@ namespace CoreGame.FightSystem.UI
     {
         [SerializeField] private FillSlider _healthPlayer;
         [SerializeField] private FillSlider _healthEnemy;
+        
     }
 }
