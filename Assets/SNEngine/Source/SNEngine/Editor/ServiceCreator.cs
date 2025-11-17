@@ -1,4 +1,5 @@
-﻿     using UnityEditor;
+﻿using UnityEditor;
+
 namespace SNEngine.Editor
 {
     public static class ServiceCreator
@@ -6,7 +7,7 @@ namespace SNEngine.Editor
         private const string ServiceTemplate =
     @"using UnityEngine;
 using SNEngine.Services;
-
+[CreateAssetMenu(menuName = ""SNEngine/Custom/Services/New #SCRIPTNAME#"")] 
 public class #SCRIPTNAME# : ServiceBase
 {
 
@@ -24,6 +25,7 @@ public class #SCRIPTNAME# : ServiceBase
         [MenuItem("Assets/Create/SNEngine/New C# Service", false, 82)]
         public static void CreateNewServiceScript()
         {
+            // BaseCreator заменит оба вхождения #SCRIPTNAME# на имя файла
             BaseCreator.CreateScript(ServiceTemplate, "/NewService.cs");
         }
     }

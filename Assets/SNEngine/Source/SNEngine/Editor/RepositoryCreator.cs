@@ -6,7 +6,7 @@ namespace SNEngine.Editor
         private const string RepositoryTemplate =
     @"using UnityEngine;
 using SNEngine.Repositories;
-
+[CreateAssetMenu(menuName = ""SNEngine/Custom/Repositories/#SCRIPTNAME#"")]
 public class #SCRIPTNAME# : RepositoryBase
 {
     // Place fields and properties specific to this repository here
