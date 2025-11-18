@@ -8,6 +8,7 @@ namespace CoreGame.FightSystem.UI
 {
     public class FightWindow : MonoBehaviour, IFightWindow
     {
+        [Header("UI Components")]
         [SerializeField] private FillSlider _healthPlayer;
         [SerializeField] private FillSlider _healthEnemy;
         [SerializeField] private ClickableText _attackButton;
@@ -16,13 +17,38 @@ namespace CoreGame.FightSystem.UI
         [SerializeField] private ClickableText _skillButton;
         [SerializeField] private RectTransform _panelAction;
 
+        [Header("Health Bar Animation Settings")]
         [SerializeField, Min(0)] private float _durationChangeHealth = 0.3f;
         [SerializeField] private Ease _easeHealthAnimation = Ease.InBounce;
 
+        [Header("Show Animation Settings")]
+        [SerializeField, Min(0)] private float _durationShow = 0.5f;
+        [SerializeField] private Ease _easeShowAnimation = Ease.OutBack;
+
+        [Tooltip("Смещение по Y для панели действий (снизу)")]
+        [SerializeField] private float _panelActionOffsetY = -500f;
+
+        [Tooltip("Смещение по Y для полосок здоровья (сверху)")]
+        [SerializeField] private float _healthBarOffsetY = 300f;
+
         public event Action<PlayerAction> OnTurnExecuted;
+
+        private Vector2 _initialPanelActionPosition;
+        private Vector2 _initialHealthPlayerPosition;
+        private Vector2 _initialHealthEnemyPosition;
+
+        private RectTransform _playerHealthParentRT;
+        private RectTransform _enemyHealthParentRT;
 
         private void Awake()
         {
+            _playerHealthParentRT = _healthPlayer.transform.parent.GetComponent<RectTransform>();
+            _enemyHealthParentRT = _healthEnemy.transform.parent.GetComponent<RectTransform>();
+
+            _initialPanelActionPosition = _panelAction.anchoredPosition;
+            _initialHealthPlayerPosition = _playerHealthParentRT.anchoredPosition;
+            _initialHealthEnemyPosition = _enemyHealthParentRT.anchoredPosition;
+
             _attackButton.AddListener(() => OnClickButtonAction(PlayerAction.Attack));
             _guardButton.AddListener(() => OnClickButtonAction(PlayerAction.Guard));
             _waitButton.AddListener(() => OnClickButtonAction(PlayerAction.Wait));
@@ -47,14 +73,38 @@ namespace CoreGame.FightSystem.UI
         public void Show()
         {
             gameObject.SetActive(true);
+
+            // Анимация панели действий (снизу -> вверх)
+            RectTransform panelRT = _panelAction.GetComponent<RectTransform>();
+
+            panelRT.anchoredPosition = _initialPanelActionPosition + new Vector2(0, _panelActionOffsetY);
+
+            panelRT.DOAnchorPos(_initialPanelActionPosition, _durationShow)
+                    .SetEase(_easeShowAnimation)
+                    .SetLink(gameObject);
+
+
+            _playerHealthParentRT.anchoredPosition = _initialHealthPlayerPosition + new Vector2(0, _healthBarOffsetY);
+            _playerHealthParentRT.DOAnchorPos(_initialHealthPlayerPosition, _durationShow)
+                            .SetEase(_easeShowAnimation)
+                            .SetLink(gameObject);
+
+            _enemyHealthParentRT.anchoredPosition = _initialHealthEnemyPosition + new Vector2(0, _healthBarOffsetY);
+            _enemyHealthParentRT.DOAnchorPos(_initialHealthEnemyPosition, _durationShow)
+                            .SetEase(_easeShowAnimation)
+                            .SetLink(gameObject);
         }
 
         public void Hide()
         {
+            _panelAction.GetComponent<RectTransform>().DOKill();
+            _playerHealthParentRT.DOKill();
+            _enemyHealthParentRT.DOKill();
+
             gameObject.SetActive(false);
         }
 
-        public void HidePanelAction ()
+        public void HidePanelAction()
         {
             _panelAction.gameObject.SetActive(false);
         }
@@ -66,7 +116,9 @@ namespace CoreGame.FightSystem.UI
 
         private void OnDisable()
         {
-
+            _panelAction.GetComponent<RectTransform>().DOKill();
+            _playerHealthParentRT.DOKill();
+            _enemyHealthParentRT.DOKill();
         }
 
         public void SetData(IFightComponent fightComponentPlayer, IFightComponent fightComponentEnemy)
@@ -76,7 +128,6 @@ namespace CoreGame.FightSystem.UI
             _healthEnemy.MaxValue = fightComponentEnemy.HealthComponent.MaxHealth;
             _healthEnemy.SetValueSmoothly(fightComponentEnemy.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
             _healthPlayer.SetValueSmoothly(fightComponentPlayer.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
-
         }
 
         private void OnHealthChangedPlayer(float current, float max)

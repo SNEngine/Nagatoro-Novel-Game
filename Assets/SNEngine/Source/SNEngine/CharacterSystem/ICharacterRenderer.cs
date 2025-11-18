@@ -11,5 +11,6 @@ namespace SNEngine.CharacterSystem
 
         UniTask Move(CharacterDirection direction, float time, Ease ease);
         T AddComponent<T>() where T : Component;
+        UniTask ShakePosition(float duration, float strength = 90, int vibrato = 10, bool fadeOut = true);
     }
 }

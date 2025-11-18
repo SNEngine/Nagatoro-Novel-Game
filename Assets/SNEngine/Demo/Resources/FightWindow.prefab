@@ -313,6 +313,10 @@ MonoBehaviour:
   _panelAction: {fileID: 4167456466345344990}
   _durationChangeHealth: 0.3
   _easeHealthAnimation: 5
+  _durationShow: 0.6
+  _easeShowAnimation: 22
+  _panelActionOffsetY: -500
+  _healthBarOffsetY: 300
 --- !u!1 &2946172108558249509
 GameObject:
   m_ObjectHideFlags: 0

@@ -18,7 +18,7 @@ namespace SNEngine.Services
         private Dictionary<string, ICharacterRenderer> _characters;
 
         private List<ICharacterRenderer> _charactersInvolved;
-        
+
         public override void Initialize()
         {
             var characterObject = Resources.Load<CharacterRenderer>("Render/Character");
@@ -47,7 +47,7 @@ namespace SNEngine.Services
             _charactersInvolved = new List<ICharacterRenderer>();
         }
 
-        public ICharacterRenderer GetWorldCharacter (Character character)
+        public ICharacterRenderer GetWorldCharacter(Character character)
         {
             if (_characters.TryGetValue(character.OriginalName, out var characterObject))
             {
@@ -57,7 +57,7 @@ namespace SNEngine.Services
             return null;
         }
 
-        public void ShowCharacter (Character character, string emotionName = "Default")
+        public void ShowCharacter(Character character, string emotionName = "Default")
         {
             if (LogErrorNullReferenceCharacter(character))
             {
@@ -69,7 +69,7 @@ namespace SNEngine.Services
             characterRender.ShowWithEmotion(emotionName);
         }
 
-        private  bool LogErrorNullReferenceCharacter(Character character)
+        private bool LogErrorNullReferenceCharacter(Character character)
         {
             if (character is null)
             {
@@ -79,7 +79,7 @@ namespace SNEngine.Services
             }
 
             return false;
-           
+
         }
 
         public void HideCharacter(Character character)
@@ -126,7 +126,7 @@ namespace SNEngine.Services
             }
         }
 
-        public void SetFlipCharacter (Character character, FlipType flipType)
+        public void SetFlipCharacter(Character character, FlipType flipType)
         {
             if (LogErrorNullReferenceCharacter(character))
             {
@@ -138,9 +138,9 @@ namespace SNEngine.Services
             characterRender.SetFlip(flipType);
         }
 
-        
 
-        private ICharacterRenderer FindByName (string name)
+
+        private ICharacterRenderer FindByName(string name)
         {
             ICharacterRenderer character = null;
 
@@ -226,7 +226,7 @@ namespace SNEngine.Services
 
             var characterRender = FindByName(character.name);
 
-            await characterRender.Fade(duration, animationBehaviour, ease);  
+            await characterRender.Fade(duration, animationBehaviour, ease);
         }
 
         public async UniTask ScaleCharacter(Character character, Vector3 value, float time, Ease ease)
@@ -251,6 +251,18 @@ namespace SNEngine.Services
             var characterRender = FindByName(character.name);
 
             await characterRender.Rotate(value, time, ease, rotateMode);
+        }
+
+        public async UniTask ShakePosition(Character character, float duration, float strength = 90, int vibrato = 10, bool fadeOut = true)
+        {
+            if (LogErrorNullReferenceCharacter(character))
+            {
+                return;
+            }
+
+            var characterRender = FindByName(character.name);
+
+            await characterRender.ShakePosition(duration, strength, vibrato, fadeOut);
         }
 
         public async UniTask SetColorCharacter(Character character, Color value, float time, Ease ease)

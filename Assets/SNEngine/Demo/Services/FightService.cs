@@ -13,6 +13,7 @@ using CoreGame.FightSystem.AI;
 using Object = UnityEngine.Object;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using DG.Tweening;
 
 namespace CoreGame.Services
 {
@@ -20,6 +21,7 @@ namespace CoreGame.Services
     public class FightService : ServiceBase
     {
         private CharacterService _characterService;
+        private BackgroundService _backgroundService;
         private Dictionary<Character, CharacterFightData> _currentStatsCharacters;
         private Dictionary<Character, IFightComponent> _fightComponents;
         private IFightWindow _fightWindow;
@@ -34,11 +36,19 @@ namespace CoreGame.Services
         private bool _isPlayerGuarding;
         private bool _isEnemyGuarding;
 
+        [SerializeField] private float _hitShakeDuration = 0.3f;
+        [SerializeField] private float _hitShakeStrength = 10f;
+        [SerializeField] private int _hitShakeVibrato = 10;
+        [SerializeField] private Color _hitColor = new Color(1f, 0f, 0f, 1f);
+        [SerializeField] private float _hitColorDuration = 0.1f;
+        [SerializeField] private Ease _hitColorEase = Ease.Linear;
+
         public event Action<FightResult> OnFightEnded;
 
         public override void Initialize()
         {
             _characterService = NovelGame.Instance.GetService<CharacterService>();
+            _backgroundService = NovelGame.Instance.GetService<BackgroundService>();
 
             var ui = NovelGame.Instance.GetService<UIService>();
 
@@ -103,14 +113,14 @@ namespace CoreGame.Services
             _fightTurnOwner = FightTurnOwner.Player;
         }
 
-        private void OnPlayerTurnExecuted(PlayerAction action)
+        private async void OnPlayerTurnExecuted(PlayerAction action)
         {
             if (_fightTurnOwner != FightTurnOwner.Player)
             {
                 return;
             }
 
-            HandlePlayerAction(action);
+            await HandlePlayerAction(action);
 
             if (CheckFightEndConditions())
             {
@@ -123,7 +133,7 @@ namespace CoreGame.Services
             ExecuteEnemyTurn().Forget();
         }
 
-        private void HandlePlayerAction(PlayerAction action)
+        private async UniTask HandlePlayerAction(PlayerAction action)
         {
             IFightComponent enemyComp = _fightComponents[_enemyCharacter.ReferenceCharacter];
             float playerDamage = _playerCharacter.Damage;
@@ -133,7 +143,7 @@ namespace CoreGame.Services
             switch (action)
             {
                 case PlayerAction.Attack:
-                    HandleAttackAction(enemyComp, playerDamage, _enemyCharacter);
+                    await HandleAttackAction(enemyComp, playerDamage, _enemyCharacter);
                     break;
                 case PlayerAction.Guard:
                     _isPlayerGuarding = true;
@@ -147,7 +157,7 @@ namespace CoreGame.Services
             }
         }
 
-        private void HandleEnemyAction(PlayerAction action)
+        private async UniTask HandleEnemyAction(PlayerAction action)
         {
             IFightComponent playerComp = _fightComponents[_playerCharacter.ReferenceCharacter];
             float enemyDamage = _enemyCharacter.Damage;
@@ -157,7 +167,7 @@ namespace CoreGame.Services
             switch (action)
             {
                 case PlayerAction.Attack:
-                    HandleAttackAction(playerComp, enemyDamage, _playerCharacter);
+                    await HandleAttackAction(playerComp, enemyDamage, _playerCharacter);
                     break;
                 case PlayerAction.Guard:
                     _isEnemyGuarding = true;
@@ -171,7 +181,7 @@ namespace CoreGame.Services
             }
         }
 
-        private void HandleAttackAction(IFightComponent targetComponent, float baseDamage, FightCharacter targetCharacter)
+        private async UniTask HandleAttackAction(IFightComponent targetComponent, float baseDamage, FightCharacter targetCharacter)
         {
             float finalDamage = baseDamage;
 
@@ -193,6 +203,40 @@ namespace CoreGame.Services
             }
 
             targetComponent.HealthComponent.TakeDamage(finalDamage);
+
+            if (targetComponent.HealthComponent.CurrentHealth > 0)
+            {
+                if (targetCharacter == _playerCharacter)
+                {
+                    await UniTask.WhenAll(
+                        _backgroundService.ShakePosition(_hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
+                        AnimateBackgroundHit()
+                    );
+                }
+                else
+                {
+                    await UniTask.WhenAll(
+                        _characterService.ShakePosition(_enemyCharacter.ReferenceCharacter, _hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
+                        AnimateCharacterHit(_enemyCharacter.ReferenceCharacter)
+                    );
+                }
+            }
+        }
+
+        private async UniTask AnimateCharacterHit(Character character)
+        {
+            Color originalColor = Color.white;
+
+            await _characterService.SetColorCharacter(character, _hitColor, _hitColorDuration, _hitColorEase);
+            await _characterService.SetColorCharacter(character, originalColor, _hitColorDuration, _hitColorEase);
+        }
+
+        private async UniTask AnimateBackgroundHit()
+        {
+            Color originalColor = Color.white;
+
+            await _backgroundService.SetColor(_hitColor, _hitColorDuration, _hitColorEase);
+            await _backgroundService.SetColor(originalColor, _hitColorDuration, _hitColorEase);
         }
 
         private bool CheckFightEndConditions()
@@ -240,7 +284,7 @@ namespace CoreGame.Services
 
             PlayerAction enemyAction = _aiFighter.DecideAction();
 
-            HandleEnemyAction(enemyAction);
+            await HandleEnemyAction(enemyAction);
 
             if (CheckFightEndConditions())
             {

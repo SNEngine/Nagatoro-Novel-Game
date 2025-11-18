@@ -50,7 +50,7 @@ namespace SNEngine.CharacterSystem
             _character = data;
         }
 
-        public void ShowWithEmotion (string emotionName = "Default")
+        public void ShowWithEmotion(string emotionName = "Default")
         {
             _spriteRenderer.sprite = _character.GetEmotion(emotionName).Sprite;
 
@@ -62,7 +62,7 @@ namespace SNEngine.CharacterSystem
             _spriteRenderer.Flip(flipType);
         }
 
-        private void CalculatePositionForScreen ()
+        private void CalculatePositionForScreen()
         {
             float spriteHeight = _spriteRenderer.bounds.size.y;
 
@@ -82,10 +82,12 @@ namespace SNEngine.CharacterSystem
             transform.position = position;
 
             transform.localScale = Vector3.one;
-            
+
             transform.localRotation = Quaternion.identity;
 
             transform.rotation = Quaternion.identity;
+
+            DOTween.Kill(transform);
 
             _spriteRenderer.sprite = _character.GetEmotion(0).Sprite;
 
@@ -102,7 +104,7 @@ namespace SNEngine.CharacterSystem
             Hide();
         }
 
-        public T AddComponent<T> () where T : Component
+        public T AddComponent<T>() where T : Component
         {
             return gameObject.AddComponent<T>();
         }
@@ -113,6 +115,11 @@ namespace SNEngine.CharacterSystem
             time = MathfExtensions.ClampTime(time);
 
             await transform.DOMoveX(x, time).SetEase(ease);
+        }
+
+        public async UniTask ShakePosition(float duration, float strength = 90, int vibrato = 10, bool fadeOut = true)
+        {
+            await transform.DOShakePosition(duration, strength, vibrato, 90f, fadeOut: fadeOut);
         }
 
 
