@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _guidSO: 5fa429c7-2d95-46f8-8165-4ac588c665c4
   _referenceCharacter: {fileID: 11400000, guid: 8d73a64e566645f478cfa130a3ba078f, type: 2}
-  _damage: 1
+  _damage: 16
   _health: 100
+  _mana: 100
+  _guardReductionPercentage: 0.5

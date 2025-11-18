@@ -7,5 +7,7 @@ namespace CoreGame.FightSystem.UI
     {
         event Action<PlayerAction> OnTurnExecuted;
         void SetData(IFightComponent fightComponentPlayer, IFightComponent fightComponentEnemy);
+        void ShowPanelAction();
+        void HidePanelAction();
     }
 }

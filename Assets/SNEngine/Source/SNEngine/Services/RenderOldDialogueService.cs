@@ -26,9 +26,14 @@ namespace SNEngine.Services
             return _renderDialogue.UpdateRender();
         }
 
-        public void Clear()
+        public void DisplayFrame(Texture2D frameTexture)
         {
-            _renderDialogue.Clear();
+            _renderDialogue.DisplayFrame(frameTexture);
+        }
+
+        public void HideFrame()
+        {
+           _renderDialogue.HideFrame();
         }
     }
 }

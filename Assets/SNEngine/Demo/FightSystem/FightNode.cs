@@ -4,12 +4,14 @@ using UnityEngine;
 using SNEngine.SaveSystem;
 using SNEngine;
 using CoreGame.Services;
+using XNode;
 namespace CoreGame.FightSystem
 {
     public class FightNode : AsyncNode, ISaveProgressNode
     {
         [SerializeField] private FightCharacter _playerCharacter;
         [SerializeField] private FightCharacter _enemyCharacter;
+        [Output(ShowBackingValue.Never), SerializeField, Header("Victory - 0 Defeat - 1 Tie - 2")] private int _result;
         private bool _finished;
         public override async void Execute()
         {
@@ -27,7 +29,16 @@ namespace CoreGame.FightSystem
             base.Execute();
 
             var fightService = NovelGame.Instance.GetService<FightService>();
+            fightService.OnFightEnded += OnFightEnded;
             fightService.TurnFight(_playerCharacter, _enemyCharacter);
+        }
+
+        private void OnFightEnded(FightResult result)
+        {
+            var fightService = NovelGame.Instance.GetService<FightService>();
+            fightService.OnFightEnded -= OnFightEnded;
+            _result = (int)result;
+            StopTask();
         }
 
         public override bool CanSkip()
@@ -48,6 +59,11 @@ namespace CoreGame.FightSystem
         public void SetDataFromSave(object data)
         {
             
+        }
+
+        public override object GetValue(NodePort port)
+        {
+            return _result;
         }
     }
 }

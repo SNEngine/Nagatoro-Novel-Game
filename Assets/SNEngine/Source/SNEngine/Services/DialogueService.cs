@@ -22,8 +22,6 @@ namespace SNEngine.Services
 
         public event Action<IDialogue> OnEndDialogue;
 
-        private MonoBehaviour _frameDetector;
-
         public IDialogue CurrentDialogue => _currentDialogue;
 
         public override void Initialize()
@@ -31,24 +29,6 @@ namespace SNEngine.Services
             _oldRenderDialogueService = NovelGame.Instance.GetService<RenderOldDialogueService>();
 
             _startDialogue = Resources.Load<DialogueGraph>($"Dialogues/{nameof(_startDialogue)}");
-
-            Dialog_FrameDetector frameDetectorToLoad =
-                ResourceLoader.LoadCustomOrVanilla<Dialog_FrameDetector>(FRAME_DETECTOR_VANILLA_PATH);
-
-            if (frameDetectorToLoad == null)
-            {
-                return;
-            }
-
-            string prefabName = frameDetectorToLoad.name;
-
-            var prefabFrameDetector = Instantiate(frameDetectorToLoad);
-
-            prefabFrameDetector.name = prefabName;
-
-            DontDestroyOnLoad(prefabFrameDetector);
-
-            _frameDetector = prefabFrameDetector;
 
         }
 
@@ -98,17 +78,21 @@ namespace SNEngine.Services
             ClearScreen().Forget();
         }
 
+
         private async UniTask ClearScreen()
         {
-            _oldRenderDialogueService.UpdateRender();
+            Texture2D capturedFrame = _oldRenderDialogueService.UpdateRender();
+
+            _oldRenderDialogueService.DisplayFrame(capturedFrame);
 
             NovelGame.Instance.ResetStateServices();
 
-            await UniTask.WaitForEndOfFrame(_frameDetector);
+            await UniTask.WaitForEndOfFrame();
 
             await UniTask.Delay(TIME_OUT_WAIT_TO_NEW_RENDERER);
 
-            _oldRenderDialogueService.Clear();
+            _oldRenderDialogueService.HideFrame();
+
         }
     }
 }

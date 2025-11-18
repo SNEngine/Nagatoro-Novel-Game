@@ -53,6 +53,12 @@ namespace CoreGame.FightSystem.UI
             OnClick -= action;
         }
 
+        private void OnDisable()
+        {
+            transform.localScale = _originalScale;
+            _textComponent.color = _normalColor;
+        }
+
         private void OnValidate()
         {
             if (!_textComponent)

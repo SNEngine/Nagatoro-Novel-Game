@@ -6,6 +6,7 @@ namespace SNEngine.DialogSystem
     {
         Texture2D UpdateRender();
 
-        void Clear();
+        void DisplayFrame(Texture2D frameTexture);
+        void HideFrame();
     }
 }

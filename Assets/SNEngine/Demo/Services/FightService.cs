@@ -9,7 +9,10 @@ using SNEngine.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using CoreGame.FightSystem.AI;
 using Object = UnityEngine.Object;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace CoreGame.Services
 {
@@ -21,10 +24,17 @@ namespace CoreGame.Services
         private Dictionary<Character, IFightComponent> _fightComponents;
         private IFightWindow _fightWindow;
         private const string FIGHT_WINDOW_VANILLA_PATH = "FightWindow";
+        private const float ENEMY_TURN_DELAY = 0.5f;
         private FightTurnOwner _fightTurnOwner = FightTurnOwner.Player;
 
         private FightCharacter _playerCharacter;
         private FightCharacter _enemyCharacter;
+        private AIFighter _aiFighter;
+
+        private bool _isPlayerGuarding;
+        private bool _isEnemyGuarding;
+
+        public event Action<FightResult> OnFightEnded;
 
         public override void Initialize()
         {
@@ -60,6 +70,9 @@ namespace CoreGame.Services
             ClearupFightComponents();
             _currentStatsCharacters = null;
             _fightWindow.ResetState();
+            _aiFighter = null;
+            _isPlayerGuarding = false;
+            _isEnemyGuarding = false;
         }
 
         public void TurnFight(FightCharacter playerCharacter, FightCharacter enemyCharacter)
@@ -73,7 +86,16 @@ namespace CoreGame.Services
             ShowCharacter(enemyCharacter.ReferenceCharacter);
             SetupCharacterForFight(playerCharacter);
             SetupCharacterForFight(enemyCharacter);
-            _fightWindow.SetData(_fightComponents[playerCharacter.ReferenceCharacter], _fightComponents[enemyCharacter.ReferenceCharacter]);
+
+            IFightComponent playerComp = _fightComponents[playerCharacter.ReferenceCharacter];
+            IFightComponent enemyComp = _fightComponents[enemyCharacter.ReferenceCharacter];
+
+            _fightWindow.SetData(playerComp, enemyComp);
+
+            _aiFighter = new AIFighter(_enemyCharacter, enemyComp, _playerCharacter, playerComp);
+
+            _isPlayerGuarding = false;
+            _isEnemyGuarding = false;
 
             _fightWindow.OnTurnExecuted += OnPlayerTurnExecuted;
 
@@ -90,50 +112,150 @@ namespace CoreGame.Services
 
             HandlePlayerAction(action);
 
-            _fightTurnOwner = FightTurnOwner.Enemy;
-            _fightWindow.Hide();
+            if (CheckFightEndConditions())
+            {
+                return;
+            }
 
-            ExecuteEnemyTurn();
+            _fightTurnOwner = FightTurnOwner.Enemy;
+            _fightWindow.HidePanelAction();
+
+            ExecuteEnemyTurn().Forget();
         }
 
         private void HandlePlayerAction(PlayerAction action)
         {
             IFightComponent enemyComp = _fightComponents[_enemyCharacter.ReferenceCharacter];
+            float playerDamage = _playerCharacter.Damage;
+
+            _isPlayerGuarding = false;
 
             switch (action)
             {
                 case PlayerAction.Attack:
-                    HandleAttackAction(enemyComp, 10f);
+                    HandleAttackAction(enemyComp, playerDamage, _enemyCharacter);
                     break;
                 case PlayerAction.Guard:
-                    // Logic for Guard
+                    _isPlayerGuarding = true;
                     break;
                 case PlayerAction.Wait:
-                    // Logic for Wait
+
                     break;
                 case PlayerAction.Skill:
-                    // Logic for Skill
+
                     break;
             }
         }
 
-        private void HandleAttackAction(IFightComponent target, float damage)
+        private void HandleEnemyAction(PlayerAction action)
         {
-            target.HealthComponent.TakeDamage(damage);
+            IFightComponent playerComp = _fightComponents[_playerCharacter.ReferenceCharacter];
+            float enemyDamage = _enemyCharacter.Damage;
+
+            _isEnemyGuarding = false;
+
+            switch (action)
+            {
+                case PlayerAction.Attack:
+                    HandleAttackAction(playerComp, enemyDamage, _playerCharacter);
+                    break;
+                case PlayerAction.Guard:
+                    _isEnemyGuarding = true;
+                    break;
+                case PlayerAction.Wait:
+
+                    break;
+                case PlayerAction.Skill:
+
+                    break;
+            }
         }
 
-        private void ExecuteEnemyTurn()
+        private void HandleAttackAction(IFightComponent targetComponent, float baseDamage, FightCharacter targetCharacter)
         {
-            // Здесь должна быть логика хода противника (AI, анимация, задержка)
+            float finalDamage = baseDamage;
 
-            // Сейчас просто немедленно завершаем ход противника
+            bool isTargetGuarding = targetCharacter == _playerCharacter ? _isPlayerGuarding : _isEnemyGuarding;
+
+            if (isTargetGuarding)
+            {
+                float reduction = targetCharacter.GuardReductionPercentage;
+                finalDamage *= (1f - reduction);
+
+                if (targetCharacter == _playerCharacter)
+                {
+                    _isPlayerGuarding = false;
+                }
+                else
+                {
+                    _isEnemyGuarding = false;
+                }
+            }
+
+            targetComponent.HealthComponent.TakeDamage(finalDamage);
+        }
+
+        private bool CheckFightEndConditions()
+        {
+            IFightComponent playerComp = _fightComponents[_playerCharacter.ReferenceCharacter];
+            IFightComponent enemyComp = _fightComponents[_enemyCharacter.ReferenceCharacter];
+
+            bool playerDead = playerComp.HealthComponent.CurrentHealth <= 0;
+            bool enemyDead = enemyComp.HealthComponent.CurrentHealth <= 0;
+
+            if (playerDead && enemyDead)
+            {
+                EndFight(FightResult.Tie);
+                return true;
+            }
+
+            if (playerDead)
+            {
+                EndFight(FightResult.Defeat);
+                return true;
+            }
+
+            if (enemyDead)
+            {
+                EndFight(FightResult.Victory);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void EndFight(FightResult result)
+        {
+            _fightWindow.OnTurnExecuted -= OnPlayerTurnExecuted;
+            _fightWindow.Hide();
+            HideCharacters();
+            ClearupFightComponents();
+
+            OnFightEnded?.Invoke(result);
+        }
+
+        private async UniTask ExecuteEnemyTurn()
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(ENEMY_TURN_DELAY), DelayType.DeltaTime, PlayerLoopTiming.Update, CancellationToken.None);
+
+            PlayerAction enemyAction = _aiFighter.DecideAction();
+
+            HandleEnemyAction(enemyAction);
+
+            if (CheckFightEndConditions())
+            {
+                return;
+            }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(ENEMY_TURN_DELAY), DelayType.DeltaTime, PlayerLoopTiming.Update, CancellationToken.None);
+
             CompleteEnemyTurn();
         }
 
         private void CompleteEnemyTurn()
         {
             _fightTurnOwner = FightTurnOwner.Player;
-            _fightWindow.Show();
+            _fightWindow.ShowPanelAction();
         }
 
         private void SetupCharacterForFight(FightCharacter character)
@@ -166,7 +288,7 @@ namespace CoreGame.Services
                 try
                 {
                     FightComponent fightComponent = component.Value as FightComponent;
-                    UnityEngine.Object.Destroy(fightComponent);
+                    Object.Destroy(fightComponent);
                 }
                 catch
                 {
@@ -176,8 +298,6 @@ namespace CoreGame.Services
 
             _fightComponents.Clear();
             _fightComponents = null;
-
-
         }
 
         private void HideCharacters()

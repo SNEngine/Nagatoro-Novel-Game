@@ -14,6 +14,7 @@ namespace CoreGame.FightSystem.UI
         [SerializeField] private ClickableText _waitButton;
         [SerializeField] private ClickableText _guardButton;
         [SerializeField] private ClickableText _skillButton;
+        [SerializeField] private RectTransform _panelAction;
 
         [SerializeField, Min(0)] private float _durationChangeHealth = 0.3f;
         [SerializeField] private Ease _easeHealthAnimation = Ease.InBounce;
@@ -51,6 +52,16 @@ namespace CoreGame.FightSystem.UI
         public void Hide()
         {
             gameObject.SetActive(false);
+        }
+
+        public void HidePanelAction ()
+        {
+            _panelAction.gameObject.SetActive(false);
+        }
+
+        public void ShowPanelAction()
+        {
+            _panelAction.gameObject.SetActive(true);
         }
 
         private void OnDisable()
