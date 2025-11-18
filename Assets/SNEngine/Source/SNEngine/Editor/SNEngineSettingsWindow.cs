@@ -1,38 +1,97 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
+using DG.Tweening;
 
-namespace SNEngine.Editor
+namespace CoreGame.FightSystem.UI
 {
-    public class SNEngineSettingsWindow : EditorWindow
+
+    [RequireComponent(typeof(Image))]
+    public class FillSlider : MonoBehaviour
     {
-        [MenuItem("SNEngine/Settings")]
-        public static void ShowWindow()
+        [SerializeField]
+        private float _value;
+
+        [SerializeField, Min(0)]
+        private float _maxValue = 1;
+
+        [Header("DOTween Settings")]
+        [SerializeField]
+        private float _smoothDuration = 0.3f;
+
+        private Tweener _valueTweener;
+
+        private Image _fillImage;
+
+        public float Value
         {
-            GetWindow<SNEngineSettingsWindow>("SNEngine Settings");
+            get => _value;
+            set
+            {
+                _valueTweener?.Kill();
+                _value = Mathf.Clamp(value, 0, _maxValue);
+                UpdateFill();
+            }
         }
 
-        private void OnGUI()
+        public float MaxValue
         {
-            GUILayout.Label("SNEngine Editor Preferences", EditorStyles.boldLabel);
-
-            EditorGUI.BeginChangeCheck();
-
-            bool showGuid = EditorGUILayout.Toggle("Show Node GUID", SNEngineEditorSettings.ShowNodeGuidInInspector);
-
-            if (EditorGUI.EndChangeCheck())
+            get => _maxValue;
+            set
             {
-                SNEngineEditorSettings.ShowNodeGuidInInspector = showGuid;
+                _maxValue = Mathf.Max(0, value);
+                _value = Mathf.Clamp(_value, 0, _maxValue);
+                UpdateFill();
+            }
+        }
 
-                UnityEditor.SceneView.RepaintAll();
-                EditorWindow[] windows = Resources.FindObjectsOfTypeAll<EditorWindow>();
-                foreach (EditorWindow window in windows)
-                {
-                    window.Repaint();
-                }
+        private void Awake()
+        {
+            _fillImage = GetComponent<Image>();
+            UpdateFill();
+        }
+
+        public void SetValueSmoothly(float targetValue, float? duration = null, Ease ease = Ease.OutSine)
+        {
+            float clampedTarget = Mathf.Clamp(targetValue, 0, _maxValue);
+            float finalDuration = duration ?? _smoothDuration;
+
+            if (_value.Equals(clampedTarget) && (_valueTweener == null || !_valueTweener.IsActive()))
+            {
+                return;
             }
 
-            EditorGUILayout.Space(10);
-            EditorGUILayout.HelpBox("This setting controls whether the unique GUID is displayed in the Node Inspector for debugging purposes.", MessageType.Info);
+            _valueTweener?.Kill();
+
+            _valueTweener = DOTween.To(() => _value,
+                                       x =>
+                                       {
+                                           _value = x;
+                                           UpdateFill();
+                                       },
+                                       clampedTarget,
+                                       finalDuration)
+                               .SetEase(ease);
+
+        }
+
+        private void UpdateFill()
+        {
+            if (!_fillImage)
+            {
+                _fillImage = GetComponent<Image>();
+                if (!_fillImage) return;
+            }
+
+            _value = Mathf.Clamp(_value, 0, _maxValue);
+
+            _fillImage.fillAmount = (_maxValue > 0) ? (_value / _maxValue) : 0;
+        }
+
+        private void OnValidate()
+        {
+            _maxValue = Mathf.Max(0, _maxValue);
+            _value = Mathf.Clamp(_value, 0, _maxValue);
+            UpdateFill();
         }
     }
 
