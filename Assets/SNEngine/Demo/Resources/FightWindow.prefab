@@ -302,8 +302,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c548555fdfcb2f4da0c70f3b3e8185b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _healthPlayer: {fileID: 245454074323304918}
-  _healthEnemy: {fileID: 1083353567762513864}
+  _healthPlayer: {fileID: 946061133592813240}
+  _healthEnemy: {fileID: 7663213015350287177}
+  _attackButton: {fileID: 3196243387944814931}
+  _waitButton: {fileID: 565286335226884429}
+  _guardButton: {fileID: 4296291491654518440}
+  _skillButton: {fileID: 1186854234323263914}
+  _durationChangeHealth: 0.3
+  _easeHealthAnimation: 5
 --- !u!1 &2946172108558249509
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,7 +321,6 @@ GameObject:
   - component: {fileID: 5702169939068388022}
   - component: {fileID: 2051210134937534226}
   - component: {fileID: 2465524235359812472}
-  - component: {fileID: 1083353567762513864}
   m_Layer: 5
   m_Name: bossHealth
   m_TagString: Untagged
@@ -381,20 +386,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1083353567762513864
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2946172108558249509}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db60300854c722f4a81a062536cd7546, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _value: 0
-  _maxValue: 100
 --- !u!1 &3702608203958958561
 GameObject:
   m_ObjectHideFlags: 0
@@ -641,6 +632,7 @@ GameObject:
   - component: {fileID: 1532960325317865476}
   - component: {fileID: 1211010127261524189}
   - component: {fileID: 4785781861885730278}
+  - component: {fileID: 946061133592813240}
   m_Layer: 5
   m_Name: fill
   m_TagString: Untagged
@@ -700,11 +692,26 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 1
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &946061133592813240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5610391363608905672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db60300854c722f4a81a062536cd7546, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _value: 0
+  _maxValue: 100
+  _smoothDuration: 0.3
 --- !u!1 &6178749914803917519
 GameObject:
   m_ObjectHideFlags: 0
@@ -885,7 +892,6 @@ GameObject:
   - component: {fileID: 8331984381070419225}
   - component: {fileID: 7196240627787089730}
   - component: {fileID: 4259636536692267083}
-  - component: {fileID: 245454074323304918}
   m_Layer: 5
   m_Name: playerHealth
   m_TagString: Untagged
@@ -951,20 +957,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &245454074323304918
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7037754512418038386}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db60300854c722f4a81a062536cd7546, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _value: 0
-  _maxValue: 100
 --- !u!1 &7233964057450869556
 GameObject:
   m_ObjectHideFlags: 0
@@ -976,6 +968,7 @@ GameObject:
   - component: {fileID: 7155890302437899087}
   - component: {fileID: 5568465987559371807}
   - component: {fileID: 1849718963484321441}
+  - component: {fileID: 7663213015350287177}
   m_Layer: 5
   m_Name: fill
   m_TagString: Untagged
@@ -1035,11 +1028,26 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 1
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7663213015350287177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7233964057450869556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db60300854c722f4a81a062536cd7546, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _value: 0
+  _maxValue: 100
+  _smoothDuration: 0.3
 --- !u!1 &7823553840169096325
 GameObject:
   m_ObjectHideFlags: 0

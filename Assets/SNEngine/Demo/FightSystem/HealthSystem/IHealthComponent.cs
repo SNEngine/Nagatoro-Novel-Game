@@ -10,5 +10,6 @@ namespace CoreGame.FightSystem.HealthSystem
         event Action OnDied;
         void TakeDamage(float damage);
         void Heal(float amount);
+        void SetData(float initialMaxHealth);
     }
 }

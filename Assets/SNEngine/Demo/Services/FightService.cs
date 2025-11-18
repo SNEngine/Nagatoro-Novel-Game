@@ -1,5 +1,4 @@
-﻿
-using CoreGame.FightSystem;
+﻿using CoreGame.FightSystem;
 using CoreGame.FightSystem.Models;
 using CoreGame.FightSystem.UI;
 using SNEngine;
@@ -9,6 +8,9 @@ using SNEngine.Services;
 using SNEngine.Utils;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using Object = UnityEngine.Object;
+
 namespace CoreGame.Services
 {
     [CreateAssetMenu(menuName = "SNEngine/Service/New FightService")]
@@ -19,6 +21,11 @@ namespace CoreGame.Services
         private Dictionary<Character, IFightComponent> _fightComponents;
         private IFightWindow _fightWindow;
         private const string FIGHT_WINDOW_VANILLA_PATH = "FightWindow";
+        private FightTurnOwner _fightTurnOwner = FightTurnOwner.Player;
+
+        private FightCharacter _playerCharacter;
+        private FightCharacter _enemyCharacter;
+
         public override void Initialize()
         {
             _characterService = NovelGame.Instance.GetService<CharacterService>();
@@ -45,6 +52,10 @@ namespace CoreGame.Services
 
         public override void ResetState()
         {
+            if (_fightWindow != null)
+            {
+                _fightWindow.OnTurnExecuted -= OnPlayerTurnExecuted;
+            }
             HideCharacters();
             ClearupFightComponents();
             _currentStatsCharacters = null;
@@ -53,12 +64,75 @@ namespace CoreGame.Services
 
         public void TurnFight(FightCharacter playerCharacter, FightCharacter enemyCharacter)
         {
+            _playerCharacter = playerCharacter;
+            _enemyCharacter = enemyCharacter;
+
             _currentStatsCharacters = new();
             _fightComponents = new();
             ShowCharacter(playerCharacter.ReferenceCharacter);
             ShowCharacter(enemyCharacter.ReferenceCharacter);
             SetupCharacterForFight(playerCharacter);
             SetupCharacterForFight(enemyCharacter);
+            _fightWindow.SetData(_fightComponents[playerCharacter.ReferenceCharacter], _fightComponents[enemyCharacter.ReferenceCharacter]);
+
+            _fightWindow.OnTurnExecuted += OnPlayerTurnExecuted;
+
+            _fightWindow.Show();
+            _fightTurnOwner = FightTurnOwner.Player;
+        }
+
+        private void OnPlayerTurnExecuted(PlayerAction action)
+        {
+            if (_fightTurnOwner != FightTurnOwner.Player)
+            {
+                return;
+            }
+
+            HandlePlayerAction(action);
+
+            _fightTurnOwner = FightTurnOwner.Enemy;
+            _fightWindow.Hide();
+
+            ExecuteEnemyTurn();
+        }
+
+        private void HandlePlayerAction(PlayerAction action)
+        {
+            IFightComponent enemyComp = _fightComponents[_enemyCharacter.ReferenceCharacter];
+
+            switch (action)
+            {
+                case PlayerAction.Attack:
+                    HandleAttackAction(enemyComp, 10f);
+                    break;
+                case PlayerAction.Guard:
+                    // Logic for Guard
+                    break;
+                case PlayerAction.Wait:
+                    // Logic for Wait
+                    break;
+                case PlayerAction.Skill:
+                    // Logic for Skill
+                    break;
+            }
+        }
+
+        private void HandleAttackAction(IFightComponent target, float damage)
+        {
+            target.HealthComponent.TakeDamage(damage);
+        }
+
+        private void ExecuteEnemyTurn()
+        {
+            // Здесь должна быть логика хода противника (AI, анимация, задержка)
+
+            // Сейчас просто немедленно завершаем ход противника
+            CompleteEnemyTurn();
+        }
+
+        private void CompleteEnemyTurn()
+        {
+            _fightTurnOwner = FightTurnOwner.Player;
             _fightWindow.Show();
         }
 
@@ -70,10 +144,12 @@ namespace CoreGame.Services
             ICharacterRenderer characterRenderer = _characterService.GetWorldCharacter(character.ReferenceCharacter);
             IFightComponent fightComponent = characterRenderer.AddComponent<FightComponent>();
             fightComponent.AddComponents();
+            fightComponent.HealthComponent.SetData(character.Health);
+            fightComponent.ManaComponent.SetData(character.Mana);
             _fightComponents.Add(character.ReferenceCharacter, fightComponent);
         }
 
-        private void ShowCharacter (Character character)
+        private void ShowCharacter(Character character)
         {
             _characterService.ShowCharacter(character);
         }
@@ -83,10 +159,10 @@ namespace CoreGame.Services
             _characterService.HideCharacter(character);
         }
 
-        private void ClearupFightComponents ()
+        private void ClearupFightComponents()
         {
-                foreach (var component in _fightComponents)
-                {
+            foreach (var component in _fightComponents)
+            {
                 try
                 {
                     FightComponent fightComponent = component.Value as FightComponent;
@@ -96,15 +172,15 @@ namespace CoreGame.Services
                 {
                     continue;
                 }
-                }
-
-                _fightComponents.Clear();
-                _fightComponents = null;
-
-                
             }
 
-        private void HideCharacters ()
+            _fightComponents.Clear();
+            _fightComponents = null;
+
+
+        }
+
+        private void HideCharacters()
         {
             foreach (var fightComponent in _fightComponents)
             {
@@ -112,5 +188,5 @@ namespace CoreGame.Services
                 HideCharacter(character);
             }
         }
-        }
     }
+}
