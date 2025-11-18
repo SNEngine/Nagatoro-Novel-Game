@@ -384,6 +384,18 @@ namespace SNEngine.Services
 
             await characterRender.Illuminate(duration, animationBehaviour, ease);
         }
+
+        public Vector3 GetCharacterWorldPosition(Character character)
+        {
+            var getedCharacter = GetWorldCharacter(character) as CharacterRenderer;
+            if (getedCharacter.SpriteIsSeted)
+            {
+                return getedCharacter.transform.position;
+            }
+
+            return Vector3.zero;
+
+        }
         #endregion
     }
 }

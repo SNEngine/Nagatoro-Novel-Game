@@ -17,6 +17,8 @@ namespace SNEngine.CharacterSystem
 
         private Material _defaultMaterial;
 
+        public bool SpriteIsSeted => _spriteRenderer.sprite != null;
+
         private void Awake()
         {
             if (!TryGetComponent(out _spriteRenderer))

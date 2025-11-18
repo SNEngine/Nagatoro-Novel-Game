@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 using CoreGame.FightSystem.HealthSystem.Models;
 
@@ -57,7 +56,6 @@ namespace CoreGame.FightSystem.HealthSystem
 
         private void HandleHealthChanged(float current, float max)
         {
-            Debug.Log($"{gameObject.name} Health: {current} / {max}");
             OnHealthChanged?.Invoke(current, max);
         }
 
@@ -65,7 +63,6 @@ namespace CoreGame.FightSystem.HealthSystem
         {
             _healthModel.OnHealthChanged -= HandleHealthChanged;
             _healthModel.OnDied -= HandleDied;
-            Debug.Log($"{gameObject.name} has died!");
             OnDied?.Invoke();
         }
 

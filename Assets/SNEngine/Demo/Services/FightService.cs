@@ -14,6 +14,7 @@ using Object = UnityEngine.Object;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using DG.Tweening;
+using SNEngine.Polling;
 
 namespace CoreGame.Services
 {
@@ -25,13 +26,17 @@ namespace CoreGame.Services
         private Dictionary<Character, CharacterFightData> _currentStatsCharacters;
         private Dictionary<Character, IFightComponent> _fightComponents;
         private IFightWindow _fightWindow;
-        private const string FIGHT_WINDOW_VANILLA_PATH = "FightWindow";
+        private const string FIGHT_WINDOW_VANILLA_PATH = "UI/FightWindow";
+        private const string HEAL_TEXT_VANILLA_PATH = "UI/HealText";
+        private const string DAMAGE_TEXT_VANILLA_PATH = "UI/DamageText";
         private const float ENEMY_TURN_DELAY = 0.5f;
         private FightTurnOwner _fightTurnOwner = FightTurnOwner.Player;
 
         private FightCharacter _playerCharacter;
         private FightCharacter _enemyCharacter;
         private AIFighter _aiFighter;
+        private PoolMono<HealText> _poolHealText;
+        private PoolMono<DamageText> _poolDamageText;
 
         private bool _isPlayerGuarding;
         private bool _isEnemyGuarding;
@@ -53,6 +58,10 @@ namespace CoreGame.Services
             var ui = NovelGame.Instance.GetService<UIService>();
 
             var input = ResourceLoader.LoadCustomOrVanilla<FightWindow>(FIGHT_WINDOW_VANILLA_PATH);
+            var healTextPrefab = ResourceLoader.LoadCustomOrVanilla<HealText>(HEAL_TEXT_VANILLA_PATH);
+            var damageTextPrefab = ResourceLoader.LoadCustomOrVanilla<DamageText>(DAMAGE_TEXT_VANILLA_PATH);
+            var containerTexts = new GameObject("Floating Texts");
+            containerTexts.AddComponent<RectTransform>();
 
             if (input == null)
             {
@@ -68,6 +77,11 @@ namespace CoreGame.Services
             ui.AddElementToUIContainer(prefab.gameObject);
 
             prefab.gameObject.SetActive(false);
+            containerTexts.transform.SetParent(prefab.transform, false);
+            _poolHealText = new(healTextPrefab, containerTexts.transform, 9, true);
+            _poolDamageText = new(damageTextPrefab, containerTexts.transform, 9, true);
+
+
         }
 
         public override void ResetState()
@@ -120,6 +134,8 @@ namespace CoreGame.Services
                 return;
             }
 
+            _fightWindow.HidePanelAction();
+
             await HandlePlayerAction(action);
 
             if (CheckFightEndConditions())
@@ -128,7 +144,6 @@ namespace CoreGame.Services
             }
 
             _fightTurnOwner = FightTurnOwner.Enemy;
-            _fightWindow.HidePanelAction();
 
             ExecuteEnemyTurn().Forget();
         }
@@ -203,6 +218,13 @@ namespace CoreGame.Services
             }
 
             targetComponent.HealthComponent.TakeDamage(finalDamage);
+
+            DamageText damageText = _poolDamageText.GetFreeElement();
+            Vector3 worldPosition = _characterService.GetCharacterWorldPosition(targetCharacter.ReferenceCharacter);
+
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
+
+            damageText.Show(finalDamage, screenPosition).Forget();
 
             if (targetComponent.HealthComponent.CurrentHealth > 0)
             {
