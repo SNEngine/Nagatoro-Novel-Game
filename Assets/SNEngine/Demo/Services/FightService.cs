@@ -33,7 +33,11 @@ namespace CoreGame.Services
         private AIFighter _aiFighter;
         private PoolMono<HealText> _poolHealText;
         private PoolMono<DamageText> _poolDamageText;
+        private PoolMono<CriticalDamageText> _poolCriticalDamageText;
         private Dictionary<Character, float> _healthBeforeLastAction;
+
+        private Dictionary<Character, bool> _wasLastHitCritical;
+
         private const string FIGHT_WINDOW_VANILLA_PATH = "UI/FightWindow";
         private const float ENEMY_TURN_DELAY = 0.5f;
         private FightTurnOwner _fightTurnOwner = FightTurnOwner.Player;
@@ -75,6 +79,7 @@ namespace CoreGame.Services
             containerTexts.transform.SetParent(prefab.transform, false);
             _poolHealText = new(healTextPrefab, containerTexts.transform, 9, true);
             _poolDamageText = new(damageTextPrefab, containerTexts.transform, 9, true);
+            _poolCriticalDamageText = new(criticalDamageTextPrefab, containerTexts.transform, 9, true);
         }
 
         public override void ResetState()
@@ -90,6 +95,7 @@ namespace CoreGame.Services
             _isPlayerGuarding = false;
             _isEnemyGuarding = false;
             _healthBeforeLastAction = null;
+            _wasLastHitCritical = null;
         }
         #endregion
 
@@ -100,6 +106,11 @@ namespace CoreGame.Services
             _enemyCharacter = enemyCharacter;
             _fightComponents = new();
             _healthBeforeLastAction = new();
+            _wasLastHitCritical = new()
+            {
+                { playerCharacter.ReferenceCharacter, false },
+                { enemyCharacter.ReferenceCharacter, false }
+            };
             SetupCharacterForFight(playerCharacter);
             SetupCharacterForFight(enemyCharacter);
             _player = _fightComponents[playerCharacter.ReferenceCharacter];
@@ -201,9 +212,12 @@ namespace CoreGame.Services
         private async UniTask HandleAttackAction(IFightComponent targetComponent, float baseDamage, FightCharacter targetCharacter, FightCharacter attackerCharacter)
         {
             float finalDamage = baseDamage;
+            bool isCritical = false;
+
             if (UnityEngine.Random.Range(0f, 1f) < attackerCharacter.CriticalHitChance)
             {
                 finalDamage *= attackerCharacter.CriticalHitMultiplier;
+                isCritical = true;
             }
 
             bool isTargetGuarding = targetCharacter == _playerCharacter ? _isPlayerGuarding : _isEnemyGuarding;
@@ -215,7 +229,10 @@ namespace CoreGame.Services
                 else _isEnemyGuarding = false;
             }
 
+            _wasLastHitCritical[targetCharacter.ReferenceCharacter] = isCritical;
+
             targetComponent.HealthComponent.TakeDamage(finalDamage);
+
 
             if (targetComponent.HealthComponent.CurrentHealth > 0)
             {
@@ -276,7 +293,16 @@ namespace CoreGame.Services
             }
             else
             {
-                _poolDamageText.GetFreeElement().Show(Mathf.Abs(delta), screenPosition).Forget();
+                float damage = Mathf.Abs(delta);
+                if (_wasLastHitCritical.GetValueOrDefault(character, false))
+                {
+                    _poolCriticalDamageText.GetFreeElement().Show(damage, screenPosition).Forget();
+                    _wasLastHitCritical[character] = false;
+                }
+                else
+                {
+                    _poolDamageText.GetFreeElement().Show(damage, screenPosition).Forget();
+                }
             }
 
             _healthBeforeLastAction[character] = currentHealth;
