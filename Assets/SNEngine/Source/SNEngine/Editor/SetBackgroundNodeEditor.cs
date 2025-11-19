@@ -15,7 +15,7 @@ namespace SNEngine.Editor
 
             if (node.Sprite != null)
             {
-                Rect rect = new Rect(160, 55, 46, 46);
+                Rect rect = new Rect(160, 35, 46, 46);
 
                 GUI.DrawTexture(rect, node.Sprite.texture);
             }
