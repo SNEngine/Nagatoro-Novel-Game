@@ -2,7 +2,7 @@
 
 namespace SNEngine.DialogSystem
 {
-    public interface IOldRenderDialogue
+    public interface IOldRenderDialogue : IResetable
     {
         Texture2D UpdateRender();
 

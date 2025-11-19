@@ -147,8 +147,9 @@ namespace CoreGame.Services
                         Object.Destroy(fightComponent);
                     }
                 }
+                _fightComponents.Clear();
             }
-            _fightComponents.Clear();
+           
         }
 
         private void HideCharacters()

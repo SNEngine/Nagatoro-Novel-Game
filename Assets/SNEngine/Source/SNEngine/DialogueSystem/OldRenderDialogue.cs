@@ -89,8 +89,17 @@ namespace SNEngine.DialogSystem
                 Destroy(_spriteRenderer.sprite);
                 _spriteRenderer.sprite = null;
             }
+        }
 
-            gameObject.SetActive(false);
+        public void ResetState()
+        {
+            _spriteRenderer.enabled = false;
+
+            if (_spriteRenderer.sprite != null)
+            {
+                Destroy(_spriteRenderer.sprite);
+                _spriteRenderer.sprite = null;
+            }
         }
     }
-}
+    }

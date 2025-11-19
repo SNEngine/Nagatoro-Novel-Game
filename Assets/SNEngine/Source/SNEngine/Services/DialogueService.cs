@@ -75,23 +75,17 @@ namespace SNEngine.Services
 
             OnEndDialogue?.Invoke(_currentDialogue);
 
-            ClearScreen().Forget();
+            ClearScreen();
         }
 
 
-        private async UniTask ClearScreen()
+        private void ClearScreen()
         {
             Texture2D capturedFrame = _oldRenderDialogueService.UpdateRender();
 
             _oldRenderDialogueService.DisplayFrame(capturedFrame);
 
             NovelGame.Instance.ResetStateServices();
-
-            await UniTask.WaitForEndOfFrame();
-
-            await UniTask.Delay(TIME_OUT_WAIT_TO_NEW_RENDERER);
-
-            _oldRenderDialogueService.HideFrame();
 
         }
     }

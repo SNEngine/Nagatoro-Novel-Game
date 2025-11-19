@@ -1,4 +1,5 @@
-﻿using SNEngine.DialogSystem;
+﻿using Cysharp.Threading.Tasks;
+using SNEngine.DialogSystem;
 using UnityEngine;
 
 namespace SNEngine.Services
@@ -7,6 +8,7 @@ namespace SNEngine.Services
     public class RenderOldDialogueService : ServiceBase, IService, IOldRenderDialogue
     {
         private IOldRenderDialogue _renderDialogue;
+        private const int TIME_OUT_WAIT_TO_NEW_RENDERER = 35;
 
         public override void Initialize()
         {
@@ -34,6 +36,13 @@ namespace SNEngine.Services
         public void HideFrame()
         {
            _renderDialogue.HideFrame();
+        }
+
+        public override async void ResetState()
+        {
+            await UniTask.Delay(TIME_OUT_WAIT_TO_NEW_RENDERER);
+            await UniTask.WaitForEndOfFrame();
+            _renderDialogue.ResetState();
         }
     }
 }
