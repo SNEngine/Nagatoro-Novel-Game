@@ -19,8 +19,9 @@ namespace SNEngine.VideoPlayerSystem
             input.Clip = _video;
             input.Show();
             input.Play();
-            await UniTask.WaitUntil(() => input.IsPlaying);
-            await UniTask.WaitUntil(() => !input.IsPlaying);
+            
+            await UniTask.WaitUntil(() => input.IsPlaying, cancellationToken: TokenSource.Token);
+            await UniTask.WaitUntil(() => !input.IsPlaying, cancellationToken: TokenSource.Token);
             StopTask();
         }
     }
