@@ -26,6 +26,8 @@ namespace CoreGame.Services
         private Dictionary<Character, CharacterFightData> _currentStatsCharacters;
         private Dictionary<Character, IFightComponent> _fightComponents;
         private IFightWindow _fightWindow;
+        private IFightComponent _player;
+        private IFightComponent _enemy;
         private const string FIGHT_WINDOW_VANILLA_PATH = "UI/FightWindow";
         private const string HEAL_TEXT_VANILLA_PATH = "UI/HealText";
         private const string DAMAGE_TEXT_VANILLA_PATH = "UI/DamageText";
@@ -49,6 +51,9 @@ namespace CoreGame.Services
         [SerializeField] private Color _hitColor = new Color(1f, 0f, 0f, 1f);
         [SerializeField] private float _hitColorDuration = 0.1f;
         [SerializeField] private Ease _hitColorEase = Ease.Linear;
+
+        public IFightComponent Player => _player;
+        public IFightComponent Enemy => _enemy;
 
         public event Action<FightResult> OnFightEnded;
 
@@ -99,6 +104,8 @@ namespace CoreGame.Services
             _currentStatsCharacters = null;
             _fightWindow.ResetState();
             _aiFighter = null;
+            _player = null;
+            _enemy = null;
             _isPlayerGuarding = false;
             _isEnemyGuarding = false;
         }
@@ -117,6 +124,8 @@ namespace CoreGame.Services
 
             IFightComponent playerComp = _fightComponents[playerCharacter.ReferenceCharacter];
             IFightComponent enemyComp = _fightComponents[enemyCharacter.ReferenceCharacter];
+            _player = playerComp;
+            _enemy = enemyComp;
 
             _fightWindow.SetData(playerComp, enemyComp);
 
@@ -129,6 +138,8 @@ namespace CoreGame.Services
 
             _fightWindow.Show();
             _fightTurnOwner = FightTurnOwner.Player;
+
+          
         }
 
         private async void OnPlayerTurnExecuted(PlayerAction action)
