@@ -18,13 +18,13 @@ namespace SNEngine.Animations.TextEffects
             textMesh = GetComponent<TextMeshProUGUI>();
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             if (_printerText != null)
                 _printerText.OnTextForceCompleted += HandleComplete;
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             if (_printerText != null)
                 _printerText.OnTextForceCompleted -= HandleComplete;
@@ -32,5 +32,6 @@ namespace SNEngine.Animations.TextEffects
 
         private void HandleComplete() => TextForceCompleted(textMesh);
         protected abstract void TextForceCompleted(TextMeshProUGUI textMesh);
+        protected void ResetFlagAnimation() => _printerText.ResetFlagAnimation();
     }
 }

@@ -37,11 +37,14 @@ namespace SNEngine
         {
             _defaultFontTextDialog = _textMessage.font;
             _inputSystem = NovelGame.Instance.GetService<InputService>();
-            _hasTextEffects = GetComponentInChildren<TextEffect>() != null;
         }
 
         public void Hide() => gameObject.SetActive(false);
-        public void Show() => gameObject.SetActive(true);
+        public void Show()
+        {
+            _hasTextEffects = GetComponentInChildren<TextEffect>() != null;
+            gameObject.SetActive(true);
+        }
 
 #if UNITY_STANDALONE
         protected virtual void OnPress(KeyCode key)
@@ -80,12 +83,23 @@ namespace SNEngine
 
         protected virtual void EndWrite()
         {
+            if (_hasTextEffects)
+            {
+                _hasTextEffects = false;
+                ShowAllText();
+                return;
+            }
             if (AllTextWrited)
             {
                 End();
                 return;
             }
 
+            ShowAllText();
+        }
+
+        private void ShowAllText()
+        {
             _cancellationTokenSource?.Cancel();
             _textMessage.text = _currentText;
             OnTextForceCompleted?.Invoke();
@@ -150,7 +164,6 @@ namespace SNEngine
                 await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
             }
 
-            OnTextForceCompleted?.Invoke();
         }
 
         public void SetFontDialog(TMP_FontAsset font)
@@ -174,6 +187,11 @@ namespace SNEngine
             _currentText = string.Empty;
             ResetFont();
             Hide();
+        }
+
+        public void ResetFlagAnimation()
+        {
+            _hasTextEffects = false;
         }
     }
 }

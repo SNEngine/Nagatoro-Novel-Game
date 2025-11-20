@@ -221,5 +221,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _printerText: {fileID: 2400236330731585266}
-  _fadeDuration: 0.85
+  _fadeDuration: 0.25
   _delayBetweenChars: 0.05
+  _showCursor: 0
+  _cursorBlinkSpeed: 0.5
+  _endSymbol: "\u2764\uFE0F"
