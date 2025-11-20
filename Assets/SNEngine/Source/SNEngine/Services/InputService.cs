@@ -40,5 +40,25 @@ namespace SNEngine.Services
         {
             _input.RemoveListener(action, eventType);
         }
+
+        public void AddListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType)
+        {
+            _input.AddListener(action, eventType);
+        }
+
+        public void RemoveListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType)
+        {
+            _input.RemoveListener(action, eventType);
+        }
+
+        public void AddAxisListener(UnityAction<string, float> action, string axisName)
+        {
+            _input.AddAxisListener(action, axisName);
+        }
+
+        public void RemoveAxisListener(UnityAction<string, float> action)
+        {
+            _input.RemoveAxisListener(action);
+        }
     }
 }
