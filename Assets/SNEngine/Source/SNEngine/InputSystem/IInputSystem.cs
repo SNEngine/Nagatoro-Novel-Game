@@ -12,5 +12,13 @@ namespace SNEngine.InputSystem
         void AddListener(UnityAction<Touch> action, MobileInputEventType eventType);
 
         void RemoveListener(UnityAction<Touch> action, MobileInputEventType eventType);
+
+        void AddListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType);
+
+        void RemoveListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType);
+
+        void AddAxisListener(UnityAction<string, float> action, string axisName);
+
+        void RemoveAxisListener(UnityAction<string, float> action);
     }
 }

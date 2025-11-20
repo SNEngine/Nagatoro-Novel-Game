@@ -23,7 +23,6 @@ namespace SNEngine
 
         [SerializeField, Min(0)] private float _speedWriting = 0.3f;
         [SerializeField] private TextMeshProUGUI _textMessage;
-   
 
         private TMP_FontAsset _defaultFontTextDialog;
         private IInputSystem _inputSystem;
@@ -57,6 +56,17 @@ namespace SNEngine
         }
 #endif
 
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+        protected virtual void OnButtonPress(KeyCode key)
+        {
+            if (_cancellationTokenSource != null)
+            {
+                if (key == KeyCode.JoystickButton0)
+                    EndWrite();
+            }
+        }
+#endif
+
         protected virtual void StartOutputDialog(string message)
         {
 #if UNITY_STANDALONE
@@ -65,6 +75,10 @@ namespace SNEngine
 
 #if UNITY_ANDROID || UNITY_IOS
             _inputSystem.AddListener(OnTapScreen, MobileInputEventType.TouchBegan);
+#endif
+
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+            _inputSystem.AddListener(OnButtonPress, GamepadButtonEventType.ButtonDown);
 #endif
 
             if (_hasTextEffects)
@@ -115,6 +129,10 @@ namespace SNEngine
 
 #if UNITY_ANDROID || UNITY_IOS
             _inputSystem.RemoveListener(OnTapScreen, MobileInputEventType.TouchBegan);
+#endif
+
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+            _inputSystem.RemoveListener(OnButtonPress, GamepadButtonEventType.ButtonDown);
 #endif
 
             Hide();
