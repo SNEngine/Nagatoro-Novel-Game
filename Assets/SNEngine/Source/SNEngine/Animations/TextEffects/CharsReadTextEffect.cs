@@ -282,6 +282,8 @@ public class CharsFadeIn : TextEffect
     #region MeshUpdates
     private void ApplyToMesh()
     {
+        if (Component == null || !_verticesFlat.IsCreated || !_colorsFlat.IsCreated) return;
+
         var meshInfo = Component.textInfo.meshInfo;
         int chunks = meshInfo.Length;
 
@@ -311,6 +313,7 @@ public class CharsFadeIn : TextEffect
 
         Component.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32 | TMP_VertexDataUpdateFlags.Vertices);
     }
+
 
     private void SetAllAlphaImmediate(byte alpha)
     {
@@ -351,6 +354,8 @@ public class CharsFadeIn : TextEffect
 
         while (!_forceCompleted)
         {
+            if (Component == null)
+                break;
             if (!VerifyBuffersMatchMesh())
             {
                 BuildFlatBuffers();
