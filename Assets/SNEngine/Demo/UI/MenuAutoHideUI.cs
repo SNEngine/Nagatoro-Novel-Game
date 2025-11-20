@@ -74,7 +74,7 @@ namespace CoreGame.UI
 
         private async void StartInactivityTimer()
         {
-            if (_isUIHidden) return;
+            if (_isUIHidden || !enabled) return;
 
             CancellationToken token = _inactivityCts.Token;
 
@@ -160,6 +160,37 @@ namespace CoreGame.UI
                     .SetLink(rect.gameObject);
             }
             ResetInactivityTimer();
+        }
+
+        private void OnEnable()
+        {
+            DetectMouseMovementAsync();
+            ResetInactivityTimer();
+        }
+
+        private void OnDisable()
+        {
+            _inactivityCts?.Cancel();
+            _inactivityCts?.Dispose();
+            _inactivityCts = null;
+
+            if (_isUIHidden)
+            {
+                for (int i = 0; i < _uiElements.Count; i++)
+                {
+                    RectTransform rect = _uiElements[i];
+                    Vector2 originalPosition = _originalAnchoredPositions[i];
+
+                    rect.DOKill(true);
+                    rect.anchoredPosition = originalPosition;
+
+                    if (rect.TryGetComponent<MenuEffectText>(out var effectText))
+                    {
+                        effectText.enabled = true;
+                    }
+                }
+                _isUIHidden = false;
+            }
         }
 
         private void OnDestroy()
