@@ -15,6 +15,7 @@ namespace SNEngine.Editor.Language.Workers
     {
         public static string PathSave { get; set; }
         private const string TEMPLATE_SOURCE_PATH = "Assets/SNEngine/Source/SNEngine/Resources/Editor/TextTemplates/ui_template.yaml";
+        private const string CUSTOM_TEMPLATE_SOURCE_PATH = "Assets/SNEngine/Source/SNEngine/Resources/Editor/TextTemplates/custom_ui_template.yaml";
         private const string OUTPUT_FILE_NAME = "ui.yaml";
 
         public override async UniTask<LanguageWorkerResult> Work()
@@ -48,6 +49,7 @@ namespace SNEngine.Editor.Language.Workers
             }
 
             Dictionary<string, string> templateData = null;
+            Dictionary<string, string> customTemplateData = null;
             Dictionary<string, string> existingData = null;
 
             try
@@ -63,6 +65,32 @@ namespace SNEngine.Editor.Language.Workers
                 result.Message = error;
                 result.State = LanguageWorkerState.Error;
                 return result;
+            }
+
+            if (NovelFile.Exists(CUSTOM_TEMPLATE_SOURCE_PATH))
+            {
+                try
+                {
+                    string customTemplateYaml = await NovelFile.ReadAllTextAsync(CUSTOM_TEMPLATE_SOURCE_PATH);
+                    Serializer deserializer = new Serializer();
+                    customTemplateData = deserializer.Deserialize<Dictionary<string, string>>(customTemplateYaml);
+                }
+                catch (Exception ex)
+                {
+                    NovelGameDebug.LogError($"[{nameof(UITemplateLanguageWorkerEditor)}] Failed to read/deserialize custom template file: {ex.Message}. Ignoring custom template.");
+                }
+            }
+
+            Dictionary<string, string> combinedTemplate = new Dictionary<string, string>();
+            if (templateData != null)
+            {
+                foreach (var kvp in templateData)
+                    combinedTemplate[kvp.Key] = kvp.Value;
+            }
+            if (customTemplateData != null)
+            {
+                foreach (var kvp in customTemplateData)
+                    combinedTemplate[kvp.Key] = kvp.Value;
             }
 
             if (NovelFile.Exists(fullPath))
@@ -82,7 +110,7 @@ namespace SNEngine.Editor.Language.Workers
                 }
             }
 
-            Dictionary<string, string> mergedData = MergeUIData(existingData, templateData);
+            Dictionary<string, string> mergedData = MergeUIData(existingData, combinedTemplate);
 
             try
             {
