@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
-using CoreGame.FightSystem;
+﻿using CoreGame.FightSystem;
+using CoreGame.FightSystem.Abilities;
+using CoreGame.Services;
 using DG.Tweening;
+using SNEngine;
 using SNEngine.Polling;
+using System;
+using System.Collections;
 using System.Linq;
+using UnityEngine;
 
 namespace CoreGame.FightSystem.UI
 {
@@ -49,6 +52,11 @@ namespace CoreGame.FightSystem.UI
         private PoolMono<EnergyFill> _poolEnergyFillsPlayer;
         private PoolMono<EnergyFill> _poolEnergyFillsEnemy;
 
+        private FightCharacter _playerData;
+        private FightCharacter _enemyData;
+
+        private FightService _fightService;
+
         private void Awake()
         {
             _playerHealthParentRT = _healthPlayer.transform.parent.GetComponent<RectTransform>();
@@ -75,15 +83,42 @@ namespace CoreGame.FightSystem.UI
 
         }
 
-        private void ShowEnergyPoints(PoolMono<EnergyFill> pool, FightCharacter fightCharacter)
+        private void ShowEnergyPoints(PoolMono<EnergyFill> pool, FightCharacter fightCharacter, float currentEnergy)
         {
-            for (int i = 0; i < fightCharacter.EnergyPoint; i++)
+            int maxEnergy = fightCharacter.EnergyPoint;
+            int currentFillCount = Mathf.CeilToInt(currentEnergy);
+
+            for (int i = 0; i < maxEnergy; i++)
             {
                 var fill = pool.Objects.ElementAt(i);
                 fill.gameObject.SetActive(true);
-                fill.SetStateFull();
+
+                if (i >= maxEnergy - currentFillCount)
+                {
+                    fill.SetStateFull();
+                }
+                else
+                {
+                    fill.SetStateEmpty();
+                }
             }
         }
+
+        private void UpdateEnergyAfterAbility(FightCharacter user, ScriptableAbility ability, float currentEnergy)
+        {
+            bool isPlayer = user == _playerData;
+
+            if (isPlayer)
+            {
+                ShowEnergyPoints(_poolEnergyFillsPlayer, _playerData, currentEnergy);
+            }
+            else
+            {
+                ShowEnergyPoints(_poolEnergyFillsEnemy, _enemyData, currentEnergy);
+            }
+        }
+
+
         private void OnClickButtonAction(PlayerAction action)
         {
             OnTurnExecuted?.Invoke(action);
@@ -97,6 +132,10 @@ namespace CoreGame.FightSystem.UI
 
         public void ResetState()
         {
+            if (_fightService != null)
+            {
+                _fightService.OnAbilityUsed -= UpdateEnergyAfterAbility;
+            }
         }
 
         private Tweener AnimateUIElement(RectTransform rectTransform, Vector2 endPosition)
@@ -108,6 +147,9 @@ namespace CoreGame.FightSystem.UI
 
         public void Show()
         {
+            _fightService = NovelGame.Instance.GetService<FightService>();
+            _fightService.OnAbilityUsed += UpdateEnergyAfterAbility;
+
             _panelAction.gameObject.SetActive(true);
             _abilityWindow.gameObject.SetActive(false);
             _panelListActions.gameObject.SetActive(true);
@@ -135,6 +177,10 @@ namespace CoreGame.FightSystem.UI
 
         public void Hide()
         {
+            if (_fightService != null)
+            {
+                _fightService.OnAbilityUsed -= UpdateEnergyAfterAbility;
+            }
             Sequence hideSequence = DOTween.Sequence();
             hideSequence.SetLink(gameObject);
 
@@ -162,7 +208,7 @@ namespace CoreGame.FightSystem.UI
             _panelAction.gameObject.SetActive(true);
         }
 
-        public void HidePanelSkills ()
+        public void HidePanelSkills()
         {
             _abilityWindow.gameObject.SetActive(false);
             _panelListActions.gameObject.SetActive(true);
@@ -179,13 +225,17 @@ namespace CoreGame.FightSystem.UI
 
         public void SetData(IFightComponent fightComponentPlayer, IFightComponent fightComponentEnemy, FightCharacter playerData, FightCharacter enemyData)
         {
+            _playerData = playerData;
+            _enemyData = enemyData;
+
             fightComponentEnemy.HealthComponent.OnHealthChanged += OnHealthChangedEnemy;
             fightComponentPlayer.HealthComponent.OnHealthChanged += OnHealthChangedPlayer;
             _healthEnemy.MaxValue = fightComponentEnemy.HealthComponent.MaxHealth;
             _healthEnemy.SetValueSmoothly(fightComponentEnemy.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
             _healthPlayer.SetValueSmoothly(fightComponentPlayer.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
-            ShowEnergyPoints(_poolEnergyFillsEnemy, enemyData);
-            ShowEnergyPoints(_poolEnergyFillsPlayer, playerData);
+
+            ShowEnergyPoints(_poolEnergyFillsEnemy, enemyData, enemyData.EnergyPoint);
+            ShowEnergyPoints(_poolEnergyFillsPlayer, playerData, playerData.EnergyPoint);
         }
 
         private void OnHealthChangedPlayer(float current, float max)

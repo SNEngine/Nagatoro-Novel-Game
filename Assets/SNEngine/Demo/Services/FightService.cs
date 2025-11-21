@@ -62,7 +62,7 @@ namespace CoreGame.Services
         public FightCharacter EnemyData { get; private set; }
 
         public event Action<FightResult> OnFightEnded;
-        public event Action<FightCharacter, ScriptableAbility> OnAbilityUsed;
+        public event Action<FightCharacter, ScriptableAbility, float> OnAbilityUsed;
         #endregion
 
         #region Service Lifecycle
@@ -303,7 +303,7 @@ namespace CoreGame.Services
                 abilityEntity.CurrentCooldown = ability.Cooldown;
                
                 abilityEntity.Turn();
-
+                OnAbilityUsed?.Invoke(fightCharacter, ability, _currentEnergyData[fightCharacter]);
                 await HandleAbilityUsage(fightCharacter, ability);
             }
         }
@@ -312,7 +312,6 @@ namespace CoreGame.Services
         {
             _fightWindow.HidePanelSkills();
             _fightWindow.HidePanelAction();
-            OnAbilityUsed?.Invoke(fightCharacter, ability);
             await UniTask.Delay(TimeSpan.FromSeconds(ability.Duration), DelayType.DeltaTime, PlayerLoopTiming.Update, CancellationToken.None);
 
             if (CheckFightEndConditions()) return;
