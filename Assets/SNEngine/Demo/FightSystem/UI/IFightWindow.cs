@@ -9,5 +9,6 @@ namespace CoreGame.FightSystem.UI
         void SetData(IFightComponent fightComponentPlayer, IFightComponent fightComponentEnemy, FightCharacter plaerData, FightCharacter enemyData);
         void ShowPanelAction();
         void HidePanelAction();
+        void HidePanelSkills();
     }
 }

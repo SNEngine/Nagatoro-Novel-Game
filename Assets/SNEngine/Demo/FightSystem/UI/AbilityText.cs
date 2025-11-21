@@ -14,6 +14,7 @@ namespace CoreGame.FightSystem.UI
 
         public event Action<ScriptableAbility> OnHover;
         public event Action<ScriptableAbility> OnExitHover;
+        public event EventHandler OnClickAbility;
         [SerializeField] private UILocalizationText _localizeComponent;
 
         public ScriptableAbility Ability { get; private set; }
@@ -43,9 +44,27 @@ namespace CoreGame.FightSystem.UI
             OnExitHover?.Invoke(Ability);
         }
 
+        public override void OnPointerClick(PointerEventData eventData)
+        {
+            base.OnPointerClick(eventData);
+            OnClickAbility?.Invoke(this, new AbilityEventArgs(Ability));
+        }
+
         private void OnEnable()
         {
 
+        }
+
+        
+    }
+
+    public class AbilityEventArgs : EventArgs
+    {
+
+        public ScriptableAbility Ability { get; private set; }
+        public AbilityEventArgs(ScriptableAbility ability)
+        {
+            Ability = ability;
         }
     }
 }

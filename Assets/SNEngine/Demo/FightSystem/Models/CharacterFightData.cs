@@ -11,7 +11,7 @@ namespace CoreGame.FightSystem.Models
     {
         public string GUID {  get; set; }
         public float CurrentHealth { get; set; }
-        public float CurrentMana { get; set; }
+        public float CurrentEnergy { get; set; }
         public CharacterFightData ()
         {
 
@@ -20,7 +20,7 @@ namespace CoreGame.FightSystem.Models
         {
             GUID = fightCharacter.ReferenceCharacter.GUID;
             CurrentHealth = fightCharacter.Health;
-            CurrentMana = fightCharacter.Mana;
+            CurrentEnergy = fightCharacter.EnergyPoint;
         }
     }
 }

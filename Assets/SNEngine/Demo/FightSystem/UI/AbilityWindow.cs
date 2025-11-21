@@ -3,6 +3,7 @@ using CoreGame.FightSystem.UI.Markers;
 using CoreGame.Services;
 using SNEngine;
 using SNEngine.Polling;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace CoreGame.FightSystem.UI
     {
         [SerializeField] private AbilityText _prefab;
         [SerializeField] private RectTransform _containerAbility;
+
         [SerializeField] private TooltipWindow _tooltipWindow;
 
         private PoolMono<AbilityText> _pool;
@@ -63,9 +65,19 @@ namespace CoreGame.FightSystem.UI
 
                 abilityView.OnHover += OnAbilityHover;
                 abilityView.OnExitHover += OnAbilityExitHover;
+                abilityView.OnClickAbility += OnAbilityClick;
 
                 _activeAbilities.Add(abilityView);
             }
+        }
+
+        private void OnAbilityClick(object sender, EventArgs eventArgs)
+        {
+            AbilityEventArgs abilityEventArgs = eventArgs as AbilityEventArgs;
+            var ability = abilityEventArgs.Ability;
+            var service = NovelGame.Instance.GetService<FightService>();
+            var player = service.PlayerData;
+            service.UseAbility(player, ability);
         }
 
         private void OnAbilityHover(ScriptableAbility ability)
@@ -87,6 +99,7 @@ namespace CoreGame.FightSystem.UI
                 {
                     abilityView.OnHover -= OnAbilityHover;
                     abilityView.OnExitHover -= OnAbilityExitHover;
+                    abilityView.OnClickAbility -= OnAbilityClick;
                 }
             }
         }

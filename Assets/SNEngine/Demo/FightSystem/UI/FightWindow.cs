@@ -102,13 +102,15 @@ namespace CoreGame.FightSystem.UI
         private Tweener AnimateUIElement(RectTransform rectTransform, Vector2 endPosition)
         {
             rectTransform.DOKill();
-            return rectTransform.DOAnchorPos(endPosition, ANIMATION_DURATION_HIDE) // Используем константу
+            return rectTransform.DOAnchorPos(endPosition, ANIMATION_DURATION_HIDE)
                                 .SetEase(_easeShowAnimation);
         }
 
         public void Show()
         {
             _panelAction.gameObject.SetActive(true);
+            _abilityWindow.gameObject.SetActive(false);
+            _panelListActions.gameObject.SetActive(true);
             gameObject.SetActive(true);
 
             Sequence showSequence = DOTween.Sequence();
@@ -158,6 +160,12 @@ namespace CoreGame.FightSystem.UI
         public void ShowPanelAction()
         {
             _panelAction.gameObject.SetActive(true);
+        }
+
+        public void HidePanelSkills ()
+        {
+            _abilityWindow.gameObject.SetActive(false);
+            _panelListActions.gameObject.SetActive(true);
         }
 
         private void OnDisable()
