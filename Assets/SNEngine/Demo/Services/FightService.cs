@@ -52,6 +52,9 @@ namespace CoreGame.Services
         [SerializeField] private Color _hitColor = new Color(1f, 0f, 0f, 1f);
         [SerializeField] private float _hitColorDuration = 0.1f;
         [SerializeField] private Ease _hitColorEase = Ease.Linear;
+        [SerializeField, Range(1, 10)] private int _defaultEnergyRestoreCooldown = 3;
+        private Dictionary<FightCharacter, int> _energyRestoreCounters;
+        private const float ENERGY_RESTORE_AMOUNT = 1f;
         #endregion
 
         #region Properties
@@ -108,6 +111,7 @@ namespace CoreGame.Services
             _wasLastHitCritical = null;
             _currentEnergyData = null;
             _currentAbilitesData = null;
+            _energyRestoreCounters = null;
         }
         #endregion
 
@@ -125,6 +129,7 @@ namespace CoreGame.Services
             };
             _currentAbilitesData = new();
             _currentEnergyData = new();
+            _energyRestoreCounters = new Dictionary<FightCharacter, int>();
             SetupCharacterForFight(playerCharacter);
             SetupCharacterForFight(enemyCharacter);
             SetupAbilitesCharacterForFight(playerCharacter);
@@ -159,6 +164,7 @@ namespace CoreGame.Services
         private void SetupAbilitesCharacterForFight(FightCharacter fightCharacter)
         {
             _currentEnergyData.Add(fightCharacter, fightCharacter.EnergyPoint);
+            _energyRestoreCounters.Add(fightCharacter, _defaultEnergyRestoreCooldown);
             foreach (var ability in fightCharacter.Abilities)
             {
                 var entity = new AbilityEntity(ability);
@@ -195,12 +201,46 @@ namespace CoreGame.Services
         #endregion
 
         #region Turn Execution
+
+        private void ProgressCooldowns()
+        {
+            var characters = new List<FightCharacter> { PlayerData, EnemyData };
+
+            foreach (var fightCharacter in characters)
+            {
+                if (_energyRestoreCounters.ContainsKey(fightCharacter))
+                {
+                    if (_energyRestoreCounters[fightCharacter] > 0)
+                    {
+                        _energyRestoreCounters[fightCharacter]--;
+                    }
+
+                    if (_energyRestoreCounters[fightCharacter] == 0)
+                    {
+                        float currentEnergy = _currentEnergyData[fightCharacter];
+                        float maxEnergy = fightCharacter.EnergyPoint;
+
+                        if (currentEnergy < maxEnergy)
+                        {
+                            float newEnergy = Mathf.Min(currentEnergy + ENERGY_RESTORE_AMOUNT, maxEnergy);
+                            _currentEnergyData[fightCharacter] = newEnergy;
+
+                            OnAbilityUsed?.Invoke(fightCharacter, null, newEnergy);
+
+                            _energyRestoreCounters[fightCharacter] = _defaultEnergyRestoreCooldown;
+                        }
+                    }
+                }
+            }
+        }
+
         private async void OnPlayerTurnExecuted(PlayerAction action)
         {
             if (_fightTurnOwner != FightTurnOwner.Player) return;
             _fightWindow.HidePanelAction();
             SaveHealthBeforeAction();
             await HandlePlayerAction(action);
+            ProgressCooldowns();
             if (CheckFightEndConditions()) return;
             _fightTurnOwner = FightTurnOwner.Enemy;
             ExecuteEnemyTurn().Forget();
@@ -226,6 +266,7 @@ namespace CoreGame.Services
             SaveHealthBeforeAction();
             PlayerAction enemyAction = _aiFighter.DecideAction();
             await HandleEnemyAction(enemyAction);
+            ProgressCooldowns();
             if (CheckFightEndConditions()) return;
             await UniTask.Delay(TimeSpan.FromSeconds(ENEMY_TURN_DELAY), DelayType.DeltaTime, PlayerLoopTiming.Update, CancellationToken.None);
             _fightTurnOwner = FightTurnOwner.Player;
@@ -301,8 +342,9 @@ namespace CoreGame.Services
             {
                 _currentEnergyData[fightCharacter] = currentEnergyCharacter - ability.Cost;
                 abilityEntity.CurrentCooldown = ability.Cooldown;
-               
+
                 abilityEntity.Turn();
+
                 OnAbilityUsed?.Invoke(fightCharacter, ability, _currentEnergyData[fightCharacter]);
                 await HandleAbilityUsage(fightCharacter, ability);
             }

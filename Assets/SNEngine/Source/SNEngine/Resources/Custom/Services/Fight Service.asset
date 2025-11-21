@@ -18,3 +18,4 @@ MonoBehaviour:
   _hitColor: {r: 1, g: 0, b: 0, a: 1}
   _hitColorDuration: 0.1
   _hitColorEase: 1
+  _defaultEnergyRestoreCooldown: 5

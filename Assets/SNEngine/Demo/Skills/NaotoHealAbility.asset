@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _guidSO: 9aea0641-7a3e-4ac2-9600-25422a15e297
   _cost: 1
-  _duration: 0
+  _duration: 0.34
   _cooldown: 0
   _nameAbility: Heal
   _descriptionAbility: Heals Naoto Health by 10.
