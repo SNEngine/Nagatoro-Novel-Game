@@ -25,3 +25,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9235de924d2d1744498aa5a2ca0a3c59, type: 2}
   - {fileID: 11400000, guid: 3f470f095fbd733439baa54dfb206f21, type: 2}
   _referenceAI: {fileID: 0}
+  _color: {r: 0.43529412, g: 0.8980392, b: 0.4745098, a: 1}
+  _avatar: {fileID: 21300000, guid: 4e417242614e749488c178edc617c91d, type: 3}

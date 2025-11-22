@@ -41,7 +41,7 @@ MonoBehaviour:
       _waitWeight: 0
       _skillWeight: 50
   - _phaseName: Final
-    _healthThreshold: 0.3
+    _healthThreshold: 0.1
     _damageMultiplier: 1.5
     _urgentHealThreshold: 0.5
     _manaBurnThreshold: 1
@@ -50,7 +50,7 @@ MonoBehaviour:
     _secondarySkillType: 0
     _weights:
       _attackWeight: 40
-      _guardWeight: 20
+      _guardWeight: 10
       _waitWeight: 0
       _skillWeight: 55
   _executeDamageMultiplier: 1.5

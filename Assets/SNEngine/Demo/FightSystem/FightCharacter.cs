@@ -20,6 +20,7 @@ namespace CoreGame.FightSystem
         [SerializeField] private ScriptableAbility[] _abilities;
         [SerializeField] private ScriptableAI _referenceAI;
         [SerializeField] private Color _color = Color.white;
+        [SerializeField] private Sprite _avatar;
 
         public Character ReferenceCharacter => _referenceCharacter;
         public float Damage => _damage;
@@ -35,5 +36,6 @@ namespace CoreGame.FightSystem
         public ScriptableAI ReferenceAI => _referenceAI;
 
         public Color Color => _color;
+        public Sprite Avatar => _avatar;
     }
 }

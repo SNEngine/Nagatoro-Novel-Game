@@ -34,6 +34,10 @@ namespace CoreGame.FightSystem.UI
         [SerializeField] private AbilityWindow _abilityWindow;
         [SerializeField] private HintUI _hintUI;
 
+        [Header("Avatars")]
+        [SerializeField] private PlayerAvatar _playerAvatar;
+        [SerializeField] private PlayerAvatar _enemyAvatar;
+
         [Header("Health Bar Color Components")]
         [SerializeField] private Image _healthPlayerFillImage;
         [SerializeField] private Image _healthEnemyFillImage;
@@ -52,6 +56,7 @@ namespace CoreGame.FightSystem.UI
         [SerializeField] private Ease _easeShowAnimation = Ease.OutBack;
         [SerializeField] private float _panelActionOffsetY = -500f;
         [SerializeField] private float _healthBarOffsetY = 300f;
+        [SerializeField] private float _avatarOffsetY = 500f;
 
         public event Action<PlayerAction> OnTurnExecuted;
 
@@ -60,9 +65,13 @@ namespace CoreGame.FightSystem.UI
         private Vector2 _initialHealthEnemyPosition;
         private Vector2 _initialPlayerEnergyPosition;
         private Vector2 _initialEnemyEnergyPosition;
+        private Vector2 _initialPlayerAvatarPosition;
+        private Vector2 _initialEnemyAvatarPosition;
 
         private RectTransform _playerHealthParentRT;
         private RectTransform _enemyHealthParentRT;
+        private RectTransform _playerAvatarRT;
+        private RectTransform _enemyAvatarRT;
 
         private PoolMono<EnergyFill> _poolEnergyFillsPlayer;
         private PoolMono<EnergyFill> _poolEnergyFillsEnemy;
@@ -77,11 +86,16 @@ namespace CoreGame.FightSystem.UI
             _playerHealthParentRT = _healthPlayer.transform.parent.GetComponent<RectTransform>();
             _enemyHealthParentRT = _healthEnemy.transform.parent.GetComponent<RectTransform>();
 
+            _playerAvatarRT = _playerAvatar.GetComponent<RectTransform>();
+            _enemyAvatarRT = _enemyAvatar.GetComponent<RectTransform>();
+
             _initialPanelActionPosition = _panelAction.anchoredPosition;
             _initialHealthPlayerPosition = _playerHealthParentRT.anchoredPosition;
             _initialHealthEnemyPosition = _enemyHealthParentRT.anchoredPosition;
             _initialPlayerEnergyPosition = _playerEnergyContainer.anchoredPosition;
             _initialEnemyEnergyPosition = _enemyEnergyContainer.anchoredPosition;
+            _initialPlayerAvatarPosition = _playerAvatarRT.anchoredPosition;
+            _initialEnemyAvatarPosition = _enemyAvatarRT.anchoredPosition;
 
             _attackButton.AddListener(() => OnClickButtonAction(PlayerAction.Attack));
             _guardButton.AddListener(() => OnClickButtonAction(PlayerAction.Guard));
@@ -173,18 +187,23 @@ namespace CoreGame.FightSystem.UI
             showSequence.SetLink(gameObject);
 
             float playerHideOffsetY = -_healthBarOffsetY;
+            float playerAvatarHideOffsetY = -_avatarOffsetY;
 
             _panelAction.anchoredPosition = _initialPanelActionPosition + new Vector2(0, _panelActionOffsetY);
             _playerHealthParentRT.anchoredPosition = _initialHealthPlayerPosition + new Vector2(0, playerHideOffsetY);
             _enemyHealthParentRT.anchoredPosition = _initialHealthEnemyPosition + new Vector2(0, _healthBarOffsetY);
             _playerEnergyContainer.anchoredPosition = _initialPlayerEnergyPosition + new Vector2(0, playerHideOffsetY);
             _enemyEnergyContainer.anchoredPosition = _initialEnemyEnergyPosition + new Vector2(0, _healthBarOffsetY);
+            _playerAvatarRT.anchoredPosition = _initialPlayerAvatarPosition + new Vector2(0, playerAvatarHideOffsetY);
+            _enemyAvatarRT.anchoredPosition = _initialEnemyAvatarPosition + new Vector2(0, _avatarOffsetY);
 
             showSequence.Append(AnimateUIElement(_panelAction, _initialPanelActionPosition));
             showSequence.Join(AnimateUIElement(_playerHealthParentRT, _initialHealthPlayerPosition));
             showSequence.Join(AnimateUIElement(_enemyHealthParentRT, _initialHealthEnemyPosition));
             showSequence.Join(AnimateUIElement(_playerEnergyContainer, _initialPlayerEnergyPosition));
             showSequence.Join(AnimateUIElement(_enemyEnergyContainer, _initialEnemyEnergyPosition));
+            showSequence.Join(AnimateUIElement(_playerAvatarRT, _initialPlayerAvatarPosition));
+            showSequence.Join(AnimateUIElement(_enemyAvatarRT, _initialEnemyAvatarPosition));
         }
 
         public void Hide()
@@ -200,12 +219,16 @@ namespace CoreGame.FightSystem.UI
             hideSequence.SetLink(gameObject);
 
             float playerHideOffsetY = -_healthBarOffsetY;
+            float playerAvatarHideOffsetY = -_avatarOffsetY;
 
             hideSequence.Append(AnimateUIElement(_panelAction, _initialPanelActionPosition + new Vector2(0, _panelActionOffsetY)));
             hideSequence.Join(AnimateUIElement(_playerHealthParentRT, _initialHealthPlayerPosition + new Vector2(0, playerHideOffsetY)));
             hideSequence.Join(AnimateUIElement(_enemyHealthParentRT, _initialHealthEnemyPosition + new Vector2(0, _healthBarOffsetY)));
             hideSequence.Join(AnimateUIElement(_playerEnergyContainer, _initialPlayerEnergyPosition + new Vector2(0, playerHideOffsetY)));
             hideSequence.Join(AnimateUIElement(_enemyEnergyContainer, _initialEnemyEnergyPosition + new Vector2(0, _healthBarOffsetY)));
+            hideSequence.Join(AnimateUIElement(_playerAvatarRT, _initialPlayerAvatarPosition + new Vector2(0, playerAvatarHideOffsetY)));
+            hideSequence.Join(AnimateUIElement(_enemyAvatarRT, _initialEnemyAvatarPosition + new Vector2(0, _avatarOffsetY)));
+
 
             hideSequence.OnComplete(() =>
             {
@@ -228,6 +251,8 @@ namespace CoreGame.FightSystem.UI
             _enemyHealthParentRT.DOKill();
             _playerEnergyContainer.DOKill();
             _enemyEnergyContainer.DOKill();
+            _playerAvatarRT.DOKill();
+            _enemyAvatarRT.DOKill();
         }
 
         public void SetData(IFightComponent fightComponentPlayer, IFightComponent fightComponentEnemy, FightCharacter playerData, FightCharacter enemyData)
@@ -245,27 +270,26 @@ namespace CoreGame.FightSystem.UI
             ShowEnergyPoints(_poolEnergyFillsEnemy, enemyData, enemyData.EnergyPoint);
             ShowEnergyPoints(_poolEnergyFillsPlayer, playerData, playerData.EnergyPoint);
 
-            // Применение цветов для игрока (Инвертированная логика)
+            if (_playerAvatar != null)
+                _playerAvatar.SetAvatar(playerData.Avatar);
+            if (_enemyAvatar != null)
+                _enemyAvatar.SetAvatar(enemyData.Avatar);
+
             Color playerColor = playerData.Color;
             Color playerDarkenedColor = ColorUtility.Darken(playerColor, 0.25f);
 
-            // Фон (Background) становится темным
-            if (_playerHealthParentRT.TryGetComponent<Image>(out Image playerBackground))
+            if (_playerHealthParentRT.TryGetComponent(out Image playerBackground))
                 playerBackground.color = playerDarkenedColor;
 
-            // Заполнение (Fill) становится светлым (исходный цвет)
             if (_healthPlayerFillImage != null)
                 _healthPlayerFillImage.color = playerColor;
 
-            // Применение цветов для врага (Инвертированная логика)
             Color enemyColor = enemyData.Color;
             Color enemyDarkenedColor = ColorUtility.Darken(enemyColor, 0.25f);
 
-            // Фон (Background) становится темным
-            if (_enemyHealthParentRT.TryGetComponent<Image>(out Image enemyBackground))
+            if (_enemyHealthParentRT.TryGetComponent(out Image enemyBackground))
                 enemyBackground.color = enemyDarkenedColor;
 
-            // Заполнение (Fill) становится светлым (исходный цвет)
             if (_healthEnemyFillImage != null)
                 _healthEnemyFillImage.color = enemyColor;
         }
