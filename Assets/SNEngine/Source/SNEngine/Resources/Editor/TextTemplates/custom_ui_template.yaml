@@ -15,4 +15,4 @@ fight_guard: Guard
 fight_wait: Wait
 fight_skill: Skill
 fight_back: Back
-fight_uses_prefix: uses
+fight_uses_prefix: uses # SMALL LETTERS
