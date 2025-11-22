@@ -19,6 +19,7 @@ namespace CoreGame.FightSystem
         [SerializeField, Min(1)] private int _energyPoint = 5;
         [SerializeField] private ScriptableAbility[] _abilities;
         [SerializeField] private ScriptableAI _referenceAI;
+        [SerializeField] private Color _color = Color.white;
 
         public Character ReferenceCharacter => _referenceCharacter;
         public float Damage => _damage;
@@ -32,5 +33,7 @@ namespace CoreGame.FightSystem
         public IEnumerable<ScriptableAbility> Abilities => _abilities;
 
         public ScriptableAI ReferenceAI => _referenceAI;
+
+        public Color Color => _color;
     }
 }

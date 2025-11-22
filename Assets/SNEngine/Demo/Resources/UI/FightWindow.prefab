@@ -559,6 +559,8 @@ MonoBehaviour:
   _panelListActions: {fileID: 698437695815656870}
   _abilityWindow: {fileID: 7418900397808023373}
   _hintUI: {fileID: 8594436932356116902}
+  _healthPlayerFillImage: {fileID: 4785781861885730278}
+  _healthEnemyFillImage: {fileID: 1849718963484321441}
   _durationChangeHealth: 0.3
   _easeHealthAnimation: 5
   _healOverlayImage: {fileID: 8970323474415013644}

@@ -1,6 +1,7 @@
 ﻿using CoreGame.FightSystem;
 using CoreGame.FightSystem.Abilities;
 using CoreGame.Services;
+using CoreGame.Utilities;
 using DG.Tweening;
 using SNEngine;
 using SNEngine.Polling;
@@ -9,6 +10,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using ColorUtility = CoreGame.Utilities.ColorUtility;
 
 namespace CoreGame.FightSystem.UI
 {
@@ -31,6 +33,10 @@ namespace CoreGame.FightSystem.UI
         [SerializeField] private RectTransform _panelListActions;
         [SerializeField] private AbilityWindow _abilityWindow;
         [SerializeField] private HintUI _hintUI;
+
+        [Header("Health Bar Color Components")]
+        [SerializeField] private Image _healthPlayerFillImage;
+        [SerializeField] private Image _healthEnemyFillImage;
 
         [Header("Health Bar Animation Settings")]
         [SerializeField, Min(0)] private float _durationChangeHealth = 0.3f;
@@ -166,10 +172,12 @@ namespace CoreGame.FightSystem.UI
             Sequence showSequence = DOTween.Sequence();
             showSequence.SetLink(gameObject);
 
+            float playerHideOffsetY = -_healthBarOffsetY;
+
             _panelAction.anchoredPosition = _initialPanelActionPosition + new Vector2(0, _panelActionOffsetY);
-            _playerHealthParentRT.anchoredPosition = _initialHealthPlayerPosition + new Vector2(0, _healthBarOffsetY);
+            _playerHealthParentRT.anchoredPosition = _initialHealthPlayerPosition + new Vector2(0, playerHideOffsetY);
             _enemyHealthParentRT.anchoredPosition = _initialHealthEnemyPosition + new Vector2(0, _healthBarOffsetY);
-            _playerEnergyContainer.anchoredPosition = _initialPlayerEnergyPosition + new Vector2(0, _healthBarOffsetY);
+            _playerEnergyContainer.anchoredPosition = _initialPlayerEnergyPosition + new Vector2(0, playerHideOffsetY);
             _enemyEnergyContainer.anchoredPosition = _initialEnemyEnergyPosition + new Vector2(0, _healthBarOffsetY);
 
             showSequence.Append(AnimateUIElement(_panelAction, _initialPanelActionPosition));
@@ -191,10 +199,12 @@ namespace CoreGame.FightSystem.UI
             Sequence hideSequence = DOTween.Sequence();
             hideSequence.SetLink(gameObject);
 
+            float playerHideOffsetY = -_healthBarOffsetY;
+
             hideSequence.Append(AnimateUIElement(_panelAction, _initialPanelActionPosition + new Vector2(0, _panelActionOffsetY)));
-            hideSequence.Join(AnimateUIElement(_playerHealthParentRT, _initialHealthPlayerPosition + new Vector2(0, _healthBarOffsetY)));
+            hideSequence.Join(AnimateUIElement(_playerHealthParentRT, _initialHealthPlayerPosition + new Vector2(0, playerHideOffsetY)));
             hideSequence.Join(AnimateUIElement(_enemyHealthParentRT, _initialHealthEnemyPosition + new Vector2(0, _healthBarOffsetY)));
-            hideSequence.Join(AnimateUIElement(_playerEnergyContainer, _initialPlayerEnergyPosition + new Vector2(0, _healthBarOffsetY)));
+            hideSequence.Join(AnimateUIElement(_playerEnergyContainer, _initialPlayerEnergyPosition + new Vector2(0, playerHideOffsetY)));
             hideSequence.Join(AnimateUIElement(_enemyEnergyContainer, _initialEnemyEnergyPosition + new Vector2(0, _healthBarOffsetY)));
 
             hideSequence.OnComplete(() =>
@@ -234,6 +244,30 @@ namespace CoreGame.FightSystem.UI
 
             ShowEnergyPoints(_poolEnergyFillsEnemy, enemyData, enemyData.EnergyPoint);
             ShowEnergyPoints(_poolEnergyFillsPlayer, playerData, playerData.EnergyPoint);
+
+            // Применение цветов для игрока (Инвертированная логика)
+            Color playerColor = playerData.Color;
+            Color playerDarkenedColor = ColorUtility.Darken(playerColor, 0.25f);
+
+            // Фон (Background) становится темным
+            if (_playerHealthParentRT.TryGetComponent<Image>(out Image playerBackground))
+                playerBackground.color = playerDarkenedColor;
+
+            // Заполнение (Fill) становится светлым (исходный цвет)
+            if (_healthPlayerFillImage != null)
+                _healthPlayerFillImage.color = playerColor;
+
+            // Применение цветов для врага (Инвертированная логика)
+            Color enemyColor = enemyData.Color;
+            Color enemyDarkenedColor = ColorUtility.Darken(enemyColor, 0.25f);
+
+            // Фон (Background) становится темным
+            if (_enemyHealthParentRT.TryGetComponent<Image>(out Image enemyBackground))
+                enemyBackground.color = enemyDarkenedColor;
+
+            // Заполнение (Fill) становится светлым (исходный цвет)
+            if (_healthEnemyFillImage != null)
+                _healthEnemyFillImage.color = enemyColor;
         }
 
         private void OnHealthChangedPlayer(float current, float max)
