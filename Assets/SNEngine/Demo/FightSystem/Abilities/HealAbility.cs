@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CoreGame.FightSystem.Abilities.NaotoAbilites
 {
-    [CreateAssetMenu(fileName = "NaotoHealAbility", menuName = "CoreGame/Fight System/Abilites/Heal")]
+    [CreateAssetMenu(fileName = "NaotoHealAbility", menuName = "CoreGame/Fight System/Abilities/Heal")]
     public class HealAbility : ScriptableAbility
     {
         [SerializeField, Min(1)]

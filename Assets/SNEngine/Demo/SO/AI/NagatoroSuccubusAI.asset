@@ -20,7 +20,7 @@ MonoBehaviour:
     _urgentHealThreshold: 0.4
     _manaBurnThreshold: 3
     _energyWaitCostMin: 5
-    _preferredSkillType: 1
+    _preferredSkillType: 2
     _secondarySkillType: 0
     _weights:
       _attackWeight: 40

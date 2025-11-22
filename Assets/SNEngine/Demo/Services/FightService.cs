@@ -30,6 +30,7 @@ namespace CoreGame.Services
         private Dictionary<Character, float> _healthBeforeLastAction;
         private Dictionary<FightCharacter, List<AbilityEntity>> _currentAbilitesData;
         private Dictionary<FightCharacter, float> _currentEnergyData;
+        private Dictionary<FightCharacter, List<AbilityEntity>> _activeTickEffects;
         private IFightWindow _fightWindow;
         private IFightComponent _player;
         private IFightComponent _enemy;
@@ -101,6 +102,7 @@ namespace CoreGame.Services
             _currentEnergyData = null;
             _currentAbilitesData = null;
             _energyRestoreCounters = null;
+            _activeTickEffects = null;
         }
 
         public void TurnFight(FightCharacter playerCharacter, FightCharacter enemyCharacter)
@@ -116,7 +118,8 @@ namespace CoreGame.Services
             };
             _currentAbilitesData = new();
             _currentEnergyData = new();
-            _energyRestoreCounters = new Dictionary<FightCharacter, int>();
+            _energyRestoreCounters = new();
+            _activeTickEffects = new();
             SetupCharacterForFight(playerCharacter);
             SetupCharacterForFight(enemyCharacter);
             SetupAbilitesCharacterForFight(playerCharacter);
@@ -198,11 +201,45 @@ namespace CoreGame.Services
                     if (abilityEntity.CurrentCooldown > 0) abilityEntity.CurrentCooldown--;
         }
 
+        private void ProcessAbilitiesOverTurns()
+        {
+            IEnumerable<FightCharacter> characters = _activeTickEffects.Keys.ToList();
+
+            foreach (var character in characters)
+            {
+                IFightComponent userComponent = _fightComponents.GetValueOrDefault(character.ReferenceCharacter);
+                if (userComponent == null) continue;
+
+                IFightComponent targetComponent = (userComponent == _player) ? _enemy : _player;
+
+                var effectsToProcess = _activeTickEffects[character].ToList();
+
+                for (int i = effectsToProcess.Count - 1; i >= 0; i--)
+                {
+                    var entity = effectsToProcess[i];
+
+                    if (entity.ReferenceAbility is ScriptableOverTurnAbility overTurnAbility)
+                    {
+                        if (entity.RemainingTicks > 0)
+                        {
+                            overTurnAbility.ExecuteTurnTick(userComponent, targetComponent);
+
+                            entity.RemainingTicks--;
+
+                            if (entity.RemainingTicks <= 0)
+                            {
+                                _activeTickEffects[character].RemoveAt(i);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void StartNewTurn(FightTurnOwner newOwner)
         {
             _fightTurnOwner = newOwner;
 
-            // Сброс Guard в начале нового хода
             if (_fightTurnOwner == FightTurnOwner.Player)
                 _player.StopGuard();
             else
@@ -212,6 +249,8 @@ namespace CoreGame.Services
                 _fightWindow.ShowPanelAction();
             else
                 ExecuteEnemyTurn().Forget();
+
+            ProcessAbilitiesOverTurns();
         }
 
         private async void OnPlayerTurnExecuted(PlayerAction action)
@@ -281,7 +320,6 @@ namespace CoreGame.Services
                 isCritical = true;
             }
 
-            // Сбрасываем Guard при получении урона
             if (targetComponent.IsGuarding)
             {
                 finalDamage = DamageUtils.ApplyGuardReduction(targetCharacter, finalDamage);
@@ -300,6 +338,7 @@ namespace CoreGame.Services
             }
         }
 
+
         public async UniTask UseAbility(FightCharacter fightCharacter, ScriptableAbility ability)
         {
             if (fightCharacter != _playerCharacter && fightCharacter != _enemyCharacter) return;
@@ -312,9 +351,24 @@ namespace CoreGame.Services
                 _currentEnergyData[fightCharacter] = currentEnergyCharacter - ability.Cost;
                 abilityEntity.CurrentCooldown = ability.Cooldown;
                 _energyRestoreCounters[fightCharacter] = _defaultEnergyRestoreCooldown;
+
                 IFightComponent userComponent = fightCharacter == _playerCharacter ? _player : _enemy;
                 IFightComponent targetComponent = fightCharacter == _playerCharacter ? _enemy : _player;
+
                 ability.ExecuteEffect(userComponent, targetComponent);
+
+                if (ability is ScriptableOverTurnAbility overTurnAbility)
+                {
+                    var tickEntity = new AbilityEntity(overTurnAbility);
+
+                    if (!_activeTickEffects.ContainsKey(fightCharacter))
+                    {
+                        _activeTickEffects[fightCharacter] = new List<AbilityEntity>();
+                    }
+
+                    _activeTickEffects[fightCharacter].Add(tickEntity);
+                }
+
                 OnAbilityUsed?.Invoke(fightCharacter, ability, _currentEnergyData[fightCharacter]);
                 await HandleAbilityUsage(fightCharacter, ability);
             }

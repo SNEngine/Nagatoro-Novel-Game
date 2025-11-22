@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f817236b7712314aa8eafa95f4c7262, type: 3}
+  m_Name: SuccubusDrainAbility
+  m_EditorClassIdentifier: 
+  _guidSO: 9a9c8178-e113-44b2-a3cb-a4b6825842ad
+  _cost: 3
+  _duration: 1
+  _cooldown: 0
+  _nameAbility: Succubus Drain
+  _descriptionAbility: Drains a percentage of the target's current Health Points
+    (HP) and heals the user by the same amount at the start of the user's turn. This
+    effect repeats for a set number of turns.
+  _turnsToTick: 3
+  _drainPercent: 0.01

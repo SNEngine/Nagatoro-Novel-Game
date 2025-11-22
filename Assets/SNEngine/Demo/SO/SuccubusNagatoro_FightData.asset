@@ -21,6 +21,7 @@ MonoBehaviour:
   _criticalHitMultiplier: 1.5
   _energyPoint: 5
   _abilities:
+  - {fileID: 11400000, guid: befbf5ef2ecd9dd4cb5d1a842d0c448c, type: 2}
   - {fileID: 11400000, guid: c76ac0e9d24319a4187c92f2645e4a6b, type: 2}
   - {fileID: 11400000, guid: 9fd3aa6c937f271409597b73e5076200, type: 2}
   _referenceAI: {fileID: 11400000, guid: a20f2def7104a5d47a1e26e7751fbccd, type: 2}
