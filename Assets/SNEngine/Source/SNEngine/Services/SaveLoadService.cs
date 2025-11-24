@@ -1,16 +1,14 @@
-﻿using Cysharp.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Assets.SNEngine.Source.SNEngine.SaveSystem;
+using Cysharp.Threading.Tasks;
 using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Debugging;
 using SNEngine.Graphs;
-using SNEngine.IO;
 using SNEngine.SaveSystem.Models;
 using SNEngine.Services;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using SaveData = SNEngine.SaveSystem.Models.SaveData;
 
 namespace SNEngine.SaveSystem
@@ -18,139 +16,96 @@ namespace SNEngine.SaveSystem
     [CreateAssetMenu(menuName = "SNEngine/Services/Save Load Service")]
     public class SaveLoadService : ServiceBase, IService
     {
-        private const string SAVE_FOLDER_NAME = "saves";
-        private const string SAVE_FILE_NAME = "progress.json";
-        private const string PREVIEW_FILE_NAME = "preview.png";
         private const int PREVIEW_IMAGE_SIZE = 1512;
+        private const int WEBGL_PREVIEW_SIZE = 256;
 
+        private ISaveLoadProvider _provider;
         private Dictionary<string, object> _originalVaritableValues;
         private DialogueGraph _currentGraph;
 
+        public override void Initialize()
+        {
+            base.Initialize();
+
+#if UNITY_WEBGL
+            _provider = new PlayerPrefsSaveLoadProvider();
+            NovelGameDebug.Log("[SaveLoadService] Initialized with PlayerPrefsSaveLoadProvider for WebGL.");
+#else
+            _provider = new FileSaveLoadProvider();
+            NovelGameDebug.Log("[SaveLoadService] Initialized with FileSaveLoadProvider for FileSystem.");
+#endif
+        }
+
         public UniTask Save(string saveName, SaveData data)
         {
-            string folderPath = GetSaveFolderPath(saveName);
-            string saveFilePath = GetSaveFilePath(saveName);
-            string previewFilePath = GetPreviewFilePath(saveName);
-
-            try
+            if (_provider == null)
             {
-                if (!NovelDirectory.Exists(folderPath))
-                {
-                    NovelDirectory.Create(folderPath);
-                }
-
-                Formatting formatting =
-#if UNITY_EDITOR
-                    Formatting.Indented;
-#else
-                    Formatting.None;
-#endif
-
-                string json = JsonConvert.SerializeObject(data, formatting);
-
-                NovelGameDebug.Log($"[SaveLoadService] Saving data to: {saveFilePath}");
-
-                UniTask saveJsonTask = NovelFile.WriteAllTextAsync(saveFilePath, json);
-
-                UniTask cameraTask = CameraSaver.SaveCameraRenderToPNGAsync(PREVIEW_IMAGE_SIZE, previewFilePath);
-
-                return UniTask.WhenAll(saveJsonTask, cameraTask);
-            }
-            catch (Exception ex)
-            {
-                NovelGameDebug.LogError($"[SaveLoadService] Failed to save '{saveName}': {ex.Message}");
+                NovelGameDebug.LogError("[SaveLoadService] Provider is not initialized.");
                 return UniTask.CompletedTask;
             }
-        }
 
-        public async UniTask<PreloadSave> LoadPreloadSave(string saveName)
-        {
-            string saveFilePath = GetSaveFilePath(saveName);
-            string previewFilePath = GetPreviewFilePath(saveName);
+            UniTask<Texture2D> captureTask = CameraSaver.CaptureScreenAndCropAsync(PREVIEW_IMAGE_SIZE);
 
-            try
+            return captureTask.ContinueWith(originalTexture =>
             {
-                string json = await NovelFile.ReadAllTextAsync(saveFilePath);
-                SaveData saveData = JsonConvert.DeserializeObject<SaveData>(json);
+                Texture2D textureToSave = originalTexture;
 
-                Texture2D previewTexture = await LoadTextureAsync(previewFilePath);
-
-                NovelGameDebug.Log($"[SaveLoadService] Loaded preload save data: {saveName} from {saveFilePath}");
-
-                return new PreloadSave
+                if (_provider is PlayerPrefsSaveLoadProvider && originalTexture != null)
                 {
-                    SaveData = saveData,
-                    PreviewTexture = previewTexture,
-                    SaveName = saveName
-                };
-            }
-            catch (FileNotFoundException)
-            {
-                NovelGameDebug.LogError($"[SaveLoadService] Save file not found for: {saveName}");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                NovelGameDebug.LogError($"[SaveLoadService] Failed to load/deserialize '{saveName}': {ex.Message}");
-                return null;
-            }
+                    textureToSave = ResizeTexture(originalTexture, WEBGL_PREVIEW_SIZE, WEBGL_PREVIEW_SIZE);
+                    Object.Destroy(originalTexture);
+                }
+
+                return _provider.SaveAsync(saveName, data, textureToSave);
+            });
         }
 
-        public async UniTask<SaveData> LoadSave(string saveName)
+        public UniTask<PreloadSave> LoadPreloadSave(string saveName)
         {
-            string saveFilePath = GetSaveFilePath(saveName);
-
-            try
+            if (_provider == null)
             {
-                string json = await NovelFile.ReadAllTextAsync(saveFilePath);
-                SaveData saveData = JsonConvert.DeserializeObject<SaveData>(json);
-                NovelGameDebug.Log($"[SaveLoadService] Loaded save: {saveName} from {saveFilePath}");
-                return saveData;
+                NovelGameDebug.LogError("[SaveLoadService] Provider is not initialized.");
+                return UniTask.FromResult<PreloadSave>(null);
+            }
+            return _provider.LoadPreloadSaveAsync(saveName);
+        }
 
-
-            }
-            catch (FileNotFoundException)
+        public UniTask<SaveData> LoadSave(string saveName)
+        {
+            if (_provider == null)
             {
-                NovelGameDebug.LogError($"[SaveLoadService] Save file not found for: {saveName}");
-                return null;
+                NovelGameDebug.LogError("[SaveLoadService] Provider is not initialized.");
+                return UniTask.FromResult<SaveData>(null);
             }
-            catch (Exception ex)
-            {
-                NovelGameDebug.LogError($"[SaveLoadService] Failed to load/deserialize '{saveName}': {ex.Message}");
-                return null;
-            }
+            return _provider.LoadSaveAsync(saveName);
         }
 
         public UniTask<IEnumerable<string>> GetAllAvailableSaves()
         {
-            string rootPath = GetRootSaveFolderPath();
-
-            if (!NovelDirectory.Exists(rootPath))
+            if (_provider == null)
             {
+                NovelGameDebug.LogError("[SaveLoadService] Provider is not initialized.");
                 return UniTask.FromResult(Enumerable.Empty<string>());
             }
-
-            string[] saveFolders = Directory.GetDirectories(rootPath);
-
-            IEnumerable<string> saveNames = saveFolders.Select(Path.GetFileName);
-
-            return UniTask.FromResult(saveNames);
+            return _provider.GetAllAvailableSavesAsync();
         }
 
-        private async UniTask<Texture2D> LoadTextureAsync(string path)
+        private Texture2D ResizeTexture(Texture2D source, int newWidth, int newHeight)
         {
-            if (!NovelFile.Exists(path))
-            {
-                NovelGameDebug.LogWarning($"[SaveLoadService] Preview file not found at: {path}");
-                return null;
-            }
+            RenderTexture rt = RenderTexture.GetTemporary(newWidth, newHeight);
+            rt.filterMode = FilterMode.Bilinear;
+            RenderTexture.active = rt;
 
-            byte[] bytes = await NovelFile.ReadAllBytesAsync(path);
+            Graphics.Blit(source, rt);
 
-            Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(bytes);
+            Texture2D newTexture = new Texture2D(newWidth, newHeight);
+            newTexture.ReadPixels(new Rect(0, 0, newWidth, newHeight), 0, 0);
+            newTexture.Apply();
 
-            return texture;
+            RenderTexture.active = null;
+            RenderTexture.ReleaseTemporary(rt);
+
+            return newTexture;
         }
 
         public void LoadDataGraph(DialogueGraph graph, SaveData saveData)
@@ -214,7 +169,7 @@ namespace SNEngine.SaveSystem
                 {
                     NovelGameDebug.LogError($"save data for node {node.GUID} not found");
                 }
-        }
+            }
 
 #if UNITY_EDITOR
             graph.OnEndExecute -= RestoreOriginalVaritableValues;
@@ -252,26 +207,6 @@ namespace SNEngine.SaveSystem
             }
 
             return result;
-        }
-
-        private string GetRootSaveFolderPath()
-        {
-            return Path.Combine(NovelDirectory.PersistentDataPath, SAVE_FOLDER_NAME);
-        }
-
-        private string GetSaveFolderPath(string saveName)
-        {
-            return Path.Combine(GetRootSaveFolderPath(), saveName);
-        }
-
-        private string GetSaveFilePath(string saveName)
-        {
-            return Path.Combine(GetSaveFolderPath(saveName), SAVE_FILE_NAME);
-        }
-
-        private string GetPreviewFilePath(string saveName)
-        {
-            return Path.Combine(GetSaveFolderPath(saveName), PREVIEW_FILE_NAME);
         }
 
 #if UNITY_EDITOR

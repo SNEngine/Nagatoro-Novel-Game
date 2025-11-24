@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.IO;
-using SNEngine.IO;
 using SNEngine.Debugging;
 using Object = UnityEngine.Object;
 using Cysharp.Threading.Tasks;
@@ -9,7 +7,7 @@ namespace SNEngine.SaveSystem
 {
     public static class CameraSaver
     {
-        public static async UniTask SaveCameraRenderToPNGAsync(int size, string fullSavePath)
+        public static async UniTask<Texture2D> CaptureScreenAndCropAsync(int size)
         {
             await UniTask.WaitForEndOfFrame();
 
@@ -32,24 +30,9 @@ namespace SNEngine.SaveSystem
 
             Object.Destroy(screenTexture);
 
-            byte[] bytes = croppedTex.EncodeToPNG();
-            Object.Destroy(croppedTex);
+            NovelGameDebug.Log($"[CameraSaver] Captured and cropped screen to {size}x{size}.");
 
-            string directoryPath = Path.GetDirectoryName(fullSavePath);
-
-            if (!NovelDirectory.Exists(directoryPath))
-            {
-                NovelDirectory.Create(directoryPath);
-            }
-
-            await NovelFile.WriteAllBytesAsync(fullSavePath, bytes);
-
-            NovelGameDebug.Log($"Camera rendered and saved to: {fullSavePath}");
-
-#if UNITY_EDITOR
-            string assetPath = fullSavePath.Replace(Application.dataPath, "Assets");
-            UnityEditor.AssetDatabase.ImportAsset(assetPath);
-#endif
+            return croppedTex;
         }
     }
 }

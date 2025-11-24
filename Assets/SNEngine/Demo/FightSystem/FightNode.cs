@@ -20,7 +20,7 @@ namespace CoreGame.FightSystem
         private bool _finished;
         private FightServiceSaveData _saveData;
 
-        public override async void Execute()
+        public override void Execute()
         {
             if (_finished)
             {
