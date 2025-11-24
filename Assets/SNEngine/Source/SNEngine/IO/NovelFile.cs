@@ -4,6 +4,7 @@ using System.Text;
 using Cysharp.Threading.Tasks;
 using SNEngine.Debugging;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace SNEngine.IO
 {
@@ -23,16 +24,58 @@ namespace SNEngine.IO
         static UniTask WithStream(string path, FileMode mode, FileAccess access, FileShare share, Func<Stream, UniTask> action) =>
             WithStream<object>(path, mode, access, share, async s => { await action(s); return null; });
 
-        public static UniTask<string> ReadAllTextAsync(string path, Encoding encoding = null) =>
-            WithStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, async s =>
+        static bool IsStreamingAssetsPathRestricted(string path)
+        {
+            return path.StartsWith("jar") || path.StartsWith("http");
+        }
+
+        static async UniTask<string> ReadStreamingAssetsTextAsync(string path, Encoding encoding = null)
+        {
+            using var request = UnityWebRequest.Get(path);
+            await request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                throw new IOException($"Failed to load file from StreamingAssets: {path}. Error: {request.error}");
+            }
+            return encoding is not null ? encoding.GetString(request.downloadHandler.data) : request.downloadHandler.text;
+        }
+
+        static async UniTask<byte[]> ReadStreamingAssetsBytesAsync(string path)
+        {
+            using var request = UnityWebRequest.Get(path);
+            await request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                throw new IOException($"Failed to load file from StreamingAssets: {path}. Error: {request.error}");
+            }
+            return request.downloadHandler.data;
+        }
+
+        public static UniTask<string> ReadAllTextAsync(string path, Encoding encoding = null)
+        {
+            if (IsStreamingAssetsPathRestricted(path))
+            {
+                return ReadStreamingAssetsTextAsync(path, encoding);
+            }
+
+            return WithStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, async s =>
             {
                 encoding ??= Encoding.UTF8;
                 using var reader = new StreamReader(s, encoding);
                 return await reader.ReadToEndAsync();
             });
+        }
 
         public static string ReadAllText(string path, Encoding encoding = null)
         {
+            if (IsStreamingAssetsPathRestricted(path))
+            {
+                NovelGameDebug.LogWarning("Blocking call to ReadAllText on restricted path. Use async version.");
+                return ReadAllTextAsync(path, encoding).GetAwaiter().GetResult();
+            }
+
             encoding ??= Encoding.UTF8;
             return File.ReadAllText(path, encoding);
         }
@@ -51,15 +94,30 @@ namespace SNEngine.IO
             File.WriteAllText(path, contents, encoding);
         }
 
-        public static UniTask<byte[]> ReadAllBytesAsync(string path) =>
-            WithStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, async s =>
+        public static UniTask<byte[]> ReadAllBytesAsync(string path)
+        {
+            if (IsStreamingAssetsPathRestricted(path))
+            {
+                return ReadStreamingAssetsBytesAsync(path);
+            }
+
+            return WithStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, async s =>
             {
                 var buffer = new byte[s.Length];
                 await s.ReadAsync(buffer, 0, buffer.Length);
                 return buffer;
             });
+        }
 
-        public static byte[] ReadAllBytes(string path) => File.ReadAllBytes(path);
+        public static byte[] ReadAllBytes(string path)
+        {
+            if (IsStreamingAssetsPathRestricted(path))
+            {
+                NovelGameDebug.LogWarning("Blocking call to ReadAllBytes on restricted path. Use async version.");
+                return ReadAllBytesAsync(path).GetAwaiter().GetResult();
+            }
+            return File.ReadAllBytes(path);
+        }
 
         public static UniTask WriteAllBytesAsync(string path, byte[] bytes) =>
             WithStream(path, FileMode.Create, FileAccess.Write, FileShare.None, s => s.WriteAsync(bytes, 0, bytes.Length).AsUniTask());
