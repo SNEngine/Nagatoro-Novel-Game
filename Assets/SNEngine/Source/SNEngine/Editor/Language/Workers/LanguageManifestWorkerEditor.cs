@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace SNEngine.Editor.Language.Workers
@@ -79,7 +80,9 @@ namespace SNEngine.Editor.Language.Workers
             };
 
             string outputData = JsonConvert.SerializeObject(newManifest, Formatting.Indented);
-            await NovelFile.WriteAllTextAsync(fullManifestPath, outputData);
+
+            var utf8NoBom = new UTF8Encoding(false);
+            await NovelFile.WriteAllTextAsync(fullManifestPath, outputData, utf8NoBom);
 
             return result;
         }

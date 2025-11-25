@@ -1,14 +1,15 @@
 ﻿using Cysharp.Threading.Tasks;
 using SharpYaml.Serialization;
 using SNEngine.Debugging;
-using SNEngine.IO;
 using SNEngine.Graphs;
+using SNEngine.IO;
 using SNEngine.Localization;
 using SNEngine.Localization.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace SNEngine.Editor.Language.Workers
@@ -71,8 +72,9 @@ namespace SNEngine.Editor.Language.Workers
                 var mergedData = MergeNodeData(existingData, currentData);
 
                 Serializer serializer = new Serializer();
+                var utf8NoBom = new UTF8Encoding(false);
                 string output = serializer.Serialize(mergedData);
-                await NovelFile.WriteAllTextAsync(filePath, output);
+                await NovelFile.WriteAllTextAsync(filePath, output, utf8NoBom);
             }
 
 

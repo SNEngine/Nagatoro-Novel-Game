@@ -229,7 +229,7 @@ namespace SNEngine.Services
 
         public async UniTask<List<LanguageEntry>> GetAvailableLanguagesAsync()
         {
-            string path = Path.Combine(NovelDirectory.StreamingAssetsPath, LanguageBaseDir, "manifest.json");
+            string path = Path.Combine(NovelDirectory.StreamingAssetsPath, LanguageBaseDir, "language_manifest.json");
             NovelGameDebug.Log($"[{nameof(LanguageService)}] Checking for available languages manifest at: {path}");
 
             try

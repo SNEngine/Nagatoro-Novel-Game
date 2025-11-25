@@ -1,12 +1,13 @@
 ﻿using Cysharp.Threading.Tasks;
+using SharpYaml.Serialization;
 using SNEngine.Debugging;
 using SNEngine.IO;
 using System;
-using System.IO;
-using UnityEngine;
-using SharpYaml.Serialization;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using UnityEngine;
 
 namespace SNEngine.Editor.Language.Workers
 {
@@ -116,7 +117,8 @@ namespace SNEngine.Editor.Language.Workers
             {
                 Serializer serializer = new Serializer();
                 string outputData = serializer.Serialize(mergedData);
-                await NovelFile.WriteAllTextAsync(fullPath, outputData);
+                var utf8NoBom = new UTF8Encoding(false);
+                await NovelFile.WriteAllTextAsync(fullPath, outputData, utf8NoBom);
             }
             catch (Exception ex)
             {

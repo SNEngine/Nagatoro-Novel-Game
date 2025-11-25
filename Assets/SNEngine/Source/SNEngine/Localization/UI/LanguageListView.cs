@@ -5,7 +5,6 @@ using SNEngine.Polling;
 using SNEngine.Services;
 using SNEngine.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -117,12 +116,6 @@ namespace SNEngine.Localization.UI
 
         private async UniTask<Sprite> LoadFlagTextureAsync(string absolutePath)
         {
-            if (!NovelFile.Exists(absolutePath))
-            {
-                NovelGameDebug.LogError($"Flag file not found: {absolutePath}");
-                return null;
-            }
-
             try
             {
                 byte[] flagBytes = await NovelFile.ReadAllBytesAsync(absolutePath);

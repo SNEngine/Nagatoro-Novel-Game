@@ -5,6 +5,7 @@ using SNEngine.IO;
 using SNEngine.Localization.Models;
 using System;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace SNEngine.Editor.Language.Workers
@@ -69,7 +70,8 @@ namespace SNEngine.Editor.Language.Workers
 
             Serializer serializer = new Serializer();
             string outputData = serializer.Serialize(mergedData);
-            await NovelFile.WriteAllTextAsync(fullPath, outputData);
+            var utf8NoBom = new UTF8Encoding(false);
+            await NovelFile.WriteAllTextAsync(fullPath, outputData, utf8NoBom);
 
             return result;
         }

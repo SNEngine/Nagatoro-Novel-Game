@@ -30,20 +30,6 @@ namespace SNEngine.IO
             {
                 return true;
             }
-            if (Application.platform == RuntimePlatform.WebGLPlayer)
-            {
-                return true;
-            }
-
-            if (path.Contains("://"))
-            {
-                return true;
-            }
-
-            if (Application.platform == RuntimePlatform.Android && path.Contains(Application.streamingAssetsPath))
-            {
-                return true;
-            }
 
             return false;
         }
@@ -63,12 +49,16 @@ namespace SNEngine.IO
         static async UniTask<byte[]> ReadStreamingAssetsBytesAsync(string path)
         {
             using var request = UnityWebRequest.Get(path);
+            request.downloadHandler = new DownloadHandlerBuffer();
+
             await request.SendWebRequest();
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                throw new IOException($"Failed to load file from StreamingAssets: {path}. Error: {request.error}");
+                NovelGameDebug.LogError($"[NovelFile] Failed to read binary file at {path}: {request.error}");
+                return null;
             }
+
             return request.downloadHandler.data;
         }
 
@@ -133,6 +123,8 @@ namespace SNEngine.IO
             });
         }
 
+
+
         public static byte[] ReadAllBytes(string path)
         {
             if (IsStreamingAssetsPathRestricted(path))
@@ -172,7 +164,7 @@ namespace SNEngine.IO
 
         static async UniTask<bool> ExistsStreamingAssetsAsync(string path)
         {
-            using var request = UnityWebRequest.Head(path);
+            using var request = UnityWebRequest.Get(path);
             await request.SendWebRequest();
             return request.result == UnityWebRequest.Result.Success;
         }
@@ -243,6 +235,11 @@ namespace SNEngine.IO
 
         public static string GetAbsolutePath(string path)
         {
+            if (IsStreamingAssetsPathRestricted(path))
+            {
+                return path;
+            }
+
             if (Path.IsPathRooted(path))
             {
                 return path;

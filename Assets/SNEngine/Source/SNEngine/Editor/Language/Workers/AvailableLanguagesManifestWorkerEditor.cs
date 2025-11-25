@@ -6,6 +6,7 @@ using SNEngine.Localization.Models;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace SNEngine.Editor.Language.Workers
@@ -14,8 +15,7 @@ namespace SNEngine.Editor.Language.Workers
     public class AvailableLanguagesManifestWorkerEditor : LanguageEditorWorker
     {
         public static string PathSave { get; set; }
-        private const string NAME_FILE = "manifest.json";
-        private const string LanguageBaseDir = "Language";
+        private const string NAME_FILE = "language_manifest.json";
 
         public override async UniTask<LanguageWorkerResult> Work()
         {
@@ -55,7 +55,9 @@ namespace SNEngine.Editor.Language.Workers
                 };
 
                 string outputData = JsonConvert.SerializeObject(newManifest, Formatting.Indented);
-                await NovelFile.WriteAllTextAsync(fullPath, outputData);
+
+                var utf8NoBom = new UTF8Encoding(false);
+                await NovelFile.WriteAllTextAsync(fullPath, outputData, utf8NoBom);
 
                 return result;
             }
