@@ -47,7 +47,7 @@ namespace SNEngine.Localization.UI
             }
 
             var languageService = NovelGame.Instance.GetService<LanguageService>();
-            var data = await languageService.GetAvailableLanguagesAsync();
+            var data = await languageService.LoadAvailableLanguagesPreloadDataAsync();
 
             foreach (var languageData in data)
             {
@@ -87,7 +87,7 @@ namespace SNEngine.Localization.UI
         private async void OnHoverLanguage(string code)
         {
             var languageService = NovelGame.Instance.GetService<LanguageService>();
-            var languages = await languageService.GetAvailableLanguagesAsync();
+            var languages = await languageService.LoadAvailableLanguagesPreloadDataAsync();
             var targetLanguage = languages.FirstOrDefault(x => x.Key == code);
 
             if (targetLanguage.Value != null)
