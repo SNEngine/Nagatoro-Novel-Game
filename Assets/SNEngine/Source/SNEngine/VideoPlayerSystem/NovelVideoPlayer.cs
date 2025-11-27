@@ -24,6 +24,7 @@ namespace SNEngine.VideoPlayerSystem
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private RawImage _rawImage;
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private AudioSource _audioSource;
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private AspectRatioFitter _aspectRatioFitter;
+        [SerializeField] private Button _buttonSkip;
 
         private RenderTexture _renderTexture;
         private bool _isUserInteracted = false;
@@ -241,11 +242,27 @@ namespace SNEngine.VideoPlayerSystem
                 _renderTexture.Release();
                 Destroy(_renderTexture);
             }
+            Stop();
             Clip = null;
             UpdateMode = VideoTimeUpdateMode.UnscaledGameTime;
             PlaybackSpeed = 1;
             IsLooping = false;
             Hide();
+        }
+
+        private void OnEnable()
+        {
+            _buttonSkip.onClick.AddListener(Skip);
+        }
+
+        private void OnDisable()
+        {
+            _buttonSkip.onClick.RemoveListener(Skip);
+        }
+
+        private void Skip()
+        {
+            Stop();
         }
     }
 }

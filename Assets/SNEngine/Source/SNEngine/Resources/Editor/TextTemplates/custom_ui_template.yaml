@@ -19,3 +19,4 @@ fight_uses_prefix: uses # SMALL LETTERS
 fight_damage: damage # SMALL LETTERS
 fight_critical_damage_message: takes critical # SMALL LETTERS
 fight_from: from # SMALL LETTERS
+skip: Skip
