@@ -5,6 +5,9 @@ using UnityEngine.Video;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using System;
+#if UNITY_WEBGL
+using SNEngine.WebGL;
+#endif
 
 namespace SNEngine.VideoPlayerSystem
 {
@@ -12,6 +15,9 @@ namespace SNEngine.VideoPlayerSystem
     [RequireComponent(typeof(RawImage))]
     [RequireComponent(typeof(VideoPlayer))]
     [RequireComponent(typeof(AspectRatioFitter))]
+#if UNITY_WEBGL
+    [RequireComponent(typeof(WebGLVideoPlayerAudioSourceController))]
+#endif
     public class NovelVideoPlayer : MonoBehaviour, INovelVideoPlayer
     {
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private VideoPlayer _videoPlayer;

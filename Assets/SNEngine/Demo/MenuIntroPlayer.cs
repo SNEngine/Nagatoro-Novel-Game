@@ -5,6 +5,9 @@ using System.IO;
 using Cysharp.Threading.Tasks;
 using System;
 using SNEngine.Audio;
+#if UNITY_WEBGL
+using SNEngine.WebGL;
+#endif
 
 namespace CoreGame
 {
@@ -13,6 +16,9 @@ namespace CoreGame
     [RequireComponent(typeof(VideoPlayer))]
     [RequireComponent(typeof(AspectRatioFitter))]
     [RequireComponent(typeof(AudioSourceController))]
+#if UNITY_WEBGL
+    [RequireComponent(typeof(WebGLVideoPlayerAudioSourceController))]
+#endif
     public class MenuIntroPlayer : MonoBehaviour
     {
         [SerializeField] private VideoPlayer _videoPlayer;
