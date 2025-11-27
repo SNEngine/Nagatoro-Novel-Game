@@ -37,7 +37,7 @@ namespace SNEngine.MainMenuSystem
                 throw new NullReferenceException("button settings game not seted on main menu script");
             }
 
-#if UNITY_STANDALONE
+#if !UNITY_WEBGL && !UNITY_ANDROID && !UNITY_IOS
             if (!_buttonQuit)
             {
                 throw new NullReferenceException("button quit game not seted on main menu script");
@@ -57,7 +57,7 @@ namespace SNEngine.MainMenuSystem
                 NewGame,
                 Continue,
                 OpenSettings,
-#if UNITY_STANDALONE
+#if !UNITY_WEBGL && !UNITY_ANDROID && !UNITY_IOS
                 Exit,
 	#endif
             };
@@ -67,7 +67,7 @@ namespace SNEngine.MainMenuSystem
                 _buttonNewGamw,
                 _buttonContinue,
                 _buttonSettings,
-#if UNITY_STANDALONE
+#if !UNITY_WEBGL && !UNITY_ANDROID && !UNITY_IOS
                 _buttonQuit,
 	#endif
             };
@@ -77,7 +77,7 @@ namespace SNEngine.MainMenuSystem
                 AddListenerToButton(buttons[i], actions[i]);
             }
 
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             Destroy(_buttonQuit.gameObject);
 #endif
         }
@@ -142,10 +142,11 @@ namespace SNEngine.MainMenuSystem
         {
             NovelGame.Instance.GetService<SettingsService>().Show();
         }
-
+#if !UNITY_WEBGL && !UNITY_ANDROID && !UNITY_IOS
         private void Exit()
         {
             Application.Quit();
         }
+#endif
     }
 }

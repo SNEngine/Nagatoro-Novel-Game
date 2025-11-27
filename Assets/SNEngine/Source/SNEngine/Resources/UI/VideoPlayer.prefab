@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3672638008442108844}
   - component: {fileID: 3769047416325809442}
   - component: {fileID: 7775962525442938173}
+  - component: {fileID: 5020374386796637429}
   m_Layer: 0
   m_Name: VideoPlayer
   m_TagString: Untagged
@@ -194,7 +195,7 @@ VideoPlayer:
   m_DataSource: 0
   m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
-  m_AudioOutputMode: 1
+  m_AudioOutputMode: 2
   m_TargetAudioSources:
   - {fileID: 4255123918923512493}
   m_DirectAudioVolumes:
@@ -239,6 +240,20 @@ MonoBehaviour:
   _rawImage: {fileID: 8153098094242407006}
   _audioSource: {fileID: 4255123918923512493}
   _aspectRatioFitter: {fileID: 3769047416325809442}
-  _defaultClip: {fileID: 0}
+  _defaultFilePath: 
   _playOnAwake: 0
   _isLooping: 0
+--- !u!114 &5020374386796637429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2497538121113376057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59b41b646bbfd6b49a533a00c7cf6c65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _videoPlayer: {fileID: 3672638008442108844}
+  _defaultAudioType: 0
