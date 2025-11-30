@@ -4,18 +4,19 @@ import json
 import sys  
 from typing import Dict, Any, List, TYPE_CHECKING
 from PyQt5.QtGui import QColor 
+from PyQt5.QtGui import QIcon, QPixmap
 
 from models import YamlTab 
 
-# Для статической проверки типов без циклического импорта в рантайме
+# For static type checking without circular import at runtime
 if TYPE_CHECKING:
     from view import YAMLEditorWindow
     from PyQt5.QtWidgets import QTextEdit 
 
 class SessionManager:
     """
-    Управляет сохранением и загрузкой состояния сессии редактора.
-    Включает сохранение последнего открытого пути для QFileDialog.
+    Manages saving and loading the editor's session state.
+    Includes saving the last open path for QFileDialog.
     """
     
     SESSION_FILENAME = "session.json"
@@ -36,45 +37,50 @@ class SessionManager:
 
     def save_session(self):
         """
-        Сохраняет текущее состояние приложения в session.json.
+        Saves the current application state to session.json.
         """
         current_tab_index = -1
         if self.parent_window.current_tab:
             try:
                 current_tab_index = self.parent_window.open_tabs.index(self.parent_window.current_tab)
             except ValueError:
-                 current_tab_index = -1
-        
-        # Если проект не открыт, сохраняем только путь для диалога и выходим
-        if not self.parent_window.root_lang_path_normalized:
-            if os.path.exists(self.session_file_path):
-                 try:
-                    os.remove(self.session_file_path) 
-                 except Exception as e:
-                    print(f"Warning: Could not clear session file: {e}")
-            
-            if self.parent_window._last_open_dir:
-                session_data = {'last_open_dir': self.parent_window._last_open_dir}
-            else:
-                return # Нечего сохранять
-        else:
-            session_data = {
-                'root_path': self.parent_window.root_lang_path_normalized,
-                'current_tab_index': current_tab_index,
-                'open_tabs': [],
-                'foldouts': self.parent_window._foldouts,
-                'last_open_dir': self.parent_window._last_open_dir 
-            }
+                current_tab_index = -1
 
-            # Сохраняем только путь и is_dirty (и dirty_content)
+        session_data = {
+            'root_path': self.parent_window.root_lang_path_normalized,
+            'root_localization_path': self.parent_window.root_localization_path,
+            'active_language': self.parent_window.active_language,
+            'current_tab_index': current_tab_index,
+            'open_tabs': [], # Always initialize as empty list
+            'foldouts': self.parent_window._foldouts,
+            'last_open_dir': self.parent_window._last_open_dir
+        }
+
+        # If there's no root_localization_path, we still want to save last_open_dir
+        if not self.parent_window.root_localization_path:
+            if self.parent_window._last_open_dir:
+                session_data['last_open_dir'] = self.parent_window._last_open_dir
+            # If no root_localization_path and no last_open_dir, then nothing significant to save
+            elif not self.parent_window.open_tabs: # Only return if no tabs are open either
+                if os.path.exists(self.session_file_path):
+                    try:
+                        os.remove(self.session_file_path)
+                    except Exception as e:
+                        print(f"Warning: Could not clear session file: {e}")
+                return
+
+        # Always iterate and save open tabs if root_localization_path is available
+        if self.parent_window.root_localization_path:
+            normalized_root_localization_path = self.parent_window.lang_service.normalize_path(self.parent_window.root_localization_path)
             for tab in self.parent_window.open_tabs:
-                if tab.file_path.lower().startswith(self.parent_window.root_lang_path_normalized):
-                     tab_data = {
+                # Check if the tab's file_path starts with the normalized root_localization_path
+                if tab.file_path.lower().startswith(normalized_root_localization_path):
+                    tab_data = {
                         'file_path': tab.file_path,
                         'is_dirty': tab.is_dirty,
-                        'dirty_content': tab.yaml_text if tab.is_dirty else None 
+                        'dirty_content': tab.yaml_text if tab.is_dirty else None
                     }
-                     session_data['open_tabs'].append(tab_data)
+                    session_data['open_tabs'].append(tab_data)
 
         try:
             with open(self.session_file_path, 'w', encoding='utf-8') as f:
@@ -84,7 +90,7 @@ class SessionManager:
             print(f"Error saving session: {e}")
 
     def load_session(self) -> Dict[str, Any] | None:
-        """Загружает данные сессии из session.json."""
+        """Loads session data from session.json."""
         if not os.path.exists(self.session_file_path):
             return None
 
@@ -103,33 +109,67 @@ class SessionManager:
             return None
             
     def restore_session(self):
-        """Восстанавливает сохраненное состояние приложения при запуске."""
+        """Restores the saved application state on startup."""
         session_data = self.load_session()
         if not session_data:
             return
 
         root_path = session_data.get('root_path')
+        root_localization_path = session_data.get('root_localization_path') # New: Load root localization path
+        active_language = session_data.get('active_language') # New: Load active language
         open_tabs_data = session_data.get('open_tabs', [])
         current_tab_index = session_data.get('current_tab_index', -1)
         foldouts = session_data.get('foldouts', {})
         last_open_dir = session_data.get('last_open_dir')
         
-        # 1. Восстановление последнего пути для QFileDialog
+        # 1. Restore last path for QFileDialog
         if last_open_dir and os.path.isdir(last_open_dir):
             self.parent_window._last_open_dir = last_open_dir
         
-        # 2. Если нет открытого проекта, останавливаемся
+        # 2. If no project is open, stop
         if not root_path or not os.path.isdir(root_path):
             return
             
-        # 3. Восстановление состояния раскрытия папок
+        # New: Restore root_localization_path and populate language selector
+        if root_localization_path and os.path.isdir(root_localization_path):
+            self.parent_window.root_localization_path = root_localization_path
+            language_folders = self.parent_window.lang_service.get_language_folders(root_localization_path)
+            self.parent_window.language_selector_combo.clear()
+            if language_folders:
+                for lang_code in language_folders:
+                    flag_path = os.path.join(root_localization_path, lang_code, 'flag.png')
+                    icon = QIcon()
+                    if os.path.isfile(flag_path):
+                        pix = QPixmap(flag_path)
+                        if not pix.isNull():
+                            icon = QIcon(pix)
+                    self.parent_window.language_selector_combo.addItem(icon, lang_code.upper())
+
+                self.parent_window.language_selector_combo.setEnabled(True)
+
+                # If active_language from session is not set or not in the list (lowercase comparison)
+                session_active_language_lower = active_language.lower() if active_language else ""
+                if not session_active_language_lower or session_active_language_lower not in [lc.lower() for lc in language_folders]:
+                    self.parent_window.active_language = language_folders[0].lower()
+                else:
+                    self.parent_window.active_language = session_active_language_lower
+                
+                self.parent_window.language_selector_combo.setCurrentText(self.parent_window.active_language.upper())
+            else:
+                self.parent_window.language_selector_combo.setEnabled(False)
+                self.parent_window.active_language = None
+
+        # 3. Restore folder foldout states
         self.parent_window._foldouts = foldouts
 
-        # 4. Загрузка структуры папки 
+        # 4. Load folder structure 
         error_color = QColor(self.parent_window.STYLES['DarkTheme']['NotificationError'])
         success_color = QColor(self.parent_window.STYLES['DarkTheme']['NotificationSuccess'])
         
-        new_structure = self.parent_window.lang_service.get_language_structure_from_path(root_path)
+        # Use get_language_specific_structure to load the active language's structure
+        new_structure = self.parent_window.lang_service.get_language_specific_structure(
+            root_localization_path, self.parent_window.active_language
+        )
 
         if not self.parent_window.validator.validate_structure(new_structure):
             self.parent_window.show_notification(
@@ -143,13 +183,13 @@ class SessionManager:
         self.parent_window.root_lang_path_normalized = self.parent_window.temp_structure.get('root_path')
 
         folder_name = os.path.basename(root_path)
-        self.parent_window.language_label.setText(f"Language: {folder_name}")
+        # self.parent_window.language_label.setText(f"Language: {folder_name}") # Removed
         self.parent_window.show_notification(
             f"Structure loaded from previous session: {folder_name}", 
             success_color
         )
 
-        # 5. Восстановление открытых вкладок
+        # 5. Restore open tabs
         for tab_data in open_tabs_data:
             file_path = tab_data.get('file_path')
             is_dirty = tab_data.get('is_dirty', False)
@@ -179,7 +219,7 @@ class SessionManager:
                 new_tab.is_dirty = is_dirty 
                 self.parent_window.open_tabs.append(new_tab)
 
-        # 6. Установка активной вкладки
+        # 6. Set active tab
         if self.parent_window.open_tabs:
             target_index = min(current_tab_index, len(self.parent_window.open_tabs) - 1)
             
@@ -190,17 +230,17 @@ class SessionManager:
             self.parent_window.current_tab = self.parent_window.open_tabs[target_index]
             self.parent_window.text_edit.setText(self.parent_window.current_tab.yaml_text)
             
-            # ВОЗВРАЩЕНО: Используем clearUndoRedoStacks()
+            # RESTORED: Use clearUndoRedoStacks()
             self.parent_window.text_edit.document().clearUndoRedoStacks() 
         else:
             self.parent_window.current_tab_index = -1
             self.parent_window.current_tab = None
             self.parent_window.text_edit.setText("")
-            # ВОЗВРАЩЕНО: Используем clearUndoRedoStacks()
+            # RESTORED: Use clearUndoRedoStacks()
             if hasattr(self.parent_window.text_edit, 'clearUndoRedoStacks'):
                  self.parent_window.text_edit.document().clearUndoRedoStacks()
 
-        # 7. Обновление UI
+        # 7. Update UI
         self.parent_window.draw_file_tree()
         self.parent_window.draw_tabs_placeholder()
         self.parent_window.update_status_bar()

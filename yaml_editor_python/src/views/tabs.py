@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QGraphicsOpacityEffect
 from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtCore import QEasingCurve
+from PyQt5.QtWidgets import QMenu, QMessageBox
+from PyQt5.QtGui import QPalette
 
 
 def draw_tabs_placeholder(self):
@@ -151,22 +153,6 @@ def show_tab_context_menu(self, global_pos: QPoint, index: int):
     """Show a custom popup menu with staggered fade-in animations for each menu item."""
     # build menu items (label, callback)
     # helper actions
-    def _new_file_action():
-        try:
-            from models import YamlTab
-            import uuid
-            name = f"untitled_{uuid.uuid4().hex[:6]}.yaml"
-            new_tab = YamlTab(name, "")
-            self.open_tabs.append(new_tab)
-            self.current_tab_index = len(self.open_tabs) - 1
-            self.current_tab = new_tab
-            self.text_edit.setText("")
-            self.draw_tabs_placeholder()
-            self.draw_file_tree()
-            self.update_status_bar()
-        except Exception:
-            pass
-
     def _open_file_action():
         try:
             from PyQt5.QtWidgets import QFileDialog
@@ -184,8 +170,6 @@ def show_tab_context_menu(self, global_pos: QPoint, index: int):
         ("Close Tab", lambda: close_tab_with_animation(self, index)),
         ("Close Other Tabs", lambda: close_other_tabs(self, index)),
         ("Close Tabs With Deleted Files", lambda: close_deleted_tabs(self)),
-        ("Split View", lambda: split_view_action(self, index)),
-        ("New File", _new_file_action),
     ]
 
     # parent the popup to main window so stacking is correct
@@ -271,19 +255,7 @@ def close_deleted_tabs(self):
         self.current_tab = None
     self.draw_tabs_placeholder()
     self.draw_file_tree()
-
-
-def split_view_action(self, index: int):
-    # placeholder: existing app doesn't have split view implemented; toggle no-op
-    try:
-        # If there is a split view handler, call it; otherwise show notification
-        if hasattr(self, 'split_view'):
-            self.split_view(index)
-        else:
-            color = QColor(self.STYLES['DarkTheme'].get('StatusDefault', '#999999'))
-            self.show_notification('Split view not implemented', color)
-    except Exception:
-        pass
+    self.update_status_bar()
 
 
 def close_tab_with_animation(self, index: int):
@@ -297,8 +269,8 @@ def close_tab_with_animation(self, index: int):
     if tab_to_close.is_dirty:
         try:
             from PyQt5.QtWidgets import QMessageBox
-            reply = QMessageBox.question(self, 'Сохранить изменения',
-                                          f"Файл '{os.path.basename(tab_to_close.file_path)}' имеет несохраненные изменения. Хотите сохранить?",
+            reply = question_message_box(self, 'Save Changes',
+                                          f"File '{os.path.basename(tab_to_close.file_path)}' has unsaved changes. Do you want to save?",
                                           QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Cancel)
             if reply == QMessageBox.Cancel:
                 return
@@ -408,8 +380,8 @@ def try_close_tab(self, index: int):
 
     tab_to_close = self.open_tabs[index]
     if tab_to_close.is_dirty:
-        reply = self.QMessageBox.question(self, 'Сохранить изменения',
-                                          f"Файл '{os.path.basename(tab_to_close.file_path)}' имеет несохраненные изменения. Хотите сохранить?",
+        reply = self.question_message_box(self, 'Save Changes',
+                                          f"File '{os.path.basename(tab_to_close.file_path)}' has unsaved changes. Do you want to save?",
                                           self.QMessageBox.Save | self.QMessageBox.Discard | self.QMessageBox.Cancel, self.QMessageBox.Cancel)
         if reply == self.QMessageBox.Cancel:
             return
@@ -446,3 +418,55 @@ def update_undo_redo_ui(self):
 
     self.undo_action.setEnabled(len(self.current_tab.undo_stack) > 0)
     self.redo_action.setEnabled(len(self.current_tab.redo_stack) > 0)
+
+
+def question_message_box(parent, title, text, buttons, default_button):
+    msg_box = QMessageBox(parent)
+    msg_box.setWindowTitle(title)
+    msg_box.setText(text)
+    msg_box.setStandardButtons(buttons)
+    msg_box.setDefaultButton(default_button)
+
+    # Apply custom styles
+    palette = QPalette()
+    background_color = parent.STYLES['DarkTheme']['SecondaryBackground']
+    foreground_color = parent.STYLES['DarkTheme']['Foreground']
+    border_color = parent.STYLES['DarkTheme']['BorderColor']
+    
+    palette.setColor(QPalette.Window, QColor(background_color))
+    palette.setColor(QPalette.WindowText, QColor(foreground_color))
+    msg_box.setPalette(palette)
+
+    # Apply a stylesheet for more detailed control
+    highlight_color = parent.STYLES['DarkTheme']['HighlightColor']
+    msg_box.setStyleSheet(f"""
+        QMessageBox {{
+            background-color: {background_color};
+            color: {foreground_color};
+            border: 1px solid {border_color};
+            font-size: 14px;
+            padding: 15px;
+            spacing: 10px; /* Increased spacing between buttons */
+        }}
+        QMessageBox QLabel {{
+            background-color: transparent; /* Removed background from text */
+            color: {foreground_color};
+            padding: 10px 0;
+        }}
+        QMessageBox QPushButton {{
+            background-color: {parent.STYLES['DarkTheme']['FilePanelBackground']};
+            color: {foreground_color};
+            border: 1px solid {highlight_color};
+            padding: 8px 20px;
+            min-width: 100px;
+            border-radius: 4px;
+            margin: 5px; /* Added margin for spacing */
+        }}
+        QMessageBox QPushButton:hover {{
+            background-color: {parent.STYLES['DarkTheme']['FilePanelHover']};
+        }}
+        QMessageBox QPushButton:pressed {{
+            background-color: {parent.STYLES['DarkTheme']['Background']};
+        }}
+    """)
+    return msg_box.exec_()

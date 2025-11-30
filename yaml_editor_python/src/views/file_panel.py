@@ -6,7 +6,7 @@ from PyQt5.QtGui import QColor
 
 def create_file_panel(self) -> QWidget:
     panel = QWidget()
-    panel.setObjectName("FilePanelWidget") # Для применения стиля CSS
+    panel.setObjectName("FilePanelWidget") # For applying CSS style
     layout = QVBoxLayout(panel)
     layout.setContentsMargins(5, 5, 5, 5)
 
@@ -58,17 +58,21 @@ def clear_layout(self, layout):
 def draw_file_tree(self):
     self.clear_layout(self.file_tree_layout)
     
-    root_path = self.temp_structure.get('root_path')
+    # root_path will now be the active language folder (e.g., .../Language/en)
+    root_to_display = None
+    if self.root_localization_path and self.active_language:
+        root_to_display = os.path.join(self.root_localization_path, self.active_language.lower())
+
     structure = self.temp_structure.get('structure', {})
 
-    if not root_path or not structure:
+    if not root_to_display or not structure or not os.path.isdir(root_to_display):
         placeholder = QLabel("Select language folder via 'Open Folder...'")
         placeholder.setAlignment(Qt.AlignCenter)
         self.file_tree_layout.addWidget(placeholder)
         self.file_tree_layout.addStretch(1)
         return
     
-    self.draw_folder_content(root_path, structure, 0)
+    self.draw_folder_content(root_to_display, structure, 0)
     self.file_tree_layout.addStretch(1)
 
 
@@ -107,20 +111,30 @@ def check_folder_for_match_recursive(self, folder_path_normalized: str) -> bool:
 
 def draw_folder_content(self, folder_path: str, structure: dict, level: int):
     normalized_path = self.lang_service.normalize_path(folder_path)
+
+    # Only display content if it's within the active language's path
+    if self.root_localization_path and self.active_language:
+        active_lang_full_path = self.lang_service.normalize_path(os.path.join(self.root_localization_path, self.active_language.lower()))
+        if not normalized_path.startswith(active_lang_full_path):
+            return # Skip folders/files not in the active language path
+
     if normalized_path not in structure:
         return
 
     is_searching = bool(self.search_input.text())
     folder_matches = self.check_folder_for_match_recursive(normalized_path)
     
-    if is_searching and not folder_matches and normalized_path != self.root_lang_path_normalized:
+    # If it's the root of the *active language*, always show it
+    is_active_lang_root = (self.root_localization_path and self.active_language and normalized_path == self.lang_service.normalize_path(os.path.join(self.root_localization_path, self.active_language.lower())))
+
+    if is_searching and not folder_matches and not is_active_lang_root:
         return
 
     folder_name = os.path.basename(folder_path)
     should_be_open = True 
     
-    if normalized_path == self.root_lang_path_normalized:
-        folder_name = os.path.basename(folder_path) 
+    # Adjust for the root of the active language, not the overall localization root
+    if is_active_lang_root:
         should_be_open = self.get_or_set_foldout(normalized_path, default=True) 
         
     elif is_searching and folder_matches:
@@ -129,11 +143,12 @@ def draw_folder_content(self, folder_path: str, structure: dict, level: int):
         should_be_open = self.get_or_set_foldout(normalized_path) 
     
     
-    # 1. Отрисовка текущей папки/кнопки-переключателя
+    # 1. Draw current folder/toggle button
     folder_color = self.STYLES['DarkTheme']['FolderColor']
     
-    if normalized_path == self.root_lang_path_normalized:
-        label = QLabel(f" {folder_name}")
+    # Display the active language folder name clearly
+    if is_active_lang_root:
+        label = QLabel(f" {folder_name} (Active Language)")
         label.setPixmap(self.icon_folder.pixmap(QSize(16, 16)))
         label.setStyleSheet(f"color: {folder_color}; padding: 2px 0; margin-left: 0px; font-weight: bold;")
         self.file_tree_layout.addWidget(label)
@@ -145,7 +160,7 @@ def draw_folder_content(self, folder_path: str, structure: dict, level: int):
         folder_button.setFlat(True)
         folder_button.setIcon(self.icon_folder)
         
-        # Стиль для папки
+        # Style for folder
         folder_button.setStyleSheet(f"""
             QPushButton {{ 
                 text-align: left; 
@@ -164,7 +179,7 @@ def draw_folder_content(self, folder_path: str, structure: dict, level: int):
         
         self.file_tree_layout.addWidget(folder_button)
 
-    # 2. Отрисовка файлов и рекурсивный вызов, если should_be_open
+    # 2. Draw files and recursive call if should_be_open
     if should_be_open or is_searching:
         files = sorted(structure.get(normalized_path, []))
         

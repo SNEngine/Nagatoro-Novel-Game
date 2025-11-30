@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QToolBar, QLabel, QAction, QWidget, QSizePolicy
+from PyQt5.QtWidgets import QToolBar, QLabel, QAction, QWidget, QSizePolicy, QComboBox
 from PyQt5.QtCore import Qt, QSize
 
 
@@ -10,7 +10,7 @@ def create_main_toolbar(self):
     
     main_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
-    # --- КНОПКА OPEN FOLDER ---
+    # --- OPEN FOLDER BUTTON ---
     open_action = QAction(self.icon_folder, "Open Folder...", self)
     open_action.triggered.connect(self.open_folder_dialog)
     main_toolbar.addAction(open_action)
@@ -24,20 +24,20 @@ def create_main_toolbar(self):
     
     main_toolbar.addSeparator()
     
-    # Флаг + метка для выбора языка
-    self.flag_label = QLabel()
-    self.flag_label.setFixedSize(24, 16)
-    self.flag_label.setScaledContents(True)
-    main_toolbar.addWidget(self.flag_label)
+    # Removed: Flag + label for language selection
+    # self.flag_label = QLabel()
+    # self.flag_label.setFixedSize(24, 16)
+    # self.flag_label.setScaledContents(True)
+    # main_toolbar.addWidget(self.flag_label)
 
-    self.language_label = QLabel("Language: N/A")
-    main_toolbar.addWidget(self.language_label)
+    # self.language_label = QLabel("Language: N/A") # Removed
+    # main_toolbar.addWidget(self.language_label) # Removed
     
-    # Заглушка для Font Size
-    self.font_size_label = QLabel(f"Font Size: {self._current_font_size} (Ctrl+↑/↓)")
-    main_toolbar.addWidget(self.font_size_label)
+    # Placeholder for Font Size (Removed)
+    # self.font_size_label = QLabel(f"Font Size: {self._current_font_size} (Ctrl+↑/↓)")
+    # main_toolbar.addWidget(self.font_size_label)
     
-    # Гибкое пространство
+    # Flexible space
     main_toolbar.addSeparator()
     spacer = QWidget()
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)

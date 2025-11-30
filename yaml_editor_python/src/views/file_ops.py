@@ -8,7 +8,16 @@ def load_file(self, file_path: str):
     if not file_path:
         return
 
-    normalized_path = self.lang_service.normalize_path(file_path)
+    # New: Adjust file_path with active_language if a root_localization_path is set
+    effective_file_path = file_path
+    if self.root_localization_path and self.active_language:
+        # Check if the file_path already contains the language segment
+        lang_segment = os.path.join(self.root_localization_path, self.active_language)
+        if not file_path.lower().startswith(lang_segment.lower()):
+            # Assuming file_path is relative to the language folder, prepend it
+            effective_file_path = os.path.join(self.root_localization_path, self.active_language, file_path)
+
+    normalized_path = self.lang_service.normalize_path(effective_file_path)
     existing_tab = next((t for t in self.open_tabs if self.lang_service.normalize_path(t.file_path) == normalized_path), None)
 
     if existing_tab:
@@ -17,21 +26,21 @@ def load_file(self, file_path: str):
 
     file_content = ""
     try:
-        if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
+        if os.path.exists(effective_file_path):
+            with open(effective_file_path, 'r', encoding='utf-8') as f:
                 file_content = f.read()
         else:
             color = QColor(self.STYLES['DarkTheme']['NotificationWarning'])
-            self.show_notification(f"File not found: {os.path.basename(file_path)}", color)
+            self.show_notification(f"File not found: {os.path.basename(effective_file_path)}", color)
             return
     except Exception as e:
         color = QColor(self.STYLES['DarkTheme']['NotificationError'])
-        self.show_notification(f"Error reading file: {os.path.basename(file_path)}", color)
+        self.show_notification(f"Error reading file: {os.path.basename(effective_file_path)}", color)
         print(f"File read error: {e}")
         return
 
     from models import YamlTab
-    new_tab = YamlTab(file_path, file_content)
+    new_tab = YamlTab(file_path, file_content) # Keep original file_path for tab management
     self.open_tabs.append(new_tab)
     self.current_tab_index = len(self.open_tabs) - 1
     self.current_tab = new_tab
@@ -97,7 +106,15 @@ def save_file_action(self, tab_to_save):
             self.show_notification(f"Cannot save: YAML syntax error in {os.path.basename(tab_to_save.file_path)}.", color)
             return
 
-        with open(tab_to_save.file_path, 'w', encoding='utf-8') as f:
+        # New: Adjust file_path with active_language for saving
+        effective_file_path = tab_to_save.file_path
+        if self.root_localization_path and self.active_language:
+            lang_segment = os.path.join(self.root_localization_path, self.active_language)
+            if not effective_file_path.lower().startswith(lang_segment.lower()):
+                # Prepend the language path if it's not already there
+                effective_file_path = os.path.join(lang_segment, os.path.relpath(effective_file_path, self.root_localization_path))
+        
+        with open(effective_file_path, 'w', encoding='utf-8') as f:
             f.write(tab_to_save.yaml_text)
 
         tab_to_save.is_dirty = False

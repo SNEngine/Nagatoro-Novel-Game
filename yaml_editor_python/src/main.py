@@ -2,18 +2,18 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 
-# После создания __init__.py в папке src, этот импорт работает надежно!
+# After creating __init__.py in the src folder, this import works reliably!
 from view import YAMLEditorWindow
 
 def main():
-    # 1. Инициализация QApplication
+    # 1. QApplication initialization
     app = QApplication(sys.argv)
     
-    # 2. Создание и отображение главного окна
+    # 2. Create and display the main window
     editor_window = YAMLEditorWindow()
     editor_window.show()
     
-    # 3. Запуск основного цикла событий
+    # 3. Start the main event loop
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

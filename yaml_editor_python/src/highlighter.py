@@ -4,17 +4,17 @@ from PyQt5.QtCore import Qt, QRegularExpression
 import re
 from typing import Dict, Any
 
-# --- Константы стилей (на основе скриншота и темной темы) ---
-# В реальном проекте это должно загружаться из YamlSyntaxStyle
-# Используем темные цвета, близкие к Unity Editor
+# --- Style Constants (based on screenshot and dark theme) ---
+# In a real project, this should be loaded from YamlSyntaxStyle
+# Using dark colors, close to Unity Editor
 class YamlSyntaxStyle:
     def __init__(self):
-        # Цвета в формате HEX, используемые в Rich Text и адаптированные для Qt
-        self.comment_color = "#608B4E"  # Ярко-зеленый
-        self.key_color = "#C8A33E"      # Желто-коричневый
-        self.keyword_color = "#AF55C4"  # Фиолетовый (для булевых/null)
-        self.string_color = "#32B7FF"   # Ярко-голубой (для строк и тире в списках)
-        self.default_color = "#CCCCCC"  # Светло-серый (для обычного текста)
+        # Colors in HEX format, used in Rich Text and adapted for Qt
+        self.comment_color = "#608B4E"  # Bright green
+        self.key_color = "#C8A33E"      # Yellow-brown
+        self.keyword_color = "#AF55C4"  # Purple (for boolean/null)
+        self.string_color = "#32B7FF"   # Bright blue (for strings and list dashes)
+        self.default_color = "#CCCCCC"  # Light gray (for plain text)
 
 
 class YamlHighlighter(QSyntaxHighlighter):
@@ -25,52 +25,52 @@ class YamlHighlighter(QSyntaxHighlighter):
         self.initialize_formats()
 
     def initialize_formats(self):
-        # 1. Формат для комментариев (CommentColor)
+        # 1. Format for comments (CommentColor)
         comment_format = QTextCharFormat()
         comment_format.setForeground(QColor(self.styles.comment_color))
-        # Регулярное выражение для комментария: начинается с # и идет до конца строки
+        # Regular expression for comment: starts with # and goes to the end of the line
         self.highlighting_rules.append((QRegularExpression("#.*"), comment_format))
 
-        # 2. Формат для ключей (KeyColor) - Используем его в методе highlightBlock
+        # 2. Format for keys (KeyColor) - Use it in the highlightBlock method
 
-        # 3. Формат для ключевых слов (KeywordColor) - true, false, null, числа
+        # 3. Format for keywords (KeywordColor) - true, false, null, numbers
         keyword_format = QTextCharFormat()
         keyword_format.setForeground(QColor(self.styles.keyword_color))
         keywords = ["true", "false", "null", "True", "False", "NULL"]
         for word in keywords:
-            # Границы слова, чтобы не подсвечивать 'true' внутри 'something-true'
+            # Word boundaries, so as not to highlight 'true' inside 'something-true'
             pattern = QRegularExpression(r'\b' + re.escape(word) + r'\b')
             self.highlighting_rules.append((pattern, keyword_format))
 
-        # 4. Формат для строк и тире списка (StringColor)
+        # 4. Format for strings and list dashes (StringColor)
         string_format = QTextCharFormat()
         string_format.setForeground(QColor(self.styles.string_color))
         
-        # Строки в кавычках (одиночные или двойные)
-        # Это сложно, лучше обрабатывать в highlightBlock
+        # Quoted strings (single or double)
+        # This is complex, better handled in highlightBlock
         
-        # Тире списка в начале строки
+        # List dash at the beginning of the line
         list_dash_format = QTextCharFormat()
         list_dash_format.setForeground(QColor(self.styles.string_color))
-        # Паттерн для тире списка: ^(\s*)-(\s*)\S
+        # Pattern for list dash: ^(\s*)-(\s*)\S
         self.highlighting_rules.append((QRegularExpression(r"^\s*-\s*"), list_dash_format))
 
 
     def highlightBlock(self, text: str):
         """
-        Основной метод, переопределяющий подсветку строки.
-        Здесь реализуется логика ApplyYamlHighlighting, но через QSyntaxHighlighter.
+        The main method, overriding line highlighting.
+        Here, ApplyYamlHighlighting logic is implemented, but through QSyntaxHighlighter.
         """
-        # Применяем правила на основе QRegularExpression
+        # Apply rules based on QRegularExpression
         for pattern, format in self.highlighting_rules:
             it = pattern.globalMatch(text)
             while it.hasNext():
                 match = it.next()
-                # Применяем формат ко всей найденной части
+                # Apply format to the entire found part
                 self.setFormat(match.capturedStart(), match.capturedLength(), format)
 
 
-        # --- Сложная логика: Ключи и Значения (Аналог ApplyYamlHighlighting) ---
+        # --- Complex Logic: Keys and Values (Analogous to ApplyYamlHighlighting) ---
 
         default_format = QTextCharFormat()
         default_format.setForeground(QColor(self.styles.default_color))
@@ -80,70 +80,70 @@ class YamlHighlighter(QSyntaxHighlighter):
         string_format.setForeground(QColor(self.styles.string_color))
 
         
-        # 1. Поиск комментария, чтобы не анализировать его
-        # Используем регэксп, имитирующий IndexOfHashOutsideQuotes
+        # 1. Find comment to avoid analyzing it
+        # Use regex, mimicking IndexOfHashOutsideQuotes
         comment_match = re.search(r'#.*', text)
         content = text
         comment_start = -1
         if comment_match:
-            # Находим индекс решетки, убеждаемся, что она вне кавычек
+            # Find the hash index, ensure it's outside quotes
             try:
                 comment_index = self.index_of_hash_outside_quotes(text)
                 if comment_index >= 0:
                     comment_start = comment_index
                     content = text[:comment_index]
             except:
-                # В случае ошибки оставляем всю строку, чтобы не сломать приложение
+                # In case of error, leave the entire line to avoid breaking the application
                 pass
 
 
-        # 2. Поиск разделителя (:)
+        # 2. Find separator (:)
         colon_index = self.index_of_char_outside_quotes(content, ':')
 
         if colon_index >= 0:
-            # Мы нашли пару "ключ: значение"
+            # We found a "key: value" pair
             key_text = content[:colon_index].strip()
             value_text = content[colon_index + 1:].lstrip()
 
-            # --- Подсветка Ключа (KeyColor) ---
-            # Находим фактическое начало ключа, пропуская отступы
+            # --- Highlight Key (KeyColor) ---
+            # Find the actual start of the key, skipping indents
             key_start_in_line = text.find(key_text.lstrip()) 
             
             if key_start_in_line != -1 and key_text.strip():
-                # Длина ключа
+                # Key length
                 key_end_in_line = key_start_in_line + len(key_text.strip())
                 
-                # Применяем формат ключа
+                # Apply key format
                 self.setFormat(key_start_in_line, len(key_text.strip()), key_format)
 
-            # --- Подсветка Значения (StringColor/KeywordColor) ---
+            # --- Highlight Value (StringColor/KeywordColor) ---
             value_start = text.find(value_text, colon_index + 1)
             
             if value_start != -1 and value_text:
-                # Если значение в кавычках (строка)
+                # If value is quoted (string)
                 if value_text.startswith('"') and value_text.endswith('"') or \
                    value_text.startswith("'") and value_text.endswith("'"):
                     self.setFormat(value_start, len(value_text), string_format)
                 
-                # Если это числа/булевы (нужно использовать QRegularExpression для точности)
+                # If it's numbers/booleans (need to use QRegularExpression for accuracy)
                 elif self.is_yaml_bool_or_null(value_text) or self.is_yaml_number(value_text):
-                    # Применяем ранее определенный KeywordFormat
-                    keyword_format = self.highlighting_rules[2][1] # Получаем формат из rules
+                    # Apply previously defined KeywordFormat
+                    keyword_format = self.highlighting_rules[2][1] # Get format from rules
                     self.setFormat(value_start, len(value_text), keyword_format)
                 
-                # Остальное - не в кавычках и не ключевые слова/числа (StringColor)
+                # The rest - not quoted and not keywords/numbers (StringColor)
                 else:
                     self.setFormat(value_start, len(value_text), string_format)
 
         
-        # --- Подсветка Тире Списка (Dash - уже сделана в initialize_formats) ---
-        # Правило `list_dash_format` уже покрывает тире в начале строки.
+        # --- Highlight List Dash (Dash - already done in initialize_formats) ---
+        # The `list_dash_format` rule already covers dashes at the beginning of the line.
 
 
-    # --- Портированные вспомогательные методы из C# ---
+    # --- Ported helper methods from C# ---
 
     def index_of_hash_outside_quotes(self, line: str) -> int:
-        """Поиск # вне кавычек (IndexOfHashOutsideQuotes)."""
+        """Find # outside quotes (IndexOfHashOutsideQuotes)."""
         in_single = False
         in_double = False
         for i, c in enumerate(line):
@@ -156,7 +156,7 @@ class YamlHighlighter(QSyntaxHighlighter):
         return -1
 
     def index_of_char_outside_quotes(self, line: str, target: str) -> int:
-        """Поиск символа вне кавычек (IndexOfCharOutsideQuotes)."""
+        """Find character outside quotes (IndexOfCharOutsideQuotes)."""
         in_single = False
         in_double = False
         for i, c in enumerate(line):
@@ -169,10 +169,10 @@ class YamlHighlighter(QSyntaxHighlighter):
         return -1
     
     def is_yaml_number(self, s: str) -> bool:
-        """Проверка на число (IsYamlNumber)."""
+        """Check for number (IsYamlNumber)."""
         return re.match(r"^[+-]?\d+(\.\d+)?$", s.strip()) is not None
 
     def is_yaml_bool_or_null(self, s: str) -> bool:
-        """Проверка на булево или null (IsYamlBoolOrNull)."""
+        """Check for boolean or null (IsYamlBoolOrNull)."""
         token = s.strip()
         return token in ["true", "false", "null", "True", "False", "NULL"]

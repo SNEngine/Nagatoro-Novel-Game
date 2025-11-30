@@ -4,11 +4,11 @@ from typing import Dict, Any, List
 
 class StructureValidator:
     """
-    Класс для проверки минимальной необходимой структуры языковой папки.
-    Считается невалидной, если в корневой папке отсутствуют ключевые файлы.
+    Class for validating the minimum required structure of a language folder.
+    It is considered invalid if key files are missing in the root folder.
     """
 
-    # Определяем обязательные файлы, которые должны быть в корневой папке языка
+    # Defines mandatory files that must be in the root folder of the language
     REQUIRED_ROOT_FILES: List[str] = [
         "metadata.yaml",
         "characters.yaml",
@@ -17,14 +17,14 @@ class StructureValidator:
 
     def validate_structure(self, language_structure: Dict[str, Any]) -> bool:
         """
-        Проверяет, содержит ли языковая структура обязательные файлы в корне.
+        Checks if the language structure contains the required files in the root.
 
         Args:
-            language_structure: Словарь, полученный от LanguageService, 
-                                содержащий 'root_path' и 'structure'.
+            language_structure: Dictionary obtained from LanguageService,
+                                containing 'root_path' and 'structure'.
 
         Returns:
-            True, если структура валидна, False в противном случае.
+            True if the structure is valid, False otherwise.
         """
         root_path_normalized = language_structure.get('root_path')
         structure_map = language_structure.get('structure', {})
@@ -32,21 +32,21 @@ class StructureValidator:
         if not root_path_normalized:
             return False
 
-        # 1. Получаем список файлов, найденных в корневой папке
+        # 1. Get the list of files found in the root folder
         root_files_found = structure_map.get(root_path_normalized, [])
         root_files_set = set(f.lower() for f in root_files_found)
         
         is_valid = True
         missing_files = []
 
-        # 2. Проверяем наличие каждого обязательного файла
+        # 2. Check for the presence of each required file
         for required_file in self.REQUIRED_ROOT_FILES:
             if required_file.lower() not in root_files_set:
                 is_valid = False
                 missing_files.append(required_file)
 
         if not is_valid:
-            # Можно сохранить информацию об ошибке для отображения в UI
+            # Error information can be saved for display in the UI
             self.last_error = f"Missing required files in root: {', '.join(missing_files)}"
             return False
         
@@ -54,5 +54,5 @@ class StructureValidator:
         return True
     
     def get_last_error(self) -> str:
-        """Возвращает последнее сообщение об ошибке валидации."""
+        """Returns the last validation error message."""
         return getattr(self, 'last_error', "")
