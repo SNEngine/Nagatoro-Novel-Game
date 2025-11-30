@@ -1,0 +1,39 @@
+# styles.yaml
+# Цветовая схема для редактора YAML.
+# Используется в view.py для динамической генерации CSS.
+
+DarkTheme:
+  # Основные цвета - красно-чёрная палитра
+  Background: "#1A1A1A"        # Тёмный фон
+  Foreground: "#E8E8E8"        # Светлый текст
+  SecondaryBackground: "#2A2A2A" # Тулбар, статус-бар (чуть светлее фона)
+  EditorBackground: "#1F1F1F"    # Фон текстового редактора (почти чёрный)
+  BorderColor: "#3A3A3A"       # Цвет рамки ввода/текста (средне-серый)
+  HighlightColor: "#C84B31"    # Основной цвет выделения (тёмный красный/терракота)
+  HoverColor: "#3A3A3A"        # Цвет при наведении (серый)
+
+  # Цвета панели файлов
+  FilePanelBackground: "#181818"  # Очень тёмный фон панели
+  FilePanelHover: "#2D2D2D"       # Светло-серый при наведении
+  FolderColor: "#E8765B"          # Мягкий красный для папок
+
+  # Цвета уведомлений/статуса
+  StatusDefault: "#999999"        # Серый для обычного статуса
+  NotificationSuccess: "#6BA878"  # Мягкий зелёный
+  NotificationError: "#D9685A"    # Мягкий красный для ошибок
+  NotificationWarning: "#E8C56B"  # Мягкий жёлтый для предупреждений
+
+  # Цвета текстового редактора
+  NotificationTextColor: "#1A1A1A"   # Тёмный текст в уведомлениях
+  EditorCloseButtonColor: "#E8E8E8"  # Цвет крестика закрытия вкладки
+  EditorFontName: "Consolas"         # Семейство шрифтов для редактора
+  EditorDefaultFontSize: 14          # Размер шрифта по умолчанию
+  ActiveHighlightColor: "#FFD27A"   # Цвет выделения активного совпадения (подсветка текущего результата поиска)
+  # Scrollbar styling for a modern thin rounded look
+  ScrollbarWidth: 10
+  ScrollbarBackground: "transparent"
+  ScrollbarHandle: "#3A3A3A"
+  ScrollbarHandleHover: "#5A5A5A"
+  ScrollbarRadius: 6
+  # Brand text (right side of tabs)
+  BrandTextColor: "#D9685A"   # мягко-красный для подписи SNEngine
