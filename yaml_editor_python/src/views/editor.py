@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolBar, QTextEdit, QLabel, QSizePolicy, QAction
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolBar, QTextEdit, QLabel, QSizePolicy, QAction, QMenu
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from views.search import create_search_widget
@@ -103,6 +103,9 @@ def create_editor_area(self) -> QWidget:
     
     layout.addWidget(editor_widget)
     
+    self.text_edit.setContextMenuPolicy(Qt.CustomContextMenu)
+    self.text_edit.customContextMenuRequested.connect(self.show_text_edit_context_menu)
+
     return area
 
 

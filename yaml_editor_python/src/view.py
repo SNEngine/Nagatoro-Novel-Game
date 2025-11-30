@@ -1,16 +1,43 @@
 # src/view.py
 import os
 import sys
-import yaml 
+import yaml
 import collections
 from typing import Dict, Any, Optional
-from PyQt5.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
-    QTextEdit, QToolBar, QLabel, QAction, QStatusBar,
-    QPushButton, QLineEdit, QSizePolicy, QFileDialog, QScrollArea, QMessageBox
-)
-from PyQt5.QtGui import QIcon, QFont, QColor
-from PyQt5.QtCore import Qt, QSize, QTimer, QCoreApplication, QByteArray, QUrl
+
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QSplitter
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QToolBar
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QStatusBar
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QScrollArea
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMenu
+
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QPixmap
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QByteArray
+from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve
+
+from PyQt5.QtWidgets import QGraphicsOpacityEffect
+
 # Импорты .models и .icons должны быть доступны, если они в той же папке src
 from models import YamlTab, LanguageService
 from highlighter import YamlHighlighter
@@ -22,7 +49,7 @@ from session_manager import SessionManager # Добавьте это, если s
 def create_icon_from_svg(svg_content: str, size: QSize = QSize(16, 16)) -> QIcon:
     """Создает QIcon из SVG-кода с использованием data URI."""
     svg_bytes = QByteArray(svg_content.encode('utf-8'))
-    base64_data = svg_bytes.toBase64().data().decode() 
+    base64_data = svg_bytes.toBase64().data().decode()
     data_uri = f'data:image:svg+xml;base64,{base64_data}'
     icon = QIcon(data_uri)
     return icon
@@ -46,7 +73,7 @@ class LanguageService:
                     yaml_files.append(file_name)
         except OSError:
             pass
-            
+
         structure[normalized_path] = sorted(yaml_files)
 
         try:
@@ -67,32 +94,32 @@ class LanguageService:
 
 
 class YAMLEditorWindow(QMainWindow):
-    
+
     def __init__(self):
         super().__init__()
-        
+
         # --- Инициализация Стилей ---
         self.STYLES = self._load_styles()
         self.CSS_STYLES = self._generate_css(self.STYLES)
-        
+
         self.setWindowTitle("YAML Editor")
         self.setGeometry(100, 100, 1200, 800)
         self.setStyleSheet(self.CSS_STYLES) # Применяем сгенерированные стили
-        
+
         # --- Инициализация Иконок ---
         self.icon_folder = create_icon_from_svg(SVG_FOLDER_ICON)
         self.icon_yaml = create_icon_from_svg(SVG_YAML_FILE_ICON)
         self._last_open_dir: str = os.path.expanduser("~")
         # self.icon_close = create_icon_from_svg(SVG_CLOSE_ICON) # Игнорируем SVG крестик
-        
+
         # --- Модель/Сервисы ---
-        self.lang_service = LanguageService() 
+        self.lang_service = LanguageService()
         self.validator = StructureValidator() # <-- ИНИЦИАЛИЗАЦИЯ ВАЛИДАТОРА
-        self.temp_structure = {'root_path': None, 'structure': {}} 
+        self.temp_structure = {'root_path': None, 'structure': {}}
         self.open_tabs: list[YamlTab] = []
         self.current_tab_index = -1
         self.current_tab: YamlTab | None = None
-        
+
         # UI-переменные (как в C#)
         self.root_lang_path_normalized: str | None = None
         self._notification_timer = QTimer(self)
@@ -100,7 +127,7 @@ class YAMLEditorWindow(QMainWindow):
         self._notification_label: QLabel | None = None
         self._current_font_size = 14
         self._foldouts: Dict[str, bool] = {} # Для хранения состояния папок
-        
+
         self.init_ui()
         self.update_status_bar()
 
@@ -112,28 +139,28 @@ class YAMLEditorWindow(QMainWindow):
         Перехватывает событие закрытия окна.
         Сначала проверяет несохраненные изменения, затем сохраняет сессию.
         """
-        
+
         # Проверяем, есть ли вкладки с несохраненными изменениями
         dirty_tab = next((t for t in self.open_tabs if t.is_dirty), None)
 
         if dirty_tab:
-            reply = QMessageBox.question(self, 'Unsaved Changes', 
+            reply = QMessageBox.question(self, 'Unsaved Changes',
                 "You have unsaved changes. Do you want to save all files before quitting?",
                 QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Cancel)
-                
+
             if reply == QMessageBox.Save:
                 # Пытаемся сохранить все несохраненные
                 for tab in [t for t in self.open_tabs if t.is_dirty]:
                     self.save_file_action(tab)
-                
+
                 # Если после попытки сохранения все еще есть несохраненные (например, из-за ошибки синтаксиса YAML), отменяем закрытие.
                 if any(t.is_dirty for t in self.open_tabs):
                     event.ignore()
                     return
-                    
+
             elif reply == QMessageBox.Cancel:
                 event.ignore() # Отмена закрытия
-                return 
+                return
 
         # Если закрытие разрешено (нет несохраненных или пользователь нажал Discard/Save)
         self.session_manager.save_session() # Сохраняем состояние сессии
@@ -141,7 +168,7 @@ class YAMLEditorWindow(QMainWindow):
 
     def _get_resource_path(self, relative_path: str) -> str:
         """
-        Получает путь к ресурсу. 
+        Получает путь к ресурсу.
         В режиме EXE файл находится рядом с исполняемым файлом.
         """
         if getattr(sys, 'frozen', False):
@@ -151,24 +178,24 @@ class YAMLEditorWindow(QMainWindow):
         else:
             # В режиме разработки: файл styles.yaml находится рядом с view.py (в папке src)
             base_path = os.path.dirname(os.path.abspath(__file__))
-        
+
         # Соединяем базовый путь и имя файла.
         return os.path.join(base_path, relative_path)
 
     def _load_styles(self) -> Dict[str, Any]:
         """Загружает стили из styles.yaml или использует резервные."""
-        
+
         # КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Используем _get_resource_path для доступа к файлу
         # Поскольку в PyInstaller мы указали --add-data "src/styles.yaml;src",
         # файл будет доступен в папке 'src' относительно базового пути PyInstaller.
-        # Но поскольку view.py сам находится в 'src' в режиме разработки, 
+        # Но поскольку view.py сам находится в 'src' в режиме разработки,
         # нам нужно просто обращаться к файлу 'styles.yaml' в нашей папке.
-        
+
         # Если view.py находится в src/, и styles.yaml рядом:
-        
+
         # СТАРЫЙ КОД:
         # style_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'styles.yaml')
-        
+
         # НОВЫЙ КОД (Использует путь, который работает в PyInstaller и в разработке)
         style_file = self._get_resource_path('styles.yaml')
 
@@ -177,14 +204,14 @@ class YAMLEditorWindow(QMainWindow):
             # ... (Ваши стили) ...
             'DarkTheme': {
                 'Background': "#3C3C3C", 'Foreground': "#CCCCCC", 'SecondaryBackground': "#4C4C4C",
-                'EditorBackground': "#2D2D2D", 'BorderColor': "#1D1D1D", 'HighlightColor': "#0078D7", 
-                'HoverColor': "#5C5C5C", 'FilePanelBackground': "#333333", 'FilePanelHover': "#4C4C4C", 
-                'FolderColor': "#FFC107", 'StatusDefault': "#AAAAAA", 'NotificationSuccess': "#28A745", 
+                'EditorBackground': "#2D2D2D", 'BorderColor': "#1D1D1D", 'HighlightColor': "#0078D7",
+                'HoverColor': "#5C5C5C", 'FilePanelBackground': "#333333", 'FilePanelHover': "#4C4C4C",
+                'FolderColor': "#FFC107", 'StatusDefault': "#AAAAAA", 'NotificationSuccess': "#28A745",
                 'NotificationError': "#DC3545",
-                'NotificationWarning': "#FFC107" 
+                'NotificationWarning': "#FFC107"
             }
         }
-        
+
         # ... (Остальная логика загрузки файла) ...
         try:
             if os.path.exists(style_file):
@@ -208,22 +235,22 @@ class YAMLEditorWindow(QMainWindow):
     def _generate_css(self, styles: Dict[str, Any]) -> str:
         """Генерирует CSS-строку на основе загруженных стилей."""
         theme = styles.get('DarkTheme', {})
-        
+
         css = f"""
         QMainWindow, QWidget {{ background-color: {theme.get('Background')}; color: {theme.get('Foreground')}; }}
         QSplitter::handle {{ background-color: {theme.get('Background')}; }}
-        
+
         /* TULBAR & ACTIONS (Исправлены визуальные ошибки кнопок QAction) */
-        QToolBar {{ 
-            background-color: {theme.get('SecondaryBackground')}; 
-            spacing: 5px; 
-            border-bottom: 1px solid {theme.get('Background')}; 
+        QToolBar {{
+            background-color: {theme.get('SecondaryBackground')};
+            spacing: 5px;
+            border-bottom: 1px solid {theme.get('Background')};
         }}
-        QToolButton {{ 
-            color: {theme.get('Foreground')}; 
-            background-color: {theme.get('SecondaryBackground')}; 
-            border: 1px solid {theme.get('SecondaryBackground')}; 
-            padding: 3px 6px; 
+        QToolButton {{
+            color: {theme.get('Foreground')};
+            background-color: {theme.get('SecondaryBackground')};
+            border: 1px solid {theme.get('SecondaryBackground')};
+            padding: 3px 6px;
         }}
         QToolButton:hover {{ background-color: {theme.get('HoverColor')}; border: 1px solid {theme.get('HoverColor')}; }}
         QToolButton:pressed {{ background-color: {theme.get('Background')}; }}
@@ -236,27 +263,48 @@ class YAMLEditorWindow(QMainWindow):
         QPushButton:hover {{ background-color: {theme.get('FilePanelHover')}; }}
 
         /* Editor */
-        QLineEdit {{ 
-            background-color: {theme.get('EditorBackground')}; 
-            color: {theme.get('Foreground')}; 
-            border: 1px solid {theme.get('BorderColor')}; 
-            padding: 2px; 
+        QLineEdit {{
+            background-color: {theme.get('EditorBackground')};
+            color: {theme.get('Foreground')};
+            border: 1px solid {theme.get('BorderColor')};
+            padding: 2px;
         }}
-        QTextEdit {{ 
+        QTextEdit {{
             background-color: {theme.get('EditorBackground')}; 
             color: {theme.get('Foreground')}; 
-            border: 1px solid {theme.get('BorderColor')}; 
+            border: 1px solid {theme.get('NotificationError')}; 
             padding: 2px; 
         }}
         
         /* Tab Bar */
         QToolBar#TabPlaceholder {{ background-color: {theme.get('Background')}; border: none; }}
-        
+
         /* Status Bar */
-        QStatusBar {{ 
-            background-color: {theme.get('SecondaryBackground')}; 
-            border-top: 1px solid {theme.get('Background')}; 
-            color: {theme.get('StatusDefault')}; 
+        QStatusBar {{
+            background-color: {theme.get('SecondaryBackground')};
+            border-top: 1px solid {theme.get('Background')};
+            color: {theme.get('StatusDefault')};
+        }}
+        
+        /* Context Menu */
+        QMenu {{
+            background-color: {theme.get('SecondaryBackground')};
+            color: {theme.get('Foreground')};
+            border: 1px solid {theme.get('NotificationError')};
+            border-radius: 4px;
+        }}
+        QMenu::item {{
+            padding: 5px 15px 5px 25px; /* Add padding for better spacing */
+            background-color: transparent;
+        }}
+        QMenu::item:selected {{
+            background-color: {theme.get('HoverColor')};
+            color: {theme.get('HighlightColor')};
+        }}
+        QMenu::separator {{
+            height: 1px;
+            background-color: {theme.get('BorderColor')};
+            margin: 4px 5px;
         }}
         """
         return css
@@ -264,26 +312,26 @@ class YAMLEditorWindow(QMainWindow):
     def init_ui(self):
         # ... (Код init_ui) ...
         self.create_main_toolbar()
-        
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.splitter = QSplitter(Qt.Horizontal)
-        
+
         self.file_panel = self.create_file_panel()
         self.splitter.addWidget(self.file_panel)
-        
+
         self.editor_area = self.create_editor_area()
         self.splitter.addWidget(self.editor_area)
 
-        self.splitter.setSizes([250, 950]) 
-        
+        self.splitter.setSizes([250, 950])
+
         main_layout.addWidget(self.splitter)
 
         self.create_status_bar()
-        
+
     def create_main_toolbar(self):
         from views.toolbar import create_main_toolbar as _create_main_toolbar
         return _create_main_toolbar(self)
@@ -292,36 +340,36 @@ class YAMLEditorWindow(QMainWindow):
         """Открывает диалог для выбора корневой папки локализации."""
         initial_dir = self._last_open_dir if self._last_open_dir and os.path.isdir(self._last_open_dir) else os.path.expanduser("~")
         folder_path = QFileDialog.getExistingDirectory(self, "Select Language Root Folder", initial_dir)
-        
+
         if folder_path:
             self._last_open_dir = folder_path
             self.reload_language_structure(folder_path)
 
-    
+
     def reload_language_structure(self, folder_path: str):
         """Перезагружает структуру файлов из выбранной папки."""
-        
+
         dirty_tab = next((t for t in self.open_tabs if t.is_dirty), None)
 
         if dirty_tab:
-            reply = QMessageBox.question(self, 'Unsaved Changes', 
+            reply = QMessageBox.question(self, 'Unsaved Changes',
                 f"Do you want to save changes to file '{os.path.basename(dirty_tab.file_path)}' before reloading the structure? Changes will be lost for other unsaved files.",
                 QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Cancel)
-                
+
             if reply == QMessageBox.Save:
                 for tab in [t for t in self.open_tabs if t.is_dirty]:
                     self.save_file_action(tab)
             elif reply == QMessageBox.Cancel:
-                return 
-        
+                return
+
         # Сбрасываем открытые вкладки
         self.open_tabs.clear()
         self.current_tab_index = -1
         self.current_tab = None
-        
+
         # Загружаем новую структуру
         new_structure = self.lang_service.get_language_structure_from_path(folder_path)
-        
+
         # --- ПРОВЕРКА ВАЛИДАЦИИ ---
         if not self.validator.validate_structure(new_structure):
             # Если невалидно, сбрасываем и показываем ошибку
@@ -339,17 +387,16 @@ class YAMLEditorWindow(QMainWindow):
         # Если валидно
         self.temp_structure = new_structure
         self.root_lang_path_normalized = self.temp_structure.get('root_path')
-        
+
         if self.root_lang_path_normalized and self.temp_structure.get('structure'):
             self.language_label.setText(f"Language: {os.path.basename(folder_path)}")
-            self.draw_file_tree() 
+            self.draw_file_tree()
             self.draw_tabs_placeholder()
             self.update_status_bar()
             # try to load language flag image from the folder (flag.png)
             try:
                 flag_path = os.path.join(folder_path, 'flag.png')
                 if os.path.isfile(flag_path):
-                    from PyQt5.QtGui import QPixmap
                     pix = QPixmap(flag_path)
                     if not pix.isNull() and hasattr(self, 'flag_label'):
                         # scale to fit label size
@@ -401,16 +448,16 @@ class YAMLEditorWindow(QMainWindow):
     def check_folder_for_match_recursive(self, folder_path_normalized: str) -> bool:
         from views.file_panel import check_folder_for_match_recursive as _check
         return _check(self, folder_path_normalized)
-        
+
     def draw_folder_content(self, folder_path: str, structure: dict, level: int):
         from views.file_panel import draw_folder_content as _draw_folder_content
         return _draw_folder_content(self, folder_path, structure, level)
-            
-    
+
+
     def _add_file_button(self, name: str, path: str, level: int):
         from views.file_panel import _add_file_button as _add_btn
         return _add_btn(self, name, path, level)
-        
+
     def load_file(self, file_path: str):
         from views.file_ops import load_file as _load
         return _load(self, file_path)
@@ -435,11 +482,11 @@ class YAMLEditorWindow(QMainWindow):
         self.setStatusBar(self.status_bar)
         self.status_label = QLabel("Ready.")
         self.status_bar.addWidget(self.status_label)
-        
+
         self._notification_label = QLabel()
         self._notification_label.setVisible(False)
         self.status_bar.addPermanentWidget(self._notification_label)
-        
+
     def show_notification(self, message: str, color: QColor, duration_ms: int = 3000):
         from views.notifications import show_notification as _show
         return _show(self, message, color, duration_ms)
@@ -461,17 +508,17 @@ class YAMLEditorWindow(QMainWindow):
     def handle_text_change(self):
         from views.tabs import handle_text_change as _handle
         return _handle(self)
-        
+
 
     def try_close_tab(self, index: int):
         """
-        Обрабатывает запрос на закрытие вкладки по индексу, 
+        Обрабатывает запрос на закрытие вкладки по индексу,
         проверяя несохраненные изменения и обновляя содержимое QTextEdit.
-        
+
         ИСПРАВЛЕНИЕ: Гарантирует, что после удаления вкладки поле ввода
         обновится содержимым новой активной вкладки или очистится.
         """
-        
+
         from views.tabs import try_close_tab as _try_close
         return _try_close(self, index)
 
@@ -481,7 +528,7 @@ class YAMLEditorWindow(QMainWindow):
         if self.current_tab and self.current_tab.is_dirty:
             status = f"Unsaved changes in {os.path.basename(self.current_tab.file_path)}*"
         self.status_label.setText(status)
-        
+
     def update_undo_redo_ui(self):
         from views.tabs import update_undo_redo_ui as _update
         return _update(self)
@@ -500,7 +547,7 @@ class YAMLEditorWindow(QMainWindow):
         # ... (Код reload_structure_action) ...
         root_path = self.temp_structure.get('root_path')
         if root_path:
-            original_path = os.path.normpath(root_path) 
+            original_path = os.path.normpath(root_path)
             self.reload_language_structure(original_path)
         else:
             color = QColor(self.STYLES['DarkTheme']['NotificationWarning'])
@@ -509,7 +556,7 @@ class YAMLEditorWindow(QMainWindow):
     def handle_undo(self):
         from views.shortcuts import handle_undo as _undo
         return _undo(self)
-            
+
     def handle_redo(self):
         from views.shortcuts import handle_redo as _redo
         return _redo(self)
@@ -518,7 +565,42 @@ class YAMLEditorWindow(QMainWindow):
     def keyPressEvent(self, event):
         from views.shortcuts import keyPressEvent as _key
         return _key(self, event)
-        
+
     def change_font_size(self, change):
         from views.shortcuts import change_font_size as _resize
         return _resize(self, change)
+
+    def show_text_edit_context_menu(self, pos):
+        menu = QMenu(self)
+
+        # Add animation
+        effect = QGraphicsOpacityEffect(menu)
+        effect.setOpacity(0)
+        menu.setGraphicsEffect(effect)
+
+        animation = QPropertyAnimation(effect, b"opacity")
+        animation.setDuration(150)  # milliseconds
+        animation.setStartValue(0.0)
+        animation.setEndValue(1.0)
+        animation.setEasingCurve(QEasingCurve.InQuad)
+        animation.start(QPropertyAnimation.DeleteWhenStopped)
+
+        cut_action = QAction("Cut", self)
+        cut_action.triggered.connect(self.text_edit.cut)
+        menu.addAction(cut_action)
+
+        copy_action = QAction("Copy", self)
+        copy_action.triggered.connect(self.text_edit.copy)
+        menu.addAction(copy_action)
+
+        paste_action = QAction("Paste", self)
+        paste_action.triggered.connect(self.text_edit.paste)
+        menu.addAction(paste_action)
+
+        menu.addSeparator()
+
+        select_all_action = QAction("Select All", self)
+        select_all_action.triggered.connect(self.text_edit.selectAll)
+        menu.addAction(select_all_action)
+
+        menu.exec_(self.text_edit.mapToGlobal(pos))
