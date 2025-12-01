@@ -42,8 +42,20 @@ def create_editor_area(self) -> QWidget:
     self.highlighter = None
     try:
         from highlighter import YamlHighlighter
-        self.highlighter = YamlHighlighter(self.text_edit.document())
-    except Exception:
+        # Подготовим цвета для подсветчика на основе текущей темы
+        highlighter_colors = {
+            'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
+            'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
+            'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
+            'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
+            'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
+        }
+        self.highlighter = YamlHighlighter(self.text_edit.document(), highlighter_colors)
+        # Устанавливаем атрибут подсветчика в основном окне, чтобы к нему можно было получить доступ извне
+        if hasattr(self, 'text_edit'):
+            self.text_edit.document().highlighter = self.highlighter
+    except Exception as e:
+        print(f"Error creating highlighter: {e}")
         pass
     
     editor_layout.addWidget(self.text_edit)

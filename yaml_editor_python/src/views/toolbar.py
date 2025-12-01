@@ -43,4 +43,9 @@ def create_main_toolbar(self):
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
     main_toolbar.addWidget(spacer)
 
+    # Styles Editor Button
+    styles_action = QAction("Styles Editor", self)
+    styles_action.triggered.connect(self.open_styles_editor)
+    main_toolbar.addAction(styles_action)
+
     return main_toolbar

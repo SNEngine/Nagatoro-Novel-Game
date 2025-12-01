@@ -138,18 +138,33 @@ class YAMLEditorWindow(QMainWindow):
     def _get_resource_path(self, relative_path: str) -> str:
         """
         Gets the path to a resource.
-        In EXE mode, the file is next to the executable.
+        In EXE mode, the file structure is based on PyInstaller --add-data specification.
         """
         if getattr(sys, 'frozen', False):
-            # In PyInstaller (EXE) mode: styles.yaml is in the dist folder
-            # next to YAML_Editor.exe. sys.executable is the path to the EXE.
+            # In PyInstaller (EXE) mode
             base_path = os.path.dirname(sys.executable)
+
+            # Check in executable directory (where --add-data puts files)
+            full_path = os.path.join(base_path, relative_path)
+            if os.path.exists(full_path):
+                return full_path
+
+            # Check in PyInstaller temp directory
+            try:
+                temp_path = sys._MEIPASS
+                temp_full_path = os.path.join(temp_path, relative_path)
+                if os.path.exists(temp_full_path):
+                    return temp_full_path
+            except AttributeError:
+                # _MEIPASS not available, skip this check
+                pass
+
+            # If neither worked, default to base path
+            return full_path
         else:
             # In development mode: styles.yaml is next to view.py (in the src folder)
             base_path = os.path.dirname(os.path.abspath(__file__))
-
-        # Combines the base path and file name.
-        return os.path.join(base_path, relative_path)
+            return os.path.join(base_path, relative_path)
 
     def _load_styles(self) -> Dict[str, Any]:
         """Loads styles from styles.yaml or uses backups."""
@@ -239,12 +254,12 @@ class YAMLEditorWindow(QMainWindow):
             padding: 2px;
         }}
         QTextEdit {{
-            background-color: {theme.get('EditorBackground')}; 
-            color: {theme.get('Foreground')}; 
-            border: 1px solid {theme.get('NotificationError')}; 
-            padding: 2px; 
+            background-color: {theme.get('EditorBackground')};
+            color: {theme.get('Foreground')};
+            border: 1px solid {theme.get('NotificationError')};
+            padding: 2px;
         }}
-        
+
         /* Tab Bar */
         QToolBar#TabPlaceholder {{ background-color: {theme.get('Background')}; border: none; }}
 
@@ -254,7 +269,7 @@ class YAMLEditorWindow(QMainWindow):
             border-top: 1px solid {theme.get('Background')};
             color: {theme.get('StatusDefault')};
         }}
-        
+
         /* Context Menu */
         QMenu {{
             background-color: {theme.get('SecondaryBackground')};
@@ -318,10 +333,10 @@ class YAMLEditorWindow(QMainWindow):
         if self.language_selector_combo and index >= 0:
             selected_language_upper = self.language_selector_combo.itemText(index)
             selected_language_lower = selected_language_upper.lower()
-            
+
             if selected_language_lower != self.active_language:
                 self.active_language = selected_language_lower
-                
+
                 # Clear open tabs, but don't reload the entire structure here.
                 self.open_tabs.clear()
                 self.current_tab_index = -1
@@ -392,13 +407,13 @@ class YAMLEditorWindow(QMainWindow):
                 self.language_selector_combo.addItem(icon, lang_code.upper()) # Display uppercase
 
             self.language_selector_combo.setEnabled(True)
-            
+
             current_active_language_lower = self.active_language if self.active_language else ""
             if current_active_language_lower not in [lc.lower() for lc in language_folders]:
                 self.active_language = language_folders[0].lower() # Store lowercase
-            
+
             self.language_selector_combo.setCurrentText(self.active_language.upper()) # Display uppercase
-                
+
         else:
             self.language_selector_combo.setEnabled(False)
             self.active_language = None
@@ -599,6 +614,44 @@ class YAMLEditorWindow(QMainWindow):
     def keyPressEvent(self, event):
         from views.shortcuts import keyPressEvent as _key
         return _key(self, event)
+
+    def open_styles_editor(self):
+        """Открывает редактор стилей"""
+        from views.styles_editor import StylesEditorDialog
+
+        def on_styles_changed(styles):
+            # Обновляем стили в основном окне
+            updated_theme = {'DarkTheme': styles}
+            self.STYLES = updated_theme
+            self.CSS_STYLES = self._generate_css(updated_theme)
+            self.setStyleSheet(self.CSS_STYLES)
+
+            # Обновляем подсветку синтаксиса для текущего текстового редактора
+            self.update_highlighter_colors(styles)
+
+        dialog = StylesEditorDialog(self, self._get_resource_path('styles.yaml'))
+        dialog.styles_changed.connect(on_styles_changed)
+        dialog.exec_()
+
+    def update_highlighter_colors(self, styles):
+        """Update syntax highlighter colors in the current editor and all open tabs"""
+        # Обновляем подсветку синтаксиса, если редактор существует
+        if hasattr(self, 'text_edit') and self.text_edit:
+            if hasattr(self, 'highlighter') and self.highlighter:
+                # Обновляем цвета подсветчика
+                highlighter_colors = {
+                    'key_color': styles.get('SyntaxKeyColor', '#E06C75'),
+                    'string_color': styles.get('SyntaxStringColor', '#ABB2BF'),
+                    'comment_color': styles.get('SyntaxCommentColor', '#608B4E'),
+                    'keyword_color': styles.get('SyntaxKeywordColor', '#AF55C4'),
+                    'default_color': styles.get('SyntaxDefaultColor', '#CCCCCC')
+                }
+                self.highlighter.update_colors(highlighter_colors)
+
+                # Force re-highlighting of the entire document to apply new colors
+                doc = self.text_edit.document()
+                self.highlighter.setDocument(None)
+                self.highlighter.setDocument(doc)
 
     def change_font_size(self, change):
         from views.shortcuts import change_font_size as _resize

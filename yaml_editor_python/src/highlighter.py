@@ -18,10 +18,32 @@ class YamlSyntaxStyle:
 
 
 class YamlHighlighter(QSyntaxHighlighter):
-    def __init__(self, document):
+    def __init__(self, document, custom_colors=None):
         super().__init__(document)
         self.styles = YamlSyntaxStyle()
+
         self.highlighting_rules = []
+
+        # Если переданы пользовательские цвета, обновляем стили
+        if custom_colors:
+            self.update_colors(custom_colors)
+        else:
+            self.initialize_formats()
+
+    def update_colors(self, colors):
+        """Обновление цветов подсветки"""
+        if 'key_color' in colors:
+            self.styles.key_color = colors['key_color']
+        if 'string_color' in colors:
+            self.styles.string_color = colors['string_color']
+        if 'comment_color' in colors:
+            self.styles.comment_color = colors['comment_color']
+        if 'keyword_color' in colors:
+            self.styles.keyword_color = colors['keyword_color']
+        if 'default_color' in colors:
+            self.styles.default_color = colors['default_color']
+
+        # Обновляем форматы с новыми цветами
         self.initialize_formats()
 
     def initialize_formats(self):

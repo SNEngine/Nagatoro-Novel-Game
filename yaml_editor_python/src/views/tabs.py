@@ -346,6 +346,22 @@ def switch_tab_action(self, index):
     self.current_tab = self.open_tabs[index]
     self.text_edit.setText(self.current_tab.yaml_text)
 
+    # Обновляем подсветку синтаксиса с текущими цветами темы
+    if hasattr(self, 'highlighter') and self.highlighter:
+        highlighter_colors = {
+            'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
+            'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
+            'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
+            'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
+            'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
+        }
+        self.highlighter.update_colors(highlighter_colors)
+
+        # Force re-highlighting to apply the new colors
+        doc = self.text_edit.document()
+        self.highlighter.setDocument(None)
+        self.highlighter.setDocument(doc)
+
     self.draw_tabs_placeholder()
     self.draw_file_tree()
     self.update_status_bar()
