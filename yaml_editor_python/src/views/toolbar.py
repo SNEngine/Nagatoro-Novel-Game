@@ -21,9 +21,16 @@ def create_main_toolbar(self):
     reload_action = QAction("Reload Structure", self)
     reload_action.triggered.connect(self.reload_structure_action)
     main_toolbar.addAction(reload_action)
-    
+
     main_toolbar.addSeparator()
-    
+
+    # Regenerate Language Manifest
+    manifest_action = QAction("Regenerate Manifest", self)
+    manifest_action.triggered.connect(self.regenerate_language_manifest)
+    main_toolbar.addAction(manifest_action)
+
+    main_toolbar.addSeparator()
+
     # Removed: Flag + label for language selection
     # self.flag_label = QLabel()
     # self.flag_label.setFixedSize(24, 16)
@@ -32,11 +39,11 @@ def create_main_toolbar(self):
 
     # self.language_label = QLabel("Language: N/A") # Removed
     # main_toolbar.addWidget(self.language_label) # Removed
-    
+
     # Placeholder for Font Size (Removed)
     # self.font_size_label = QLabel(f"Font Size: {self._current_font_size} (Ctrl+↑/↓)")
     # main_toolbar.addWidget(self.font_size_label)
-    
+
     # Flexible space
     main_toolbar.addSeparator()
     spacer = QWidget()

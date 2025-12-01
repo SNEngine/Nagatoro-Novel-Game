@@ -619,6 +619,11 @@ class YAMLEditorWindow(QMainWindow):
         from views.shortcuts import keyPressEvent as _key
         return _key(self, event)
 
+    def regenerate_language_manifest(self):
+        """Regenerate the language manifest file based on language folders"""
+        from language_manifest_generator import regenerate_language_manifest
+        return regenerate_language_manifest(self)
+
     def open_styles_editor(self):
         """Открывает редактор стилей"""
         from views.styles_editor import StylesEditorDialog
