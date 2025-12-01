@@ -312,6 +312,10 @@ def create_new_language_dialog(parent_window) -> bool:
             parent_window.update_status_bar()
             parent_window.update_undo_redo_ui()
 
+            # Regenerate language manifest to include the new language
+            from language_manifest_generator import regenerate_language_manifest
+            regenerate_language_manifest(parent_window)
+
         dialog.language_created.connect(on_language_created)
         dialog.exec_()
         
