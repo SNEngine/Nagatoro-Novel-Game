@@ -1,0 +1,39 @@
+name: Run Python Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest PyQt5 pyyaml
+
+    - name: Install project dependencies from requirements if they exist
+      run: |
+        if [ -f yaml_editor_python/requirements.txt ]; then pip install -r yaml_editor_python/requirements.txt; fi
+        if [ -f yaml_editor_python/requirements-dev.txt ]; then pip install -r yaml_editor_python/requirements-dev.txt; fi
+
+    - name: Change to src directory and run tests
+      run: |
+        cd yaml_editor_python/src
+        python -m pytest tests/ -v
+
+    - name: Run basic import test to ensure code is syntactically correct
+      run: |
+        cd yaml_editor_python/src
+        python -c "import view, models, highlighter, validator, session_manager"
