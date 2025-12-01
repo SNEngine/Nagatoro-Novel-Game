@@ -28,9 +28,11 @@ jobs:
         if [ -f yaml_editor_python/requirements.txt ]; then pip install -r yaml_editor_python/requirements.txt; fi
         if [ -f yaml_editor_python/requirements-dev.txt ]; then pip install -r yaml_editor_python/requirements-dev.txt; fi
 
-    - name: Run tests from yaml_editor_python/src directory
+    - name: Run tests from yaml_editor_python directory
       run: |
         cd yaml_editor_python
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
         python -m pytest src/tests/ -v
 
     - name: Run basic import test to ensure code is syntactically correct
