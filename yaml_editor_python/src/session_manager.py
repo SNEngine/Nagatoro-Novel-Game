@@ -53,7 +53,8 @@ class SessionManager:
             'current_tab_index': current_tab_index,
             'open_tabs': [], # Always initialize as empty list
             'foldouts': self.parent_window._foldouts,
-            'last_open_dir': self.parent_window._last_open_dir
+            'last_open_dir': self.parent_window._last_open_dir,
+            'font_size': self.parent_window._current_font_size
         }
 
         # If there's no root_localization_path, we still want to save last_open_dir
@@ -122,7 +123,8 @@ class SessionManager:
         current_tab_index = session_data.get('current_tab_index', -1)
         foldouts = session_data.get('foldouts', {})
         last_open_dir = session_data.get('last_open_dir')
-        
+        saved_font_size = session_data.get('font_size', 14) # Default to 14 if not saved
+
         # 1. Restore last path for QFileDialog
         if last_open_dir and os.path.isdir(last_open_dir):
             self.parent_window._last_open_dir = last_open_dir
@@ -274,3 +276,15 @@ class SessionManager:
         self.parent_window.draw_tabs_placeholder()
         self.parent_window.update_status_bar()
         self.parent_window.update_undo_redo_ui()
+
+        # 8. Restore font size
+        self.parent_window._current_font_size = saved_font_size
+        if hasattr(self.parent_window, 'text_edit'):
+            # Update font size in text editor
+            font = self.parent_window.text_edit.font()
+            font.setPointSize(saved_font_size)
+            self.parent_window.text_edit.setFont(font)
+
+            # Update font size label in status bar if it exists
+            if hasattr(self.parent_window, 'font_size_label'):
+                self.parent_window.font_size_label.setText(f"Font Size: {saved_font_size} (Ctrl+↑/↓)")
