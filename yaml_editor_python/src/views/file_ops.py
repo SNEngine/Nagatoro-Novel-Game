@@ -11,11 +11,15 @@ def load_file(self, file_path: str):
     # New: Adjust file_path with active_language if a root_localization_path is set
     effective_file_path = file_path
     if self.root_localization_path and self.active_language:
-        # Check if the file_path already contains the language segment
+        # Check if the file_path is a relative path that needs the language path prepended
         lang_segment = os.path.join(self.root_localization_path, self.active_language)
-        if not file_path.lower().startswith(lang_segment.lower()):
-            # Assuming file_path is relative to the language folder, prepend it
+
+        # If root_localization_path is itself under a language subdirectory, we might need to handle this differently
+        # Check if the current file path is already in the expected language directory
+        if not file_path.lower().startswith(self.lang_service.normalize_path(self.root_localization_path).lower()):
+            # If not in the root localization path, prepend the active language path
             effective_file_path = os.path.join(self.root_localization_path, self.active_language, file_path)
+        # Otherwise, file_path is already a complete path, so we don't modify it
 
     normalized_path = self.lang_service.normalize_path(effective_file_path)
     existing_tab = next((t for t in self.open_tabs if self.lang_service.normalize_path(t.file_path) == normalized_path), None)
@@ -52,8 +56,14 @@ def load_file(self, file_path: str):
         self.update_text_edit_content()
     else:
         # Fallback if helper function is not available
-        self.text_edit.setText(self.current_tab.yaml_text)
-        self.text_edit.document().clearUndoRedoStacks()
+        if hasattr(self.text_edit, 'setPlainText'):
+            self.text_edit.setPlainText(self.current_tab.yaml_text)
+        else:
+            self.text_edit.setPlainText(self.current_tab.yaml_text)
+
+        if hasattr(self.text_edit, 'document') and hasattr(self.text_edit.document(), 'clearUndoRedoStacks'):
+            self.text_edit.document().clearUndoRedoStacks()
+
         # Update syntax highlighter with current theme colors
         if hasattr(self, 'highlighter') and self.highlighter:
             highlighter_colors = {
@@ -131,21 +141,30 @@ def save_file_action(self, tab_to_save):
         # New: Adjust file_path with active_language for saving
         effective_file_path = tab_to_save.file_path
         if self.root_localization_path and self.active_language:
-            lang_segment = os.path.join(self.root_localization_path, self.active_language)
-            if not effective_file_path.lower().startswith(lang_segment.lower()):
-                # Prepend the language path if it's not already there
-                effective_file_path = os.path.join(lang_segment, os.path.relpath(effective_file_path, self.root_localization_path))
+            # Check if the file path is already in the root localization directory
+            if not effective_file_path.lower().startswith(self.lang_service.normalize_path(self.root_localization_path).lower()):
+                # If not in the root localization path, prepend the active language path
+                effective_file_path = os.path.join(self.root_localization_path, self.active_language, effective_file_path)
+            # Otherwise, effective_file_path is already a complete path, so we don't modify it
         
         with open(effective_file_path, 'w', encoding='utf-8') as f:
             f.write(tab_to_save.yaml_text)
 
         tab_to_save.is_dirty = False
 
-        self.draw_tabs_placeholder()
-        self.draw_file_tree()
-        self.update_status_bar()
-        color = QColor(self.STYLES['DarkTheme']['NotificationSuccess'])
-        self.show_notification(f"File saved successfully: {os.path.basename(tab_to_save.file_path)}", color)
+        # Check if we're in APK mode and notify user about saving to original APK
+        if hasattr(self, 'is_apk_mode') and self.is_apk_mode:
+            self.draw_tabs_placeholder()
+            self.draw_file_tree()
+            self.update_status_bar()
+            color = QColor(self.STYLES['DarkTheme']['NotificationWarning'])
+            self.show_notification(f"File saved to temp folder. Use 'Save APK...' to save to original: {os.path.basename(tab_to_save.file_path)}", color)
+        else:
+            self.draw_tabs_placeholder()
+            self.draw_file_tree()
+            self.update_status_bar()
+            color = QColor(self.STYLES['DarkTheme']['NotificationSuccess'])
+            self.show_notification(f"File saved successfully: {os.path.basename(tab_to_save.file_path)}", color)
 
     except Exception as ex:
         color = QColor(self.STYLES['DarkTheme']['NotificationError'])

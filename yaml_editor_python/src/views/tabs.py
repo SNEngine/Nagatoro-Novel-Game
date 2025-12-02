@@ -461,9 +461,14 @@ def update_text_edit_content(self):
     """Helper function to ensure text edit content is properly updated from the current tab."""
     if self.current_tab:
         # Update the text edit with the current tab's content
-        self.text_edit.setText(self.current_tab.yaml_text)
+        if hasattr(self.text_edit, 'setPlainText'):
+            self.text_edit.setPlainText(self.current_tab.yaml_text)
+        else:
+            self.text_edit.setPlainText(self.current_tab.yaml_text)
+
         # Clear undo/redo stacks to avoid confusion with new content
-        self.text_edit.document().clearUndoRedoStacks()
+        if hasattr(self.text_edit, 'document') and hasattr(self.text_edit.document(), 'clearUndoRedoStacks'):
+            self.text_edit.document().clearUndoRedoStacks()
 
         # Update syntax highlighter with current theme colors
         if hasattr(self, 'highlighter') and self.highlighter:
@@ -481,8 +486,13 @@ def update_text_edit_content(self):
             self.highlighter.setDocument(None)
             self.highlighter.setDocument(doc)
     else:
-        self.text_edit.setText("")
-        self.text_edit.document().clearUndoRedoStacks()
+        if hasattr(self.text_edit, 'setPlainText'):
+            self.text_edit.setPlainText("")
+        else:
+            self.text_edit.setPlainText("")
+
+        if hasattr(self.text_edit, 'document') and hasattr(self.text_edit.document(), 'clearUndoRedoStacks'):
+            self.text_edit.document().clearUndoRedoStacks()
 
 
 def question_message_box(parent, title, text, buttons, default_button):

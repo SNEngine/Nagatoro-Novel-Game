@@ -49,6 +49,10 @@ from session_manager import SessionManager # Add this if session_manager.py is i
 from language_service import LanguageService # Import the LanguageService from the new file
 from views.tabs import question_message_box # Import the custom message box function
 
+# Progress dialog imports
+from progress_dialog import OperationRunner
+from apk_save_worker import ApkSaveWorker
+
 # --- UTILITY FOR CREATING QIcon FROM SVG string ---
 def create_icon_from_svg(svg_content: str, size: QSize = QSize(16, 16)) -> QIcon:
     """Creates a QIcon from SVG code using a data URI."""
@@ -93,6 +97,23 @@ class YAMLEditorWindow(QMainWindow):
   <text x="8" y="10" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#007bff" text-anchor="middle">
     Y
   </text>
+</svg>
+"""
+
+    def _load_android_icon(self) -> str:
+        """Loads the Android SVG icon from file, fallback to default if not found."""
+        try:
+            icon_path = self._get_resource_path('icons/android.svg')
+            with open(icon_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except FileNotFoundError:
+            # Fallback to default Android icon if file not found
+            android_color = self.STYLES['DarkTheme'].get('HighlightColor', '#C84B31')
+            return f"""
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+  <path fill="{android_color}" d="M17.66,11.2C17.43,10.9 17.15,10.64 16.89,10.38C16.22,9.78 15.46,9.3 14.82,8.96C14.71,8.9 14.59,8.85 14.47,8.8C12.55,7.84 10.45,7.84 8.53,8.8C8.41,8.85 8.29,8.9 8.18,8.96C7.54,9.3 6.78,9.78 6.11,10.38C5.85,10.64 5.57,10.9 5.34,11.2C5.25,11.33 5.17,11.46 5.1,11.6C4.92,11.95 4.79,12.32 4.72,12.7C4.65,13.08 4.63,13.47 4.65,13.86C4.67,14.25 4.74,14.63 4.85,15C5.04,15.66 5.36,16.26 5.76,16.77C6.16,17.28 6.64,17.69 7.17,18C7.6,18.23 8.05,18.4 8.51,18.5C8.97,18.6 9.44,18.64 9.91,18.61C10.38,18.58 10.84,18.48 11.27,18.32C11.7,18.16 12.09,17.94 12.44,17.66C12.79,17.94 13.18,18.16 13.61,18.32C14.04,18.48 14.5,18.58 14.97,18.61C15.44,18.64 15.91,18.6 16.37,18.5C16.83,18.4 17.28,18.23 17.68,18C18.21,17.69 18.69,17.28 19.09,16.77C19.49,16.26 19.81,15.66 20,15C20.11,14.63 20.18,14.25 20.2,13.86C20.22,13.47 20.2,13.08 20.13,12.7C20.06,12.32 19.93,11.95 19.75,11.6C19.68,11.46 19.6,11.33 19.51,11.2C19.28,10.9 19,10.64 18.74,10.38C18.48,10.12 18.22,9.86 17.96,9.6C17.89,9.54 17.81,9.48 17.73,9.42C17.66,9.36 17.59,9.3 17.52,9.24C17.72,9.6 17.82,9.99 17.82,10.38C17.82,10.64 17.78,10.89 17.66,11.2Z"/>
+  <path fill="{android_color}" d="M9,16.75C8.31,16.75 7.75,16.19 7.75,15.5C7.75,14.81 8.31,14.25 9,14.25C9.69,14.25 10.25,14.81 10.25,15.5C10.25,16.19 9.69,16.75 9,16.75Z"/>
+  <path fill="{android_color}" d="M15,16.75C14.31,16.75 13.75,16.19 13.75,15.5C13.75,14.81 14.31,14.25 15,14.25C15.69,14.25 16.25,14.81 16.25,15.5C16.25,16.19 15.69,16.75 15,16.75Z"/>
 </svg>
 """
 
@@ -156,14 +177,17 @@ class YAMLEditorWindow(QMainWindow):
         # Load SVG contents
         folder_svg_content = self._load_folder_icon()
         yaml_svg_content = self._load_yaml_file_icon()
+        android_svg_content = self._load_android_icon()
 
         # Apply color updates based on loaded styles
         folder_svg_content = self._update_svg_colors(folder_svg_content, folder_color=folder_icon_color)
         yaml_svg_content = self._update_svg_colors(yaml_svg_content, yaml_color=yaml_icon_color)
+        # Android icon will use the highlight color from theme
 
         # Create icons with applied colors
         self.icon_folder = self._create_icon_from_svg_content(folder_svg_content)
         self.icon_yaml = self._create_icon_from_svg_content(yaml_svg_content)
+        self.icon_android = self._create_icon_from_svg_content(android_svg_content, is_folder=False, is_yaml=False)
         self._last_open_dir: str = os.path.expanduser("~")
 
         # --- Model/Services ---
@@ -221,6 +245,15 @@ class YAMLEditorWindow(QMainWindow):
 
         # If closing is allowed (no unsaved changes or user pressed Discard/Save)
         self.session_manager.save_session() # Save session state
+
+        # Clean up temporary APK directory if it exists
+        if hasattr(self, 'is_apk_mode') and self.is_apk_mode and hasattr(self, 'apk_temp_dir'):
+            import shutil
+            try:
+                shutil.rmtree(self.apk_temp_dir, ignore_errors=True)
+            except Exception:
+                pass  # Ignore errors during cleanup
+
         event.accept()
 
     def _get_resource_path(self, relative_path: str) -> str:
@@ -431,8 +464,10 @@ class YAMLEditorWindow(QMainWindow):
                 self.open_tabs.clear()
                 self.current_tab_index = -1
                 self.current_tab = None
-                self.text_edit.setText("")
-                self.text_edit.document().clearUndoRedoStacks()
+                if hasattr(self, 'text_edit') and self.text_edit:
+                    self.text_edit.setPlainText("")
+                    if hasattr(self.text_edit, 'document'):
+                        self.text_edit.document().clearUndoRedoStacks()
 
                 # Reload the language-specific structure for the new active language
                 if self.root_localization_path and self.active_language:
@@ -460,6 +495,223 @@ class YAMLEditorWindow(QMainWindow):
             self._last_open_dir = folder_path
             self.root_localization_path = folder_path # Store the root localization path
             self.reload_language_structure(folder_path)
+
+    def open_apk_dialog(self):
+        """Opens an APK file and extracts StreamingAssets/Language folder."""
+        import zipfile
+        import tempfile
+        import os
+        import shutil
+
+        # Open file dialog to select APK
+        initial_dir = self._last_open_dir if self._last_open_dir and os.path.isdir(self._last_open_dir) else os.path.expanduser("~")
+        apk_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select APK File",
+            initial_dir,
+            "APK Files (*.apk)"
+        )
+
+        if not apk_path:
+            return  # User cancelled the dialog
+
+        # Track the APK path for potential re-packaging later
+        self.current_apk_path = apk_path
+
+        # Create a temporary directory to extract the APK contents
+        temp_dir = tempfile.mkdtemp(prefix="apk_extract_")
+
+        try:
+            with zipfile.ZipFile(apk_path, 'r') as apk_zip:
+                # Find all files in StreamingAssets/Language directory
+                language_files = []
+                for file_info in apk_zip.filelist:
+                    if file_info.filename.startswith('assets/StreamingAssets/Language/') and not file_info.is_dir():
+                        language_files.append(file_info)
+
+                if not language_files:
+                    # Try alternative path commonly used in Unity games
+                    language_files = []
+                    for file_info in apk_zip.filelist:
+                        if (file_info.filename.startswith('StreamingAssets/Language/') or
+                            file_info.filename.startswith('root/assets/StreamingAssets/Language/')) and not file_info.is_dir():
+                            language_files.append(file_info)
+
+                if not language_files:
+                    # Try the path found in NagatoroNovelGame: assets/Language/
+                    language_files = []
+                    for file_info in apk_zip.filelist:
+                        if file_info.filename.startswith('assets/Language/') and not file_info.is_dir():
+                            language_files.append(file_info)
+
+                if not language_files:
+                    color = QColor(self.STYLES['DarkTheme']['NotificationError'])
+                    self.show_notification("No language files found in APK", color)
+                    return
+
+                # Extract language files to temp directory
+                for file_info in language_files:
+                    # Determine the relative path within the language directory
+                    relative_path = file_info.filename
+                    # Extract to temp directory while preserving folder structure
+                    extracted_path = os.path.join(temp_dir, relative_path)
+
+                    # Create directory if it doesn't exist
+                    os.makedirs(os.path.dirname(extracted_path), exist_ok=True)
+
+                    # Extract the file
+                    with open(extracted_path, 'wb') as output_file:
+                        output_file.write(apk_zip.read(file_info))
+
+                # Determine the correct language root path based on actual directory structure
+                # Check if we have direct language folders in the extracted root
+                lang_root_path = temp_dir
+
+                # Check if the languages are under assets/Language/
+                possible_lang_paths = [
+                    os.path.join(temp_dir, 'assets', 'Language'),
+                    os.path.join(temp_dir, 'assets', 'StreamingAssets', 'Language'),
+                    os.path.join(temp_dir, 'StreamingAssets', 'Language'),
+                    os.path.join(temp_dir, 'root', 'assets', 'StreamingAssets', 'Language')
+                ]
+
+                for path in possible_lang_paths:
+                    if os.path.exists(path):
+                        lang_root_path = path
+                        break
+
+                # Set the detected language root path as our localization path
+                self.root_localization_path = lang_root_path
+                self.is_apk_mode = True  # Flag to indicate we're working with APK content
+                self.apk_temp_dir = temp_dir  # Store reference to temp directory (not language root)
+
+                # Reload language structure with the correct path
+                self.reload_language_structure(lang_root_path)
+
+                color = QColor(self.STYLES['DarkTheme']['NotificationSuccess'])
+                self.show_notification(f"APK loaded: {os.path.basename(apk_path)}", color)
+
+        except zipfile.BadZipFile:
+            color = QColor(self.STYLES['DarkTheme']['NotificationError'])
+            self.show_notification("Invalid APK file", color)
+            # Clean up temp directory if extraction failed
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except Exception as e:
+            color = QColor(self.STYLES['DarkTheme']['NotificationError'])
+            self.show_notification(f"Error opening APK: {str(e)}", color)
+            # Clean up temp directory if extraction failed
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def save_changes_to_apk(self):
+        """Saves changes back to the APK file if in APK mode using background thread."""
+        # Check if we're in APK mode
+        if not hasattr(self, 'is_apk_mode') or not self.is_apk_mode:
+            color = QColor(self.STYLES['DarkTheme']['NotificationWarning'])
+            self.show_notification("Not in APK mode", color)
+            return
+
+        if not hasattr(self, 'current_apk_path') or not self.current_apk_path:
+            color = QColor(self.STYLES['DarkTheme']['NotificationError'])
+            self.show_notification("No APK file to save to", color)
+            return
+
+        # First, save any unsaved changes in open tabs
+        unsaved_tabs = [t for t in self.open_tabs if t.is_dirty]
+        if unsaved_tabs:
+            color = QColor(self.STYLES['DarkTheme']['NotificationWarning'])
+            self.show_notification(f"Saving {len(unsaved_tabs)} modified files before APK update...", color)
+
+            for tab in unsaved_tabs:
+                self.save_file_action(tab)
+
+            # Check again if there are still unsaved changes after attempting to save
+            still_unsaved = [t for t in self.open_tabs if t.is_dirty]
+            if still_unsaved:
+                color = QColor(self.STYLES['DarkTheme']['NotificationWarning'])
+                self.show_notification(f"{len(still_unsaved)} files could not be saved", color)
+                return
+            else:
+                color = QColor(self.STYLES['DarkTheme']['NotificationSuccess'])
+                self.show_notification("All modified files saved", color)
+        else:
+            color = QColor(self.STYLES['DarkTheme']['NotificationSuccess'])
+            self.show_notification("No modified files to save", color)
+
+        # Confirm with user before overwriting APK
+        reply = question_message_box(self, 'Save to APK',
+            f"Save changes back to '{os.path.basename(self.current_apk_path)}'?\nThis will overwrite the original APK.",
+            QMessageBox.Save | QMessageBox.Cancel, QMessageBox.Cancel)
+
+        if reply != QMessageBox.Save:
+            return
+
+        # Run the APK saving in background thread
+        from PyQt5.QtCore import QTimer, QThread
+
+        def handle_apk_save_result(success, message):
+            """Handle the result of APK saving operation"""
+            if success:
+                color = QColor(self.STYLES['DarkTheme']['NotificationSuccess'])
+                self.show_notification(message, color)
+            else:
+                # If saving failed, try to restore from backup
+                backup_path = self.current_apk_path + ".backup"
+                if os.path.exists(backup_path):
+                    try:
+                        import shutil
+                        shutil.move(backup_path, self.current_apk_path)
+                        color = QColor(self.STYLES['DarkTheme']['NotificationError'])
+                        self.show_notification(f"Error saving APK, original restored: {message}", color)
+                    except Exception:
+                        color = QColor(self.STYLES['DarkTheme']['NotificationError'])
+                        self.show_notification(f"Error saving APK and restoring backup: {message}", color)
+                else:
+                    color = QColor(self.STYLES['DarkTheme']['NotificationError'])
+                    self.show_notification(f"Error saving APK: {message}", color)
+
+        # Create a custom runner that handles the result
+        from progress_dialog import ProgressDialog
+
+        class CustomApkRunner(OperationRunner):
+            def __init__(self, parent_window, operation_name="Operation"):
+                super().__init__(parent_window, operation_name)
+
+            def run_with_progress(self, worker_class, *args, **kwargs):
+                # Create progress dialog with styles from parent window if available
+                styles = getattr(self.parent_window, 'STYLES', {}) if hasattr(self.parent_window, 'STYLES') else {}
+                self.dialog = ProgressDialog(self.parent_window, f"{self.operation_name} in Progress", styles=styles)
+
+                # Create worker and thread
+                self.worker = worker_class(*args, **kwargs)
+                self.thread = QThread()
+
+                # Move worker to thread
+                self.worker.moveToThread(self.thread)
+
+                # Connect signals
+                self.worker.progress_updated.connect(self.dialog.update_progress)
+                self.worker.status_updated.connect(self.dialog.update_status)
+                self.worker.operation_finished.connect(handle_apk_save_result)  # Connect to our handler
+                self.worker.operation_finished.connect(lambda success, message: self.dialog.close() if self.dialog else None)
+                self.dialog.cancel_button.clicked.connect(self.worker.cancel)
+
+                # Start thread and operation
+                self.thread.started.connect(self.worker.run_operation)
+                self.dialog.show()
+                self.thread.start()
+
+        # Calculate the relative path for language files within the APK
+        # This is the path from the APK root to the language directory
+        lang_relative_path = ""
+        if hasattr(self, 'apk_temp_dir') and hasattr(self, 'root_localization_path'):
+            lang_relative_path = os.path.relpath(self.root_localization_path, self.apk_temp_dir).replace('\\', '/')
+
+        runner = CustomApkRunner(self, "APK Saving")
+        runner.run_with_progress(ApkSaveWorker,
+                                self.current_apk_path,
+                                getattr(self, 'apk_temp_dir', ''),
+                                getattr(self, 'root_localization_path', ''),
+                                lang_relative_path)
 
 
     def reload_language_structure(self, folder_path: str):
@@ -737,14 +989,17 @@ class YAMLEditorWindow(QMainWindow):
             # Загружаем SVG иконки и обновляем их цвета
             folder_svg_content = self._load_folder_icon()
             yaml_svg_content = self._load_yaml_file_icon()
+            android_svg_content = self._load_android_icon()
 
             # Обновляем цвета в SVG содержимом
             folder_svg_content = self._update_svg_colors(folder_svg_content, folder_color=folder_icon_color)
             yaml_svg_content = self._update_svg_colors(yaml_svg_content, yaml_color=yaml_icon_color)
+            # Android icon will use the highlight color from theme
 
             # Пересоздаем иконки с новыми цветами
             self.icon_folder = self._create_icon_from_svg_content(folder_svg_content)
             self.icon_yaml = self._create_icon_from_svg_content(yaml_svg_content)
+            self.icon_android = self._create_icon_from_svg_content(android_svg_content, is_folder=False, is_yaml=False)
 
             # Обновляем подсветку синтаксиса для текущего текстового редактора
             self.update_highlighter_colors(styles)

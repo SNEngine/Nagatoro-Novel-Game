@@ -83,12 +83,12 @@ def handle_undo(self):
         if hasattr(self, 'update_text_edit_content'):
             # Temporarily update the current tab content to reflect the undo
             original_text = self.text_edit.toPlainText()
-            self.text_edit.setText(text_to_restore)
+            self.text_edit.setPlainText(text_to_restore)
             # Since highlighter is already set up, we can just trigger re-highlighting if needed
             if hasattr(self, 'highlighter') and self.highlighter:
                 self.highlighter.rehighlight()
         else:
-            self.text_edit.setText(text_to_restore)
+            self.text_edit.setPlainText(text_to_restore)
 
         self.draw_tabs_placeholder()
         self.draw_file_tree()
@@ -112,12 +112,12 @@ def handle_redo(self):
         if hasattr(self, 'update_text_edit_content'):
             # Temporarily update the current tab content to reflect the redo
             original_text = self.text_edit.toPlainText()
-            self.text_edit.setText(text_to_restore)
+            self.text_edit.setPlainText(text_to_restore)
             # Since highlighter is already set up, we can just trigger re-highlighting if needed
             if hasattr(self, 'highlighter') and self.highlighter:
                 self.highlighter.rehighlight()
         else:
-            self.text_edit.setText(text_to_restore)
+            self.text_edit.setPlainText(text_to_restore)
 
         self.draw_tabs_placeholder()
         self.draw_file_tree()

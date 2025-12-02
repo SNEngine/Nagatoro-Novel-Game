@@ -303,7 +303,7 @@ def create_new_language_dialog(parent_window) -> bool:
             parent_window.open_tabs.clear()
             parent_window.current_tab_index = -1
             parent_window.current_tab = None
-            parent_window.text_edit.setText("")
+            parent_window.text_edit.setPlainText("")
             parent_window.text_edit.document().clearUndoRedoStacks()
 
             # Update UI to show the new language

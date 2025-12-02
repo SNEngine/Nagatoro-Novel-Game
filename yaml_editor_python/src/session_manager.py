@@ -241,7 +241,7 @@ class SessionManager:
                 self.parent_window.update_text_edit_content()
             else:
                 # Fallback if helper function is not available
-                self.parent_window.text_edit.setText(self.parent_window.current_tab.yaml_text)
+                self.parent_window.text_edit.setPlainText(self.parent_window.current_tab.yaml_text)
                 self.parent_window.text_edit.document().clearUndoRedoStacks()
                 # Update syntax highlighter with current theme colors
                 if hasattr(self.parent_window, 'highlighter') and self.parent_window.highlighter:
@@ -266,9 +266,13 @@ class SessionManager:
                 self.parent_window.update_text_edit_content()
             else:
                 # Fallback if helper function is not available
-                self.parent_window.text_edit.setText("")
+                if hasattr(self.parent_window.text_edit, 'setPlainText'):
+                    self.parent_window.text_edit.setPlainText("")
+                else:
+                    self.parent_window.text_edit.setPlainText("")
+
                 # RESTORED: Use clearUndoRedoStacks()
-                if hasattr(self.parent_window.text_edit, 'clearUndoRedoStacks'):
+                if hasattr(self.parent_window.text_edit, 'document') and hasattr(self.parent_window.text_edit.document(), 'clearUndoRedoStacks'):
                     self.parent_window.text_edit.document().clearUndoRedoStacks()
 
         # 7. Update UI

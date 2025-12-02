@@ -7,14 +7,24 @@ def create_main_toolbar(self):
     main_toolbar = QToolBar("Main Toolbar")
     main_toolbar.setIconSize(QSize(18, 18))
     self.addToolBar(Qt.TopToolBarArea, main_toolbar)
-    
+
     main_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
     # --- OPEN FOLDER BUTTON ---
     open_action = QAction(self.icon_folder, "Open Folder...", self)
     open_action.triggered.connect(self.open_folder_dialog)
     main_toolbar.addAction(open_action)
-    
+
+    # --- OPEN APK BUTTON ---
+    open_apk_action = QAction(self.icon_android, "Open APK...", self)
+    open_apk_action.triggered.connect(self.open_apk_dialog)
+    main_toolbar.addAction(open_apk_action)
+
+    # --- SAVE APK BUTTON ---
+    save_apk_action = QAction(self.icon_android, "Save APK...", self)
+    save_apk_action.triggered.connect(self.save_changes_to_apk)
+    main_toolbar.addAction(save_apk_action)
+
     main_toolbar.addSeparator()
     
     # Reload Structure
