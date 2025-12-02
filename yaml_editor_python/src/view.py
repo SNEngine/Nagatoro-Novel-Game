@@ -815,6 +815,12 @@ class YAMLEditorWindow(QMainWindow):
         self.current_tab_index = -1
         self.current_tab = None
 
+        # Clear the text editor as well to match behavior when changing languages
+        if hasattr(self, 'text_edit') and self.text_edit:
+            self.text_edit.setPlainText("")
+            if hasattr(self.text_edit, 'document'):
+                self.text_edit.document().clearUndoRedoStacks()
+
         # New: Detect language folders and populate the dropdown
         language_folders = self.lang_service.get_language_folders(folder_path)
         self.language_selector_combo.clear()
@@ -1023,11 +1029,9 @@ class YAMLEditorWindow(QMainWindow):
 
 
     def reload_structure_action(self):
-        # ... (reload_structure_action code) ...
-        root_path = self.temp_structure.get('root_path')
-        if root_path:
-            original_path = os.path.normpath(root_path)
-            self.reload_language_structure(original_path)
+        # Use the root localization path instead of the current language folder path
+        if self.root_localization_path:
+            self.reload_language_structure(self.root_localization_path)
         else:
             color = QColor(self.STYLES['DarkTheme']['NotificationWarning'])
             self.show_notification("No folder open to reload.", color)
