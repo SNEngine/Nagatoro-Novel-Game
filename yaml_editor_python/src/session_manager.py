@@ -282,13 +282,21 @@ class SessionManager:
         self.parent_window.update_undo_redo_ui()
 
         # 8. Restore font size
-        self.parent_window._current_font_size = saved_font_size
+        # Use settings manager value if available, otherwise use session value
+        if hasattr(self.parent_window, 'settings_manager') and self.parent_window.settings_manager:
+            # Settings manager has the current user preference
+            restored_font_size = self.parent_window.settings_manager.font_size
+        else:
+            # Fallback to session value if settings manager not available at this point
+            restored_font_size = saved_font_size
+
+        self.parent_window._current_font_size = restored_font_size
         if hasattr(self.parent_window, 'text_edit'):
             # Update font size in text editor
             font = self.parent_window.text_edit.font()
-            font.setPointSize(saved_font_size)
+            font.setPointSize(restored_font_size)
             self.parent_window.text_edit.setFont(font)
 
             # Update font size label in status bar if it exists
             if hasattr(self.parent_window, 'font_size_label'):
-                self.parent_window.font_size_label.setText(f"Font Size: {saved_font_size} (Ctrl+↑/↓)")
+                self.parent_window.font_size_label.setText(f"Font Size: {restored_font_size} (Ctrl+↑/↓)")

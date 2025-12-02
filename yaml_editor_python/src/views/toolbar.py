@@ -72,4 +72,9 @@ def create_main_toolbar(self):
     styles_action.triggered.connect(self.open_styles_editor)
     main_toolbar.addAction(styles_action)
 
+    # Settings Button
+    settings_action = QAction("Settings", self)
+    settings_action.triggered.connect(self.open_settings_dialog)
+    main_toolbar.addAction(settings_action)
+
     return main_toolbar

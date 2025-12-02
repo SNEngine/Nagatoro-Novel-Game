@@ -34,9 +34,11 @@ def create_editor_area(self) -> QWidget:
         # if search module unavailable, continue without it
         pass
 
-    self.text_edit = CodeEditor(styles=self.STYLES)
-    font_name = self.STYLES['DarkTheme']['EditorFontName']
-    self.text_edit.setFont(QFont(font_name, self._current_font_size))
+    self.text_edit = CodeEditor(styles=self.STYLES, settings_manager=self.settings_manager)
+    # Update font from settings manager instead of using theme font
+    self.text_edit.update_font_from_settings()
+    # Update line numbers visibility from settings
+    self.text_edit.update_line_numbers_visibility()
     self.text_edit.setPlainText(self.current_tab.yaml_text if self.current_tab else "")
     self.text_edit.textChanged.connect(self.handle_text_change)
     

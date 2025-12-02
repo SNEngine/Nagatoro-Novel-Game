@@ -54,3 +54,15 @@ DarkTheme:
   ProgressBarBackground: "#1F1F1F"  # Background color for progress bar (same as editor background)
   ProgressBarColor: "#C84B31"       # Progress fill color (same as highlight color)
   ProgressBarBorderColor: "#3A3A3A" # Border color for progress bar (same as border color)
+
+  # Particle system colors
+  ParticlePrimaryColor: "#FF6B6B"     # Primary particle color (red)
+  ParticleSecondaryColor: "#4ECDC4"   # Secondary particle color (teal)
+  ParticleAccentColor: "#FFE66D"      # Accent particle color (yellow)
+  ParticleGlowColor: "#C84B31"        # Glow/halo color for particles (same as highlight)
+
+  # Particle line/trail colors - for particle connection lines or trails
+  ParticleTrailColor: "#A0A0A0"       # Color for particle connection lines or trails
+  ParticleLinePrimaryColor: "#FF6B6B80"   # Primary particle line color with transparency (semi-transparent red)
+  ParticleLineSecondaryColor: "#4ECDC480" # Secondary particle line color with transparency (semi-transparent teal)
+  ParticleConnectionColor: "#C84B3140"    # Connection line color between particles (transparent red)

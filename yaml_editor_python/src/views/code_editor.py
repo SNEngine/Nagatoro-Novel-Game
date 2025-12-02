@@ -20,7 +20,8 @@ class LineNumberArea(QFrame):
         self.setStyleSheet(f"background-color: {secondary_bg};")
 
     def sizeHint(self):
-        return self.code_editor.line_number_area_width(), 0
+        from PyQt5.QtCore import QSize
+        return QSize(self.code_editor.line_number_area_width(), 0)
 
     def paintEvent(self, event):
         self.code_editor.line_number_paint_event(event)
@@ -29,20 +30,36 @@ class LineNumberArea(QFrame):
 class CodeEditor(QPlainTextEdit):
     """Custom text editor with line numbers"""
 
-    def __init__(self, styles=None):
+    def __init__(self, styles=None, settings_manager=None):
         super().__init__()
 
         self.styles = styles or {}
+        self.settings_manager = settings_manager
 
         # Create line number area
         self.line_numbers = LineNumberArea(self)
 
         # Create particle effect system
-        self.particle_effect = ParticleEffect(self)
-        self.particle_effect.hide()  # Изначально скрыт
+        try:
+            from .particle_system import ParticleEffect
+            # Get particle colors from styles, with defaults
+            particle_colors = {
+                'ParticlePrimaryColor': self.styles.get('DarkTheme', {}).get('ParticlePrimaryColor', '#FF6B6B'),
+                'ParticleSecondaryColor': self.styles.get('DarkTheme', {}).get('ParticleSecondaryColor', '#4ECDC4'),
+                'ParticleAccentColor': self.styles.get('DarkTheme', {}).get('ParticleAccentColor', '#FFE66D'),
+                'ParticleGlowColor': self.styles.get('DarkTheme', {}).get('ParticleGlowColor', '#C84B31'),
+                'ParticleTrailColor': self.styles.get('DarkTheme', {}).get('ParticleTrailColor', '#A0A0A0'),
+                'ParticleLinePrimaryColor': self.styles.get('DarkTheme', {}).get('ParticleLinePrimaryColor', '#FF6B6B80'),
+                'ParticleLineSecondaryColor': self.styles.get('DarkTheme', {}).get('ParticleLineSecondaryColor', '#4ECDC480'),
+                'ParticleConnectionColor': self.styles.get('DarkTheme', {}).get('ParticleConnectionColor', '#C84B3140')
+            }
+            self.particle_effect = ParticleEffect(self, style_colors=particle_colors)
+            self.particle_effect.hide()  # Изначально скрыт
 
-        # Initialize the particle effect geometry to match the editor
-        self.particle_effect.update_parent_geometry()
+            # Initialize the particle effect geometry to match the editor
+            self.particle_effect.update_parent_geometry()
+        except ImportError:
+            self.particle_effect = None  # Disable particles if import fails
 
         # Initialize line number area width
         self.update_line_number_area_width(0)
@@ -160,13 +177,23 @@ class CodeEditor(QPlainTextEdit):
         self.update_line_number_area_width(0)
 
     def on_text_changed(self):
-        """Событие изменения текста - запускает эффект частиц"""
+        """Событие изменения текста - запускает эффект частиц если включено в настройках"""
+        # Проверяем, включены ли частицы в настройках
+        if (self.settings_manager and
+            hasattr(self.settings_manager, 'typing_particles_enabled') and
+            not self.settings_manager.typing_particles_enabled):
+            return  # Не создаем частицы, если опция отключена
+
+        # Проверяем, что particle_effect доступен
+        if not self.particle_effect:
+            return
+
         # Получаем текущую позицию курсора
         cursor = self.textCursor()
         current_pos = cursor.position()
 
-        # Проверяем, есть ли предыдущий символ
-        if current_pos > 0:
+        # Проверяем, есть ли предыдущий символ (чтобы не создавать частицы при удалении)
+        if current_pos > 0 and len(self.toPlainText()) > 0:
             # Создаем новый курсор и устанавливаем его на позицию предыдущего символа
             prev_cursor = QTextCursor(cursor)
             prev_cursor.setPosition(current_pos - 1, QTextCursor.MoveAnchor)
@@ -196,7 +223,71 @@ class CodeEditor(QPlainTextEdit):
             # Обновляем геометрию эффекта частиц, чтобы она соответствовала родительскому элементу
             self.particle_effect.update_parent_geometry()
 
+    def update_font_from_settings(self):
+        """Update the editor font based on settings manager"""
+        if self.settings_manager:
+            font_family = self.settings_manager.font_family
+            font_size = self.settings_manager.font_size
+
+            # Create a new font and apply it to the editor
+            current_font = self.font()
+            current_font.setFamily(font_family)
+            current_font.setPointSize(font_size)
+            self.setFont(current_font)
+
+            # Also update the line numbers font if line numbers are enabled
+            show_line_numbers = getattr(self.settings_manager, 'show_line_numbers', True)
+            if show_line_numbers:
+                self.line_numbers.setFont(current_font)
+                # Update the viewport margins to accommodate the new font size for line numbers
+                self._update_line_numbers_layout()
+            else:
+                # If line numbers are disabled, make sure the editor has no left margin
+                self.setViewportMargins(0, 0, 0, 0)
+                # Still update the font for line numbers area so it's ready if enabled later
+                self.line_numbers.setFont(current_font)
+
+    def _update_line_numbers_layout(self):
+        """Helper method to update line numbers layout after font changes"""
+        # Recalculate and update the line number area width
+        self.update_line_number_area_width(0)
+
+        # Update the line numbers area geometry to match new font metrics
+        if self.isVisible():
+            cr = self.contentsRect()
+            self.line_numbers.setGeometry(QRect(cr.left(), cr.top(),
+                                              self.line_number_area_width(), cr.height()))
+
+    def update_line_numbers_visibility(self):
+        """Update the visibility of line numbers based on settings"""
+        if self.settings_manager:
+            show_line_numbers = self.settings_manager.show_line_numbers
+            if show_line_numbers:
+                self.line_numbers.show()
+                # Update the viewport margins to make space for line numbers
+                self._update_line_numbers_layout()
+            else:
+                self.line_numbers.hide()
+                # Remove the margin for line numbers
+                self.setViewportMargins(0, 0, 0, 0)
+
     def update_line_number_styles(self):
         """Update styles for the line number area"""
         secondary_bg = self.styles.get('DarkTheme', {}).get('SecondaryBackground', '#2A2A2A')
         self.line_numbers.setStyleSheet(f"background-color: {secondary_bg};")
+
+    def update_particle_colors(self, styles):
+        """Update particle colors from new styles"""
+        self.styles = styles
+        if self.particle_effect:
+            particle_colors = {
+                'ParticlePrimaryColor': styles.get('DarkTheme', {}).get('ParticlePrimaryColor', '#FF6B6B'),
+                'ParticleSecondaryColor': styles.get('DarkTheme', {}).get('ParticleSecondaryColor', '#4ECDC4'),
+                'ParticleAccentColor': styles.get('DarkTheme', {}).get('ParticleAccentColor', '#FFE66D'),
+                'ParticleGlowColor': styles.get('DarkTheme', {}).get('ParticleGlowColor', '#C84B31'),
+                'ParticleTrailColor': styles.get('DarkTheme', {}).get('ParticleTrailColor', '#A0A0A0'),
+                'ParticleLinePrimaryColor': styles.get('DarkTheme', {}).get('ParticleLinePrimaryColor', '#FF6B6B80'),
+                'ParticleLineSecondaryColor': styles.get('DarkTheme', {}).get('ParticleLineSecondaryColor', '#4ECDC480'),
+                'ParticleConnectionColor': styles.get('DarkTheme', {}).get('ParticleConnectionColor', '#C84B3140')
+            }
+            self.particle_effect.update_style_colors(particle_colors)

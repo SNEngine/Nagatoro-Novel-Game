@@ -32,7 +32,6 @@ from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtCore import QSize
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QSize
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtCore import QByteArray
@@ -46,6 +45,7 @@ from models import YamlTab
 from highlighter import YamlHighlighter
 from validator import StructureValidator
 from session_manager import SessionManager # Add this if session_manager.py is in src/
+from settings_manager import SettingsManager
 from language_service import LanguageService # Import the LanguageService from the new file
 from views.tabs import question_message_box # Import the custom message box function
 
@@ -223,11 +223,18 @@ class YAMLEditorWindow(QMainWindow):
             # Если не удалось загрузить SVG иконку, используем стандартную иконку
             pass
 
+        self.settings_manager = SettingsManager()
+
         self.init_ui()
         self.update_status_bar()
 
         self.session_manager = SessionManager(self)
         self.session_manager.restore_session() # Restore session on startup
+
+        # Initialize auto-save timer
+        self.auto_save_timer = QTimer(self)
+        self.auto_save_timer.timeout.connect(self.perform_auto_save)
+        self._setup_auto_save_timer()
 
     def closeEvent(self, event):
         """
@@ -269,6 +276,39 @@ class YAMLEditorWindow(QMainWindow):
                 pass  # Ignore errors during cleanup
 
         event.accept()
+
+    def _setup_auto_save_timer(self):
+        """Setup the auto-save timer based on current settings"""
+        # Stop the timer if it's running
+        self.auto_save_timer.stop()
+
+        # Check if auto-save is enabled
+        if self.settings_manager.auto_save_enabled:
+            # Set the interval from settings (convert from seconds to milliseconds)
+            interval_ms = self.settings_manager.auto_save_interval * 1000
+            self.auto_save_timer.setInterval(interval_ms)
+            self.auto_save_timer.start()
+
+    def perform_auto_save(self):
+        """Perform auto-save of all dirty tabs"""
+        if not self.settings_manager.auto_save_enabled:
+            return
+
+        # Save all open tabs that have unsaved changes
+        dirty_tabs = [t for t in self.open_tabs if t.is_dirty and t.file_path]
+        if dirty_tabs:
+            for tab in dirty_tabs:
+                try:
+                    with open(tab.file_path, 'w', encoding='utf-8') as f:
+                        f.write(tab.yaml_text)
+                    tab.is_dirty = False  # Mark as saved
+
+                    # Update the UI to reflect the saved state
+                    self.update_status_bar()
+                except Exception as e:
+                    print(f"Auto-save failed for {tab.file_path}: {e}")
+                    # Don't stop auto-saving other files if one fails
+                    continue
 
     def _get_resource_path(self, relative_path: str) -> str:
         """
@@ -889,7 +929,11 @@ class YAMLEditorWindow(QMainWindow):
         self.status_bar.addPermanentWidget(self.language_selector_combo)
 
         # Add font size label to status bar
-        self.font_size_label = QLabel(f"Font Size: {self._current_font_size} (Ctrl+↑/↓)")
+        # Use settings manager value if available, otherwise default
+        initial_font_size = 14
+        if hasattr(self, 'settings_manager') and self.settings_manager:
+            initial_font_size = self.settings_manager.font_size
+        self.font_size_label = QLabel(f"Font Size: {initial_font_size} (Ctrl+↑/↓)")
         self.status_bar.addPermanentWidget(self.font_size_label)
 
         self._notification_label = QLabel()
@@ -1018,12 +1062,61 @@ class YAMLEditorWindow(QMainWindow):
             # Обновляем подсветку синтаксиса для текущего текстового редактора
             self.update_highlighter_colors(styles)
 
+            # Обновляем цвета частиц в редакторе
+            if hasattr(self, 'text_edit') and hasattr(self.text_edit, 'update_particle_colors'):
+                self.text_edit.update_particle_colors({'DarkTheme': styles})
+
             # Перерисовываем дерево файлов, чтобы обновить иконки
             if hasattr(self, 'draw_file_tree'):
                 self.draw_file_tree()
 
         dialog = StylesEditorDialog(self, self._get_resource_path('styles.yaml'))
         dialog.styles_changed.connect(on_styles_changed)
+        dialog.exec_()
+
+    def open_settings_dialog(self):
+        """Opens the editor settings dialog"""
+        from settings_dialog import SettingsDialog
+
+        def on_settings_changed(settings):
+            # Update settings in the main window
+            # Check if the line numbers option changed
+            if 'show_line_numbers' in settings:
+                # Can update line numbers display in the future
+                pass
+
+            # Check if font settings changed
+            if 'font_family' in settings or 'font_size' in settings:
+                # Update the font in the current text editor if it exists
+                if hasattr(self, 'text_edit') and self.text_edit:
+                    try:
+                        # Update font from settings
+                        self.text_edit.update_font_from_settings()
+                    except Exception as e:
+                        print(f"Error updating font from settings: {e}")
+
+                # Update font size label in status bar if font size changed
+                if 'font_size' in settings:
+                    if hasattr(self, 'font_size_label') and self.font_size_label:
+                        self.font_size_label.setText(f"Font Size: {self.settings_manager.font_size} (Ctrl+↑/↓)")
+
+            # Check if auto-save settings changed
+            if 'auto_save_enabled' in settings or 'auto_save_interval' in settings:
+                # Reconfigure the auto-save timer
+                self._setup_auto_save_timer()
+
+            # Check if line numbers setting changed
+            if 'show_line_numbers' in settings:
+                # Update the visibility of line numbers in the current text editor if it exists
+                if hasattr(self, 'text_edit') and self.text_edit:
+                    try:
+                        # Update line numbers visibility from settings
+                        self.text_edit.update_line_numbers_visibility()
+                    except Exception as e:
+                        print(f"Error updating line numbers visibility from settings: {e}")
+
+        dialog = SettingsDialog(self.settings_manager, self)
+        dialog.settings_changed.connect(on_settings_changed)
         dialog.exec_()
 
     def update_highlighter_colors(self, styles):
