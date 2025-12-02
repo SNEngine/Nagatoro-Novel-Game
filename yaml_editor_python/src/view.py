@@ -52,7 +52,6 @@ from views.tabs import question_message_box # Import the custom message box func
 # Progress dialog imports
 from progress_dialog import OperationRunner
 from apk_save_worker import ApkSaveWorker
-from excel_handler import import_excel_dialog, export_excel_dialog
 
 # --- UTILITY FOR CREATING QIcon FROM SVG string ---
 def create_icon_from_svg(svg_content: str, size: QSize = QSize(16, 16)) -> QIcon:
@@ -118,23 +117,6 @@ class YAMLEditorWindow(QMainWindow):
 </svg>
 """
 
-    def _load_excel_icon(self) -> str:
-        """Loads the Excel SVG icon, fallback to default if not found."""
-        try:
-            icon_path = self._get_resource_path('icons/excel.svg')
-            with open(icon_path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except FileNotFoundError:
-            # Fallback to default Excel icon with Microsoft green color
-            excel_color = self.STYLES['DarkTheme'].get('HighlightColor', '#217346')
-            return f"""
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-  <path fill="{excel_color}" d="M22,7.26V3c0-0.55-0.45-1-1-1H3C2.45,2,2,2.45,2,3v18c0,0.55,0.45,1,1,1h18c0.55,0,1-0.45,1-1V7.26 C21.17,6.93,22,6.11,22,5.19V5C22,4.45,21.55,4,21,4c0,0-0.59,0-1,0v0.08C19.52,4.03,19.27,4,19,4c-0.27,0-0.52,0.03-1,0.08V4 c-0.41,0-1,0-1,0c-0.55,0-1,0.45-1,1v0.19C15.73,5.07,15.48,5,15,5c-0.48,0-0.73,0.07-1,0.19V5c0-0.55-0.45-1-1-1c0,0-0.59,0-1,0v0.08 C10.52,4.03,10.27,4,10,4c-0.27,0-0.52,0.03-1,0.08V4c-0.41,0-1,0-1,0c-0.55,0-1,0.45-1,1v0.19C7.73,5.07,7.48,5,7,5c-0.48,0-0.73,0.07-1,0.19 V5c0-0.55-0.45-1-1-1h0c-0.55,0-1,0.45-1,1v0.19C3.73,6.07,3.48,6,3,6c-0.48,0-0.73,0.07-1,0.19V6c0-0.55-0.45-1-1-1v18 c0,1.1,0.9,2,2,2h18c1.1,0,2-0.9,2-2V7.26C22.66,7.61,22,7.26,22,7.26z"/>
-  <path fill="{excel_color}" d="M19,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S19,1.45,19,2z"/>
-  <text x="12" y="14" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white" text-anchor="middle">XLS</text>
-</svg>
-"""
-
     def _update_svg_colors(self, svg_content: str, folder_color: str = None, yaml_color: str = None, excel_color: str = None) -> str:
         """Updates colors in SVG content based on current styles, replacing white with the specified color."""
 
@@ -147,11 +129,6 @@ class YAMLEditorWindow(QMainWindow):
         if yaml_color and 'M4 2h5.5L13 5.5V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z' in svg_content:
             # Replace 'white' with the specified YAML color in all fill attributes
             svg_content = svg_content.replace('fill="white"', f'fill="{yaml_color}"')
-
-        # For Excel file icon: if it contains the Excel path and excel_color is specified, replace white with excel_color
-        if excel_color and 'M22,7.26V3c0-0.55-0.45-1-1-1H3C2.45,2,2,2.45,2,3v18c0,0.55,0.45,1,1,1h18c0.55,0,1-0.45,1-1V7.26' in svg_content:
-            # Replace 'white' with the specified Excel color in all fill attributes
-            svg_content = svg_content.replace('fill="white"', f'fill="{excel_color}"')
 
         return svg_content
 
@@ -201,19 +178,16 @@ class YAMLEditorWindow(QMainWindow):
         folder_svg_content = self._load_folder_icon()
         yaml_svg_content = self._load_yaml_file_icon()
         android_svg_content = self._load_android_icon()
-        excel_svg_content = self._load_excel_icon()
 
         # Apply color updates based on loaded styles
         folder_svg_content = self._update_svg_colors(folder_svg_content, folder_color=folder_icon_color)
         yaml_svg_content = self._update_svg_colors(yaml_svg_content, yaml_color=yaml_icon_color)
-        excel_svg_content = self._update_svg_colors(excel_svg_content, excel_color=self.STYLES['DarkTheme'].get('HighlightColor', '#217346'))
         # Android icon will use the highlight color from theme
 
         # Create icons with applied colors
         self.icon_folder = self._create_icon_from_svg_content(folder_svg_content)
         self.icon_yaml = self._create_icon_from_svg_content(yaml_svg_content)
         self.icon_android = self._create_icon_from_svg_content(android_svg_content, is_folder=False, is_yaml=False)
-        self.icon_excel = self._create_icon_from_svg_content(excel_svg_content, is_folder=False, is_yaml=False)
         self._last_open_dir: str = os.path.expanduser("~")
 
         # --- Model/Services ---
@@ -1078,19 +1052,16 @@ class YAMLEditorWindow(QMainWindow):
             folder_svg_content = self._load_folder_icon()
             yaml_svg_content = self._load_yaml_file_icon()
             android_svg_content = self._load_android_icon()
-            excel_svg_content = self._load_excel_icon()
 
             # Обновляем цвета в SVG содержимом
             folder_svg_content = self._update_svg_colors(folder_svg_content, folder_color=folder_icon_color)
             yaml_svg_content = self._update_svg_colors(yaml_svg_content, yaml_color=yaml_icon_color)
-            excel_svg_content = self._update_svg_colors(excel_svg_content, excel_color=self.STYLES['DarkTheme'].get('HighlightColor', '#217346'))
             # Android icon will use the highlight color from theme
 
             # Пересоздаем иконки с новыми цветами
             self.icon_folder = self._create_icon_from_svg_content(folder_svg_content)
             self.icon_yaml = self._create_icon_from_svg_content(yaml_svg_content)
             self.icon_android = self._create_icon_from_svg_content(android_svg_content, is_folder=False, is_yaml=False)
-            self.icon_excel = self._create_icon_from_svg_content(excel_svg_content, is_folder=False, is_yaml=False)
 
             # Обновляем подсветку синтаксиса для текущего текстового редактора
             self.update_highlighter_colors(styles)
@@ -1107,41 +1078,6 @@ class YAMLEditorWindow(QMainWindow):
         dialog.styles_changed.connect(on_styles_changed)
         dialog.exec_()
 
-    def import_from_excel(self):
-        """Import language folder structure from Excel file"""
-        # First check if we have a folder loaded
-        if not self.root_localization_path:
-            color = QColor(self.STYLES['DarkTheme'].get('NotificationError', '#D9685A'))
-            self.show_notification("Please open a localization folder first", color)
-            return
-
-        # Call the import dialog
-        success = import_excel_dialog(self)
-        if success:
-            # Reload the language structure to reflect the imported files
-            self.reload_language_structure(self.root_localization_path)
-            color = QColor(self.STYLES['DarkTheme'].get('NotificationSuccess', '#6BA878'))
-            self.show_notification("Language folder structure imported from Excel successfully", color)
-        else:
-            color = QColor(self.STYLES['DarkTheme'].get('NotificationError', '#D9685A'))
-            self.show_notification("Failed to import language folder structure from Excel", color)
-
-    def export_to_excel(self):
-        """Export the complete language folder structure to Excel file"""
-        # Check if we have a root localization path
-        if not self.root_localization_path:
-            color = QColor(self.STYLES['DarkTheme'].get('NotificationError', '#D9685A'))
-            self.show_notification("Please open a localization folder first", color)
-            return
-
-        # Call the export dialog with the root folder path
-        success = export_excel_dialog(self.root_localization_path, self)
-        if success:
-            color = QColor(self.STYLES['DarkTheme'].get('NotificationSuccess', '#6BA878'))
-            self.show_notification("Language folder structure exported to Excel successfully", color)
-        else:
-            color = QColor(self.STYLES['DarkTheme'].get('NotificationError', '#D9685A'))
-            self.show_notification("Failed to export language folder structure to Excel", color)
 
     def open_settings_dialog(self):
         """Opens the editor settings dialog"""

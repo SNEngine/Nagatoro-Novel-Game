@@ -72,15 +72,6 @@ def create_main_toolbar(self):
     styles_action.triggered.connect(self.open_styles_editor)
     main_toolbar.addAction(styles_action)
 
-    # Excel Import Button
-    excel_import_action = QAction(self.icon_excel, "Import from Excel", self)
-    excel_import_action.triggered.connect(self.import_from_excel)
-    main_toolbar.addAction(excel_import_action)
-
-    # Excel Export Button
-    excel_export_action = QAction(self.icon_excel, "Export to Excel", self)
-    excel_export_action.triggered.connect(self.export_to_excel)
-    main_toolbar.addAction(excel_export_action)
 
     # Settings Button
     settings_action = QAction("Settings", self)
