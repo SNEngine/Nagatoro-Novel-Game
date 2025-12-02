@@ -11,6 +11,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from view import YAMLEditorWindow
 
+# Import GPU debug utility and print debug info
+try:
+    from gpu_debug import print_gpu_debug_info
+    print_gpu_debug_info()
+except ImportError:
+    print("GPU Debug utility not available")
+
 def main():
     # 1. QApplication initialization
     app = QApplication(sys.argv)

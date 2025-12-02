@@ -1,10 +1,11 @@
 """
-Custom QPlainTextEdit with line numbers
+Custom QPlainTextEdit with line numbers and particle effects
 Based on PyQt5 example for creating a text editor with line numbers
 """
 from PyQt5.QtWidgets import QWidget, QPlainTextEdit, QFrame, QLabel, QScrollBar
 from PyQt5.QtCore import Qt, QRect
-from PyQt5.QtGui import QPainter, QColor, QTextFormat, QFontMetrics
+from PyQt5.QtGui import QPainter, QColor, QTextFormat, QFontMetrics, QTextCursor
+from .particle_system import ParticleEffect
 
 
 class LineNumberArea(QFrame):
@@ -36,6 +37,10 @@ class CodeEditor(QPlainTextEdit):
         # Create line number area
         self.line_numbers = LineNumberArea(self)
 
+        # Create particle effect system
+        self.particle_effect = ParticleEffect(self)
+        self.particle_effect.hide()  # Изначально скрыт
+
         # Initialize line number area width
         self.update_line_number_area_width(0)
 
@@ -46,6 +51,9 @@ class CodeEditor(QPlainTextEdit):
         self.blockCountChanged.connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
         self.verticalScrollBar().valueChanged.connect(self.update_line_numbers_scroll)
+
+        # Connect text input event to particle effect
+        self.textChanged.connect(self.on_text_changed)
 
     def line_number_area_width(self):
         """Calculate the width needed for line numbers"""
@@ -138,6 +146,28 @@ class CodeEditor(QPlainTextEdit):
         super().setFont(font)
         self.line_numbers.setFont(font)
         self.update_line_number_area_width(0)
+
+    def on_text_changed(self):
+        """Событие изменения текста - запускает эффект частиц"""
+        # Получаем текущую позицию курсора
+        cursor = self.textCursor()
+        current_pos = cursor.position()
+
+        # Проверяем, есть ли предыдущий символ
+        if current_pos > 0:
+            # Создаем новый курсор и устанавливаем его на позицию предыдущего символа
+            prev_cursor = QTextCursor(cursor)
+            prev_cursor.setPosition(current_pos - 1, QTextCursor.MoveAnchor)
+
+            # Получаем прямоугольник для позиции предыдущего символа
+            cursor_rect = self.cursorRect(prev_cursor)
+
+            # Преобразуем координаты в координаты виджета
+            pos = self.mapToGlobal(cursor_rect.topLeft())
+            local_pos = self.mapFromGlobal(pos)
+
+            # Добавляем частицы в позицию последнего символа
+            self.particle_effect.add_particles_at(local_pos.x() + cursor_rect.width(), local_pos.y())
 
     def update_line_number_styles(self):
         """Update styles for the line number area"""
