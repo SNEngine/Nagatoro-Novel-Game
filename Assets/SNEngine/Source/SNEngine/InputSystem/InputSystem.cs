@@ -488,6 +488,7 @@ namespace SNEngine.InputSystem
 
         public void SetActiveInput(bool status)
         {
+            Log($"Active input flag changed: {status}");
             _enabledInput = status;
         }
     }

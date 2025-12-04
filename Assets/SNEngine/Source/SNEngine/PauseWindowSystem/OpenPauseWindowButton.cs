@@ -18,6 +18,7 @@ namespace SNEngine.PauseWindowSystem
 
         private void Pause()
         {
+            NovelGame.Instance.GetService<InputService>().SetActiveInput(false);
             NovelGame.Instance.GetService<PauseWindowService>().Show();
         }
 

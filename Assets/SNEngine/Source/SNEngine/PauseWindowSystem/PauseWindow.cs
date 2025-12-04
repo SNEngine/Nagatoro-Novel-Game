@@ -56,12 +56,14 @@ namespace SNEngine.PauseWindowSystem
             _settingsButton.onClick.AddListener(OpenSettings);
             _loadSaveButton.onClick.AddListener(OpenSavesWindow);
             _backToMenuButton.onClick.AddListener(BackToMenu);
-            _resumeButton.onClick.AddListener(() => gameObject.SetActive(false));
+            _resumeButton.onClick.AddListener(Hide);
+            _inputService.SetActiveInput(false);
 
         }
 
         private void OnDisable()
         {
+            _inputService.SetActiveInput(true);
             Time.timeScale = _currentTimeScale;
         }
 
