@@ -67,9 +67,13 @@ class CodeEditor(QPlainTextEdit):
         # Set font for line numbers area to match editor
         self.line_numbers.setFont(self.font())
 
+        # Get highlight color from styles for current line number
+        self.current_line_color = self.styles.get('DarkTheme', {}).get('ActiveLineNumberColor', '#C84B31')  # Default to highlight color
+
         # Connect signals - correct PyQt5 signals (after initialization)
         self.blockCountChanged.connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
+        self.cursorPositionChanged.connect(self.highlight_current_line)  # Highlight current line when cursor moves
         self.verticalScrollBar().valueChanged.connect(self.update_line_numbers_scroll)
 
         # Connect text input event to particle effect
@@ -106,6 +110,11 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.update_line_number_area_width(0)
 
+    def highlight_current_line(self):
+        """Highlight the current line in the line number area"""
+        # Trigger a repaint of the line number area to update the highlight
+        self.line_numbers.update()
+
     def resizeEvent(self, event):
         """Handle resize events to update line number area"""
         super().resizeEvent(event)
@@ -122,30 +131,50 @@ class CodeEditor(QPlainTextEdit):
         background_color = self.styles.get('DarkTheme', {}).get('SecondaryBackground', '#2A2A2A')
         painter.fillRect(event.rect(), QColor(background_color))
 
+        # Get the current line number (cursor position)
+        current_line = self.textCursor().blockNumber() + 1
+
         block = self.firstVisibleBlock()
         block_number = block.blockNumber()
         top = self.blockBoundingGeometry(block).translated(self.contentOffset()).top()
         bottom = top + self.blockBoundingRect(block).height()
 
-        # Use foreground color from styles for line numbers
-        text_color = self.styles.get('DarkTheme', {}).get('StatusDefault', '#999999')
-        painter.setPen(QColor(text_color))  # Color for line numbers
-
-        font = self.font()
-        font.setPointSize(font.pointSize() - 1)  # Slightly smaller font for line numbers
-        painter.setFont(font)
-
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(block_number + 1)
 
-                # Calculate alternating background color based on line number
-                if (block_number + 1) % 2 == 0:
-                    # Even line numbers get a slightly different background
-                    alt_bg_color = QColor(self.styles.get('DarkTheme', {}).get('Background', '#1A1A1A'))
-                    alt_bg_color.setAlpha(100)  # Make it semi-transparent
+                # Check if this is the current line (where cursor is located)
+                is_current_line = (block_number + 1 == current_line)
+
+                # Draw background for the current line if it's the active line
+                if is_current_line:
+                    # Highlight the current line with the highlight color
+                    highlight_color = QColor(self.current_line_color)
+                    highlight_color.setAlpha(100)  # Make it semi-transparent
                     painter.fillRect(0, int(top), int(self.line_numbers.width()),
-                                   int(self.fontMetrics().height()), alt_bg_color)
+                                   int(self.fontMetrics().height()), highlight_color)
+                else:
+                    # Calculate alternating background color based on line number for non-current lines
+                    if (block_number + 1) % 2 == 0:
+                        # Even line numbers get a slightly different background
+                        alt_bg_color = QColor(self.styles.get('DarkTheme', {}).get('Background', '#1A1A1A'))
+                        alt_bg_color.setAlpha(100)  # Make it semi-transparent
+                        painter.fillRect(0, int(top), int(self.line_numbers.width()),
+                                       int(self.fontMetrics().height()), alt_bg_color)
+
+                # Set text color based on whether this is the current line
+                if is_current_line:
+                    # Use the current line highlight color for the text to make it more visible
+                    text_color = QColor(self.current_line_color)
+                else:
+                    # Use foreground color from styles for other line numbers
+                    text_color = QColor(self.styles.get('DarkTheme', {}).get('StatusDefault', '#999999'))
+
+                painter.setPen(text_color)  # Color for line numbers
+
+                font = self.font()
+                font.setPointSize(font.pointSize() - 1)  # Slightly smaller font for line numbers
+                painter.setFont(font)
 
                 # Draw the line number with padding
                 painter.drawText(3, int(top), int(self.line_numbers.width()) - 6,
@@ -274,11 +303,14 @@ class CodeEditor(QPlainTextEdit):
     def update_line_number_styles(self):
         """Update styles for the line number area"""
         secondary_bg = self.styles.get('DarkTheme', {}).get('SecondaryBackground', '#2A2A2A')
+        self.current_line_color = self.styles.get('DarkTheme', {}).get('ActiveLineNumberColor', '#C84B31')  # Update the highlight color
         self.line_numbers.setStyleSheet(f"background-color: {secondary_bg};")
 
     def update_particle_colors(self, styles):
         """Update particle colors from new styles"""
         self.styles = styles
+        # Update the current line highlight color from the new styles
+        self.current_line_color = styles.get('DarkTheme', {}).get('ActiveLineNumberColor', '#C84B31')
         if self.particle_effect:
             particle_colors = {
                 'ParticlePrimaryColor': styles.get('DarkTheme', {}).get('ParticlePrimaryColor', '#FF6B6B'),

@@ -25,7 +25,8 @@ def main():
         'DarkTheme': {
             'SecondaryBackground': '#2A2A2A',
             'Background': '#1A1A1A',
-            'StatusDefault': '#999999'
+            'StatusDefault': '#999999',
+            'ActiveLineNumberColor': '#C84B31'  # Add the highlight color for current line
         }
     }
     editor = CodeEditor(styles=test_styles)

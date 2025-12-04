@@ -42,3 +42,4 @@ DarkTheme:
   SyntaxKeywordColor: '#AF55C4'
   SyntaxStringColor: '#ABB2BF'
   YamlFileIconColor: '#CCCCCC'
+  ActiveLineNumberColor: '#C84B31'
