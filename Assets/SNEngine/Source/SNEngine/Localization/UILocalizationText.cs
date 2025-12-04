@@ -10,7 +10,6 @@ namespace SNEngine.Localization
         [SerializeField] private string _key;
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private TextMeshProUGUI _component;
         [SerializeField] private bool _autoLocalize = true;
-        [SerializeField] private bool _showKey = true;
 
         public bool NotCanTranslite {  get; private set; }
 
@@ -56,12 +55,7 @@ namespace SNEngine.Localization
             {
                 string result = LanguageService.TransliteUI(_key);
 
-                if (result != _key && !_showKey)
-                {
-                    _component.text = result;
-                }
-
-                else if (_showKey)
+                if (result != _key)
                 {
                     _component.text = result;
                 }

@@ -82,6 +82,8 @@ namespace CoreGame.Services
             prefab.name = input.name;
             _fightWindow = prefab;
             ui.AddElementToUIContainer(prefab.gameObject);
+            prefab.transform.SetAsFirstSibling();
+
             prefab.gameObject.SetActive(false);
             containerTexts.transform.SetParent(prefab.transform, false);
             _poolHealText = new PoolMono<HealText>(healTextPrefab, containerTexts.transform, 9, true);

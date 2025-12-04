@@ -14,3 +14,6 @@ video_loading: Video is loading....
 button_ok: OK
 button_cancel: Cancel
 save_game: New Save
+load_save: Load Save
+back_to_menu: Back To Menu
+save_button: Save

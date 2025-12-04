@@ -42,7 +42,7 @@ namespace SNEngine.Services
             _container = LoadUIElement<UIContainer>();
         }
 
-        public void AddElementToUIContainer (GameObject gameObject)
+        public void AddElementToUIContainer (GameObject gameObject, int? index = null)
         {
             if (gameObject.TryGetComponent(out  RectTransform rectTransform))
             {

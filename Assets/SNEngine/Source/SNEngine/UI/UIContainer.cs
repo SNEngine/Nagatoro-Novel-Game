@@ -5,7 +5,7 @@ namespace SNEngine.UI
     [RequireComponent(typeof(Canvas))]
     public class UIContainer : MonoBehaviour, IUIContainer
     {
-        public void AddComponent(RectTransform rectTransform)
+        public void AddComponent(RectTransform rectTransform, int? index = null)
         {
             if (rectTransform is null)
             {
@@ -13,6 +13,11 @@ namespace SNEngine.UI
             }
 
             rectTransform.SetParent(transform, false);
+
+            if (index != null)
+            {
+                rectTransform.SetSiblingIndex(index.Value);
+            }
         }
     }
 }

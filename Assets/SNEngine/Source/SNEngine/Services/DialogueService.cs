@@ -13,9 +13,6 @@ namespace SNEngine.Services
     [CreateAssetMenu(menuName = "SNEngine/Services/Dialogue Service")]
     internal class DialogueService : ServiceBase, IService
     {
-        private const int TIME_OUT_WAIT_TO_NEW_RENDERER = 35;
-        private const string FRAME_DETECTOR_VANILLA_PATH = "System/Dialog_FrameDetector";
-
         private IDialogue _currentDialogue;
         private IDialogue _startDialogue;
         private IOldRenderDialogue _oldRenderDialogueService;
@@ -53,6 +50,7 @@ namespace SNEngine.Services
             NovelGameDebug.Log($"Jump To Dialogue: {_currentDialogue.Name}");
 
             _currentDialogue.Execute();
+            NovelGame.Instance.GetService<OpenPauseWindowButtonService>().Show();
         }
 
         public void ToDialogue(SaveData saveData)
@@ -65,8 +63,20 @@ namespace SNEngine.Services
                 _currentDialogue = targetDialogue;
                 _currentDialogue.OnEndExecute += OnEndExecute;
                 targetDialogue.LoadSave(saveData.CurrentNode, saveData);
+                NovelGame.Instance.GetService<OpenPauseWindowButtonService>().Show();
             }
 
+        }
+
+        public void StopCurrentDialogue()
+        {
+            if (_currentDialogue != null)
+            {
+                _currentDialogue.OnEndExecute -= OnEndExecute;
+                _currentDialogue.Stop();
+                _currentDialogue = null;
+
+            }
         }
 
         private void OnEndExecute()
