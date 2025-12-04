@@ -1,13 +1,10 @@
-﻿using SiphoinUnityHelpers.XNodeExtensions.Attributes;
-using SNEngine.InputSystem;
+﻿using SNEngine.InputSystem;
 using SNEngine.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace SNEngine.PauseWindowSystem
 {
-    [RequireComponent(typeof(Button))]
     public class OpenPauseWindowButton : MonoBehaviour, IOpenPauseWindowButton, IPointerDownHandler
     {
         private IInputSystem _inputSystem;
