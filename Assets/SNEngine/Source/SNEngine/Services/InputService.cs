@@ -60,5 +60,10 @@ namespace SNEngine.Services
         {
             _input.RemoveAxisListener(action);
         }
+
+        public void SetActiveInput(bool status)
+        {
+            _input.SetActiveInput(status);
+        }
     }
 }

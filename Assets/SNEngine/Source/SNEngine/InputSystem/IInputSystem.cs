@@ -20,5 +20,6 @@ namespace SNEngine.InputSystem
         void AddAxisListener(UnityAction<string, float> action, string axisName);
 
         void RemoveAxisListener(UnityAction<string, float> action);
+        void SetActiveInput(bool status);
     }
 }
