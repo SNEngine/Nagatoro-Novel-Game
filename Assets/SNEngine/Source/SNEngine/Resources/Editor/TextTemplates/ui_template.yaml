@@ -11,3 +11,5 @@ fx: FX
 music: Music
 fullscreen: Full Screen
 video_loading: Video is loading....
+button_ok: OK
+button_cancel: Cancel
