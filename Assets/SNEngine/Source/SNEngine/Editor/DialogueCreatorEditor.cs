@@ -18,6 +18,12 @@ public static class DialogueCreatorEditor
     [MenuItem(MenuItemPath)]
     public static void CreateNewDialogueAsset()
     {
+        CreateNewDialogueAssetFromName(GetUniqueDialogueAssetName());
+    }
+
+    public static void CreateNewDialogueAssetFromName(string assetName)
+    {
+        string finalAssetName = assetName.EndsWith(".asset") ? assetName : $"{assetName}.asset";
         string fullTemplatePath = Path.Combine(Application.dataPath, TemplatePath.Replace("Assets/", ""));
 
         if (!File.Exists(fullTemplatePath))
@@ -31,8 +37,7 @@ public static class DialogueCreatorEditor
             Directory.CreateDirectory(TargetFolderPath);
         }
 
-        string newAssetName = GetUniqueDialogueAssetName();
-        string newAssetPath = Path.Combine(TargetFolderPath, newAssetName);
+        string newAssetPath = Path.Combine(TargetFolderPath, finalAssetName);
 
         if (AssetDatabase.CopyAsset(TemplatePath, newAssetPath))
         {
@@ -47,9 +52,9 @@ public static class DialogueCreatorEditor
                 EditorUtility.SetDirty(dialogueGraph);
                 AssetDatabase.SaveAssets();
 
-                OpenGraphInEditor(dialogueGraph);
-
+                OpenGraph(dialogueGraph);
                 Selection.activeObject = dialogueGraph;
+                Debug.Log($"[DialogueCreator] New dialogue created: {finalAssetName}");
             }
             else
             {
@@ -62,7 +67,37 @@ public static class DialogueCreatorEditor
         }
     }
 
-    private static void OpenGraphInEditor(NodeGraph graph)
+    // НОВЫЙ МЕТОД ДЛЯ ПЕРЕИМЕНОВАНИЯ
+    public static bool RenameDialogueAsset(NodeGraph graph, string newName)
+    {
+        string assetPath = AssetDatabase.GetAssetPath(graph);
+        if (string.IsNullOrEmpty(assetPath))
+        {
+            Debug.LogError($"[DialogueCreator] Could not find asset path for: {graph.name}");
+            return false;
+        }
+
+        if (newName.EndsWith(".asset"))
+        {
+            newName = newName.Substring(0, newName.Length - 6);
+        }
+
+        string error = AssetDatabase.RenameAsset(assetPath, newName);
+
+        if (string.IsNullOrEmpty(error))
+        {
+            AssetDatabase.Refresh();
+            Debug.Log($"[DialogueCreator] Dialogue renamed to: {newName}");
+            return true;
+        }
+        else
+        {
+            Debug.LogError($"[DialogueCreator] Renaming failed: {error}");
+            return false;
+        }
+    }
+
+    public static void OpenGraph(NodeGraph graph)
     {
         var nodeEditorWindowType = typeof(EditorWindow).Assembly.GetType(NodeEditorWindowTypeName);
 
