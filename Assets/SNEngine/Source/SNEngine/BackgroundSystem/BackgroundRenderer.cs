@@ -57,6 +57,7 @@ namespace SNEngine.BackgroundSystem
             transform.position = Vector3.zero;
             transform.localEulerAngles = Vector3.zero;
             transform.localScale = Vector3.one;
+            _spriteRenderer.sprite = null;
             _currentTween?.Kill();
         }
 
