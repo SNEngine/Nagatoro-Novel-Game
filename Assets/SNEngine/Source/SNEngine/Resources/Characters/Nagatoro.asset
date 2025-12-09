@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Nagatoro
   m_EditorClassIdentifier: 
   _guidSO: 53026fe3-66c4-415f-8566-a613c2478ae4
-  _name: Nagatoro_new
+  _name: Nagatoro
   _description: 
   _colorName: {r: 1, g: 1, b: 1, a: 1}
   _emotions:

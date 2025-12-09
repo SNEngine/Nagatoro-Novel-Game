@@ -1937,7 +1937,7 @@ MonoBehaviour:
   m_Name: Show Character
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 6824, y: 1160}
+  position: {x: 6888, y: 1176}
   ports:
     keys:
     - _enter
