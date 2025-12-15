@@ -11,7 +11,7 @@ using UnityEngine;
 namespace SNEngine.Services
 {
     [CreateAssetMenu(menuName = "SNEngine/Services/Dialogue Service")]
-    internal class DialogueService : ServiceBase, IService
+    public class DialogueService : ServiceBase, IService
     {
         private IDialogue _currentDialogue;
         private IDialogue _startDialogue;

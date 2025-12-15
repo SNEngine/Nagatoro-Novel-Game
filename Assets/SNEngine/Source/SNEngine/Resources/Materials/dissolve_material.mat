@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: dissolve_material
   m_Shader: {fileID: 4800000, guid: 59e4f6ef1e7797b47880327bed53a444, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -17,6 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -41,7 +44,7 @@ Material:
         m_Scale: {x: 0, y: 0}
         m_Offset: {x: 0, y: 0}
     - _DissolveTexture:
-        m_Texture: {fileID: 2800000, guid: c2c1b0b6d93e14e449c614e688e5861a, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1434fa3c7eb0e5849b49c848914896f2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -67,7 +70,7 @@ Material:
     m_Ints: []
     m_Floats:
     - PixelSnap: 0
-    - _Amount: 0.02
+    - _Amount: 0
     - _BumpScale: 1
     - _Cutoff: 0.275
     - _DetailNormalMapScale: 1
@@ -97,3 +100,4 @@ Material:
     - _InnerColor: {r: 1, g: 1, b: 1, a: 0.36862746}
     - _OuterColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
