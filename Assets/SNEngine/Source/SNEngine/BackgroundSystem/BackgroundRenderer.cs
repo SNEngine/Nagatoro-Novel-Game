@@ -2,6 +2,8 @@
 using DG.Tweening;
 using SiphoinUnityHelpers.XNodeExtensions.Attributes;
 using UnityEngine;
+using SNEngine.Extensions;
+using SNEngine.Animations;
 
 namespace SNEngine.BackgroundSystem
 {
@@ -10,21 +12,21 @@ namespace SNEngine.BackgroundSystem
     {
         public bool UseTransition { get; set; }
 
-        [SerializeField] private SpriteRenderer _maskTransition;
+        [SerializeField] private SpriteRenderer maskTransition;
 
-        private Sprite _oldSetedBackground;
+        private Sprite oldSetedBackground;
 
-        [SerializeField, ReadOnly(ReadOnlyMode.Always)] private SpriteRenderer _spriteRenderer;
-        private Tween _currentTween;
-        protected SpriteRenderer SpriteRenderer => _spriteRenderer;
+        [SerializeField, ReadOnly(ReadOnlyMode.Always)] private SpriteRenderer spriteRenderer;
+        private Tween currentTween;
+        protected SpriteRenderer SpriteRenderer => spriteRenderer;
 
         public void SetData(Sprite data)
         {
-            if (_maskTransition != null)
+            if (maskTransition != null)
             {
-                _oldSetedBackground = _spriteRenderer.sprite;
+                oldSetedBackground = spriteRenderer.sprite;
 
-                _maskTransition.sprite = _oldSetedBackground;
+                maskTransition.sprite = oldSetedBackground;
             }
 
             UpdateBackground(data).Forget();
@@ -34,154 +36,208 @@ namespace SNEngine.BackgroundSystem
         {
             await UniTask.WaitForEndOfFrame(this);
 
-            _spriteRenderer.sprite = data;
+            spriteRenderer.sprite = data;
         }
 
         public void Clear()
         {
-            _spriteRenderer.sprite = null;
+            spriteRenderer.sprite = null;
         }
 
         private void OnValidate()
         {
-            if (!_spriteRenderer)
+            if (!spriteRenderer)
             {
-                _spriteRenderer = GetComponent<SpriteRenderer>();
+                spriteRenderer = GetComponent<SpriteRenderer>();
             }
         }
 
         public void ResetState()
         {
             Clear();
-            _spriteRenderer.color = Color.white;
+            spriteRenderer.color = Color.white;
             transform.position = Vector3.zero;
             transform.localEulerAngles = Vector3.zero;
             transform.localScale = Vector3.one;
-            _spriteRenderer.sprite = null;
-            _currentTween?.Kill();
+            spriteRenderer.sprite = null;
+            currentTween?.Kill();
         }
 
         #region Animations
 
         public async UniTask SetTransperent(float fadeValue, float duration, Ease ease)
         {
-            _currentTween = _spriteRenderer.DOFade(fadeValue, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = spriteRenderer.DOFade(fadeValue, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask SetColor(Color color, float duration, Ease ease)
         {
-            _currentTween = _spriteRenderer.DOColor(color, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = spriteRenderer.DOColor(color, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask SetBrightness(float brightnessValue, float duration, Ease ease)
         {
-            Color targetColor = new Color(brightnessValue, brightnessValue, brightnessValue, _spriteRenderer.color.a);
-            _currentTween = _spriteRenderer.DOColor(targetColor, duration).SetEase(ease);
-            await _currentTween;
+            Color targetColor = new Color(brightnessValue, brightnessValue, brightnessValue, spriteRenderer.color.a);
+            currentTween = spriteRenderer.DOColor(targetColor, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask MoveTo(Vector3 position, float duration, Ease ease)
         {
-            _currentTween = transform.DOMove(position, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = transform.DOMove(position, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask LocalMoveTo(Vector3 localPosition, float duration, Ease ease)
         {
-            _currentTween = transform.DOLocalMove(localPosition, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = transform.DOLocalMove(localPosition, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask RotateTo(Vector3 rotation, float duration, Ease ease)
         {
-            _currentTween = transform.DORotate(rotation, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = transform.DORotate(rotation, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask LocalRotateTo(Vector3 localRotation, float duration, Ease ease)
         {
-            _currentTween = transform.DOLocalRotate(localRotation, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = transform.DOLocalRotate(localRotation, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask ScaleTo(Vector3 scale, float duration, Ease ease)
         {
-            _currentTween = transform.DOScale(scale, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = transform.DOScale(scale, duration).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask PunchPosition(Vector3 punch, float duration, int vibrato = 10, float elasticity = 1)
         {
-            _currentTween = transform.DOPunchPosition(punch, duration, vibrato, elasticity);
-            await _currentTween;
+            currentTween = transform.DOPunchPosition(punch, duration, vibrato, elasticity);
+            await currentTween;
         }
 
         public async UniTask PunchRotation(Vector3 punch, float duration, int vibrato = 10, float elasticity = 1)
         {
-            _currentTween = transform.DOPunchRotation(punch, duration, vibrato, elasticity);
-            await _currentTween;
+            currentTween = transform.DOPunchRotation(punch, duration, vibrato, elasticity);
+            await currentTween;
         }
 
         public async UniTask PunchScale(Vector3 punch, float duration, int vibrato = 10, float elasticity = 1)
         {
-            _currentTween = transform.DOPunchScale(punch, duration, vibrato, elasticity);
-            await _currentTween;
+            currentTween = transform.DOPunchScale(punch, duration, vibrato, elasticity);
+            await currentTween;
         }
 
         public async UniTask ShakePosition(float duration, float strength = 90, int vibrato = 10, bool fadeOut = true)
         {
-            _currentTween = transform.DOShakePosition(duration, strength, vibrato, 90, fadeOut);
-            await _currentTween;
+            currentTween = transform.DOShakePosition(duration, strength, vibrato, 90, fadeOut);
+            await currentTween;
         }
 
         public async UniTask ShakeRotation(float duration, float strength = 90, int vibrato = 10, bool fadeOut = true)
         {
-            _currentTween = transform.DOShakeRotation(duration, strength, vibrato, 90, fadeOut);
-            await _currentTween;
+            currentTween = transform.DOShakeRotation(duration, strength, vibrato, 90, fadeOut);
+            await currentTween;
         }
 
         public async UniTask ShakeScale(float duration, float strength = 1, int vibrato = 10, float fadeOut = 0)
         {
-            _currentTween = transform.DOShakeScale(duration, strength, vibrato, fadeOut);
-            await _currentTween;
+            currentTween = transform.DOShakeScale(duration, strength, vibrato, fadeOut);
+            await currentTween;
         }
 
         public async UniTask MoveOnPath(Vector3[] path, float duration, PathType pathType = PathType.CatmullRom, Ease ease = Ease.Linear)
         {
-            _currentTween = transform.DOPath(path, duration, pathType).SetEase(ease);
-            await _currentTween;
+            currentTween = transform.DOPath(path, duration, pathType).SetEase(ease);
+            await currentTween;
         }
 
         public async UniTask LookAtTarget(Vector3 worldPosition, float duration, Ease ease)
         {
-            _currentTween = transform.DOLookAt(worldPosition, duration).SetEase(ease);
-            await _currentTween;
+            currentTween = transform.DOLookAt(worldPosition, duration).SetEase(ease);
+            await currentTween;
         }
 
         public void SetLoopingMove(Vector3 endValue, float duration, LoopType loopType = LoopType.Yoyo, Ease ease = Ease.Linear)
         {
-            _currentTween?.Kill();
-            _currentTween = transform.DOLocalMove(endValue, duration)
+            currentTween?.Kill();
+            currentTween = transform.DOLocalMove(endValue, duration)
                 .SetEase(ease)
                 .SetLoops(-1, loopType);
         }
 
         public void SetLoopingRotate(Vector3 endValue, float duration, LoopType loopType = LoopType.Yoyo, Ease ease = Ease.Linear)
         {
-            _currentTween?.Kill();
-            _currentTween = transform.DOLocalRotate(endValue, duration)
+            currentTween?.Kill();
+            currentTween = transform.DOLocalRotate(endValue, duration)
                 .SetEase(ease)
                 .SetLoops(-1, loopType);
         }
 
         public void SetLoopingScale(Vector3 endValue, float duration, LoopType loopType = LoopType.Yoyo, Ease ease = Ease.Linear)
         {
-            _currentTween?.Kill();
-            _currentTween = transform.DOScale(endValue, duration)
+            currentTween?.Kill();
+            currentTween = transform.DOScale(endValue, duration)
                 .SetEase(ease)
                 .SetLoops(-1, loopType);
+        }
+
+        public async UniTask Dissolve(float time, AnimationBehaviourType animationBehaviour, Ease ease, Texture2D texture = null)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DODissolve(animationBehaviour, time, texture).SetEase(ease);
+        }
+
+        public async UniTask ToBlackAndWhite(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOBlackAndWhite(animationBehaviour, time).SetEase(ease);
+        }
+
+        public async UniTask ToBlackAndWhite(float time, float value, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOBlackAndWhite(value, time).SetEase(ease);
+        }
+
+        public async UniTask Celia(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOCelia(animationBehaviour, time).SetEase(ease);
+        }
+
+        public async UniTask Celia(float time, float value, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOCelia(value, time).SetEase(ease);
+        }
+
+        public async UniTask Solid(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOSolid(animationBehaviour, time).SetEase(ease);
+        }
+
+        public async UniTask Solid(float time, float value, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOSolid(value, time).SetEase(ease);
+        }
+
+        public async UniTask Illuminate(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOIllumination(animationBehaviour, time).SetEase(ease);
+        }
+
+        public async UniTask Illuminate(float time, float value, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOIllumination(value, time).SetEase(ease);
         }
 
         #endregion
