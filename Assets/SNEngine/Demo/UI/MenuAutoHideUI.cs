@@ -3,7 +3,6 @@ using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CoreGame.UI
@@ -19,15 +18,17 @@ namespace CoreGame.UI
         [SerializeField] private Ease _hideEase = Ease.InExpo;
         [SerializeField] private Ease _showEase = Ease.OutExpo;
 
-        private List<Vector2> _originalAnchoredPositions;
+        private List<Vector2> _originalAnchoredPositions = new List<Vector2>();
         private Vector3 _lastMousePosition;
         private bool _isUIHidden = false;
 
         private CancellationTokenSource _inactivityCts;
 
-        private void Start()
+        private async void Start()
         {
-            _originalAnchoredPositions = new List<Vector2>();
+            await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+
+            _originalAnchoredPositions.Clear();
             foreach (var rect in _uiElements)
             {
                 _originalAnchoredPositions.Add(rect.anchoredPosition);
@@ -94,9 +95,13 @@ namespace CoreGame.UI
 
         private void HideUI()
         {
+            if (_originalAnchoredPositions.Count == 0) return;
+
             _isUIHidden = true;
             for (int i = 0; i < _uiElements.Count; i++)
             {
+                if (i >= _originalAnchoredPositions.Count) break;
+
                 RectTransform rect = _uiElements[i];
                 Vector2 originalAnchorPos = _originalAnchoredPositions[i];
 
@@ -138,9 +143,13 @@ namespace CoreGame.UI
 
         private void ShowUI()
         {
+            if (_originalAnchoredPositions.Count == 0) return;
+
             _isUIHidden = false;
             for (int i = 0; i < _uiElements.Count; i++)
             {
+                if (i >= _originalAnchoredPositions.Count) break;
+
                 RectTransform rect = _uiElements[i];
                 Vector2 originalPosition = _originalAnchoredPositions[i];
 
@@ -174,10 +183,12 @@ namespace CoreGame.UI
             _inactivityCts?.Dispose();
             _inactivityCts = null;
 
-            if (_isUIHidden)
+            if (_isUIHidden && _originalAnchoredPositions.Count > 0)
             {
                 for (int i = 0; i < _uiElements.Count; i++)
                 {
+                    if (i >= _originalAnchoredPositions.Count) break;
+
                     RectTransform rect = _uiElements[i];
                     Vector2 originalPosition = _originalAnchoredPositions[i];
 
