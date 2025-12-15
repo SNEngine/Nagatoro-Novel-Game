@@ -1,14 +1,15 @@
 ﻿using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using SNEngine.SaveSystem;
 using SNEngine.Services;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
 namespace SNEngine.CharacterSystem.Animations
 {
-    public class MoveCharacterNode : AsyncCharacterNode
+    public class MoveCharacterNode : AsyncCharacterNode, ISaveProgressNode
     {
-
+        private bool _isLoadFromSaveStub = false;
 
         [Input(connectionType = ConnectionType.Override), SerializeField] private float _x;
 
@@ -21,10 +22,18 @@ namespace SNEngine.CharacterSystem.Animations
                 x = GetDataFromPort<float>(nameof(_x));
             }
 
-            Move(x, duration, target, ease).Forget();
+            float moveDuration = _isLoadFromSaveStub ? 0f : duration;
+            Ease moveEase = _isLoadFromSaveStub ? Ease.Unset : ease;
+
+            Move(x, moveDuration, target, moveEase).Forget();
         }
 
-        private async UniTask Move (float x, float duration, Character character, Ease ease)
+        public override bool CanSkip()
+        {
+            return false;
+        }
+
+        private async UniTask Move(float x, float duration, Character character, Ease ease)
         {
             var serviceCharacters = NovelGame.Instance.GetService<CharacterService>();
 
@@ -33,5 +42,19 @@ namespace SNEngine.CharacterSystem.Animations
             StopTask();
         }
 
+        public object GetDataForSave()
+        {
+            return null;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            _isLoadFromSaveStub = true;
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _isLoadFromSaveStub = false;
+        }
     }
 }
