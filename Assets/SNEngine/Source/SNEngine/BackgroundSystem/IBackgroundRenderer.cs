@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SNEngine.BackgroundSystem
 {
-    public interface IBackgroundRenderer : IIlluminatiionable, ICeliable, IBlackAndWhiteSupport, ISolidable, IDissolveable
+    public interface IBackgroundRenderer : IIlluminatiionable, ICeliable, IBlackAndWhiteSupport, ISolidable, IDissolveable, IStarWipeable, IVignettable
     {
         bool UseTransition { get; set; }
 

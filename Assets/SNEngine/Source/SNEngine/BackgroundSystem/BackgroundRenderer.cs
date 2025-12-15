@@ -186,6 +186,31 @@ namespace SNEngine.BackgroundSystem
                 .SetLoops(-1, loopType);
         }
 
+
+        public async UniTask Vignette(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOVignette(animationBehaviour, time).SetEase(ease);
+        }
+
+        public async UniTask Vignette(float time, float value, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOVignette(value, time).SetEase(ease);
+        }
+
+        public async UniTask StarWipe(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOStarWipe(animationBehaviour, time).SetEase(ease);
+        }
+
+        public async UniTask StarWipe(float time, float value, Ease ease)
+        {
+            time = MathfExtensions.ClampTime(time);
+            await spriteRenderer.DOStarWipe(value, time).SetEase(ease);
+        }
+
         public async UniTask Dissolve(float time, AnimationBehaviourType animationBehaviour, Ease ease, Texture2D texture = null)
         {
             time = MathfExtensions.ClampTime(time);

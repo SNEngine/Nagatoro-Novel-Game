@@ -32,7 +32,7 @@ namespace SNEngine.Extensions
             return tweenerCore;
         }
 
-        private static TweenerCore<float, float, FloatOptions> DOFloatMaterial (SpriteRenderer spriteRenderer, string nameMaterial, float value, float duration)
+        private static TweenerCore<float, float, FloatOptions> DOFloatMaterial(SpriteRenderer spriteRenderer, string nameMaterial, float value, float duration)
         {
             Material material = NovelGame.Instance.GetRepository<MaterialRepository>().GetMaterial(nameMaterial);
 
@@ -57,7 +57,7 @@ namespace SNEngine.Extensions
 
             if (animationBehaviour == AnimationBehaviourType.Out)
             {
-               ReturnMaterialToSpriteRenderer(spriteRenderer, duration).Forget();
+                ReturnMaterialToSpriteRenderer(spriteRenderer, duration).Forget();
             }
             return operation;
         }
@@ -137,12 +137,51 @@ namespace SNEngine.Extensions
             return DOFloatMaterial(spriteRenderer, "celia", value, duration);
         }
 
+        public static TweenerCore<float, float, FloatOptions> DOVignette(this SpriteRenderer spriteRenderer, AnimationBehaviourType animationBehaviour, float duration)
+        {
+            float endValue = AnimationBehaviourHelper.GetValue(animationBehaviour);
+
+            var operation = DOFloatMaterial(spriteRenderer, "vignette", endValue, duration);
+
+            if (animationBehaviour == AnimationBehaviourType.Out)
+            {
+                ReturnMaterialToSpriteRenderer(spriteRenderer, duration).Forget();
+            }
+
+            return operation;
+        }
+
+        public static TweenerCore<float, float, FloatOptions> DOVignette(this SpriteRenderer spriteRenderer, float value, float duration)
+        {
+            return DOFloatMaterial(spriteRenderer, "vignette", value, duration);
+        }
+
+        public static TweenerCore<float, float, FloatOptions> DOStarWipe(this SpriteRenderer spriteRenderer, AnimationBehaviourType animationBehaviour, float duration)
+        {
+            float endValue = AnimationBehaviourHelper.GetValue(animationBehaviour);
+
+            var operation = DOFloatMaterial(spriteRenderer, "starWipe", endValue, duration);
+
+            if (animationBehaviour == AnimationBehaviourType.Out)
+            {
+                ReturnMaterialToSpriteRenderer(spriteRenderer, duration).Forget();
+            }
+
+            return operation;
+        }
+
+        public static TweenerCore<float, float, FloatOptions> DOStarWipe(this SpriteRenderer spriteRenderer, float value, float duration)
+        {
+            return DOFloatMaterial(spriteRenderer, "starWipe", value, duration);
+        }
+
+
         public static TweenerCore<float, float, FloatOptions> DOBlackAndWhite(this SpriteRenderer spriteRenderer, float value, float duration)
         {
             return DOFloatMaterial(spriteRenderer, "blackAndWhite", value, duration);
         }
 
-        private static async UniTask ReturnMaterialToSpriteRenderer (SpriteRenderer spriteRenderer, float timeOut)
+        private static async UniTask ReturnMaterialToSpriteRenderer(SpriteRenderer spriteRenderer, float timeOut)
         {
             TimeSpan timeSpan = TimeSpan.FromSeconds(timeOut);
 

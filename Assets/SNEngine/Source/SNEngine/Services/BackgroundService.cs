@@ -151,6 +151,26 @@ namespace SNEngine.Services
             background.SetLoopingScale(endValue, duration, loopType, ease);
         }
 
+        public async UniTask Vignette(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            await background.Vignette(time, animationBehaviour, ease);
+        }
+
+        public async UniTask Vignette(float time, float value, Ease ease)
+        {
+            await background.Vignette(time, value, ease);
+        }
+
+        public async UniTask StarWipe(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        {
+            await background.StarWipe(time, animationBehaviour, ease);
+        }
+
+        public async UniTask StarWipe(float time, float value, Ease ease)
+        {
+            await background.StarWipe(time, value, ease);
+        }
+
 
         public async UniTask Dissolve(float time, AnimationBehaviourType animationBehaviour, Ease ease, Texture2D texture = null)
         {
