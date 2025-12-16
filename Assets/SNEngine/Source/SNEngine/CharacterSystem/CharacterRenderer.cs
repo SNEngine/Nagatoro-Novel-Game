@@ -12,25 +12,98 @@ namespace SNEngine.CharacterSystem
     [RequireComponent(typeof(SpriteRenderer))]
     public class CharacterRenderer : MonoBehaviour, ICharacterRenderer
     {
-        private SpriteRenderer _spriteRenderer;
+        private SpriteRenderer _main;
+        private SpriteRenderer _fx;
+
+        [SerializeField] private float _crossfadeDuration = 0.3f;
+        [SerializeField] private Ease _crossfadeEase = Ease.Linear;
+        [SerializeField] private Material _blendMaterial;
 
         private Character _character;
-
         private Material _defaultMaterial;
 
-        public bool SpriteIsSeted => _spriteRenderer.sprite != null;
+        private Material _mainMat;
+        private Material _fxMat;
+
+        private const string BlendProperty = "_Blend";
+        private const string BlendTexProperty = "_BlendTex";
+
+        public bool SpriteIsSeted => _main.sprite != null;
 
         private void Awake()
         {
-            if (!TryGetComponent(out _spriteRenderer))
+            if (!TryGetComponent(out _main))
+                throw new NullReferenceException("main sprite renderer component not found");
+
+            _defaultMaterial = NovelGame.Instance
+                .GetRepository<MaterialRepository>()
+                .GetMaterial("default");
+
+            _fx = CreateRenderer("FX", 1);
+            _fx.gameObject.SetActive(false);
+
+            EnsureMaterials();
+        }
+
+        public T AddComponent<T>() where T : Component
+        {
+            return gameObject.AddComponent<T>();
+        }
+
+        private SpriteRenderer CreateRenderer(string name, int orderOffset)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(transform);
+            go.transform.localPosition = Vector3.zero;
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = Vector3.one;
+
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sortingLayerID = _main.sortingLayerID;
+            sr.sortingOrder = _main.sortingOrder + orderOffset;
+            sr.material = _main.material;
+            sr.color = sr.color.SetAlpha(0);
+            return sr;
+        }
+
+        private void EnsureMaterials()
+        {
+            if (_mainMat == null)
             {
-                throw new NullReferenceException("sprite renderer component not found on character renderer");
+                _mainMat = new Material(_main.sharedMaterial ?? _defaultMaterial);
+                _main.material = _mainMat;
             }
 
-            _defaultMaterial = NovelGame.Instance.GetRepository<MaterialRepository>().GetMaterial("default");
-
-
+            if (_fxMat == null)
+            {
+                _fxMat = new Material(_mainMat);
+                _fx.material = _fxMat;
+            }
         }
+
+        public void ApplyEffectMaterial(Material template)
+        {
+            if (template == null) return;
+
+            if (_fxMat != null) Destroy(_fxMat);
+
+            _fxMat = new Material(template);
+            _fx.material = _fxMat;
+            _fx.sprite = _main.sprite;
+            _fx.color = _main.color;
+            _fx.gameObject.SetActive(true);
+        }
+
+        public void RemoveEffectMaterial()
+        {
+            if (_fxMat != null)
+            {
+                Destroy(_fxMat);
+                _fxMat = null;
+            }
+            _fx.gameObject.SetActive(false);
+        }
+
         public void Hide()
         {
             gameObject.SetActive(false);
@@ -39,84 +112,134 @@ namespace SNEngine.CharacterSystem
         public void Show()
         {
             gameObject.SetActive(true);
-
             CalculatePositionForScreen();
         }
 
         public void SetData(Character data)
         {
-            if (data is null)
-            {
-                throw new ArgumentNullException("data character is null");
-            }
-
-            _character = data;
+            _character = data ?? throw new ArgumentNullException(nameof(data));
         }
 
         public void ShowWithEmotion(string emotionName = "Default")
         {
-            _spriteRenderer.sprite = _character.GetEmotion(emotionName).Sprite;
+            Sprite newSprite = _character.GetEmotion(emotionName).Sprite;
+            if (newSprite == null) return;
 
+            if (_main.sprite == null)
+            {
+                _main.sprite = newSprite;
+                if (_fx.gameObject.activeSelf) _fx.sprite = newSprite;
+                Show();
+                return;
+            }
+
+            if (_main.sprite == newSprite)
+                return;
+
+            EnsureMaterials();
+
+            Sprite oldSprite = _main.sprite;
+
+            bool canBlend = _blendMaterial != null && SNEngineRuntimeSettings.Instance.EnableCrossfade;
+
+            if (canBlend)
+            {
+                Material activeBlendMat = new Material(_blendMaterial);
+                _main.material = activeBlendMat;
+                _main.sprite = newSprite;
+
+                activeBlendMat.SetTexture(BlendTexProperty, oldSprite.texture);
+                activeBlendMat.SetFloat(BlendProperty, 1f);
+
+                if (_fx.gameObject.activeSelf)
+                    _fx.sprite = newSprite;
+
+                Show();
+
+                DOTween.To(
+                    () => activeBlendMat.GetFloat(BlendProperty),
+                    v => activeBlendMat.SetFloat(BlendProperty, v),
+                    0f,
+                    _crossfadeDuration
+                ).SetEase(_crossfadeEase).OnComplete(() =>
+                {
+                    _main.material = _mainMat;
+
+                    Destroy(activeBlendMat);
+                });
+
+                return;
+            }
+
+            // Мгновенный переход
+            _main.sprite = newSprite;
+            _main.color = Color.white;
+            if (_fx.gameObject.activeSelf) _fx.sprite = newSprite;
             Show();
         }
 
         public void SetFlip(FlipType flipType)
         {
-            _spriteRenderer.Flip(flipType);
+            _main.Flip(flipType);
+            if (_fx != null) _fx.Flip(flipType);
         }
 
         private void CalculatePositionForScreen()
         {
-            float spriteHeight = _spriteRenderer.bounds.size.y;
-
+            float spriteHeight = _main.bounds.size.y;
             float screenHeight = Camera.main.orthographicSize * 2;
-
-            float newPositionY = -screenHeight / 2 + spriteHeight / 2;
-
-            transform.position = new Vector3(transform.position.x, newPositionY, transform.position.z);
+            transform.position = new Vector3(
+                transform.position.x,
+                -screenHeight / 2 + spriteHeight / 2,
+                transform.position.z
+            );
         }
 
         public void ResetState()
         {
             Vector3 position = transform.position;
-
             position.x = 0;
-
             transform.position = position;
 
             transform.localScale = Vector3.one;
-
             transform.localRotation = Quaternion.identity;
-
             transform.rotation = Quaternion.identity;
 
             DOTween.Kill(transform);
 
-            _spriteRenderer.sprite = _character.GetEmotion(0).Sprite;
+            _main.sprite = _character.GetEmotion(0).Sprite;
+            _main.color = Color.white;
+            _main.flipX = false;
+            _main.flipY = false;
+            _main.material = _defaultMaterial;
 
-            _spriteRenderer.color = Color.white;
+            if (_mainMat != null) Destroy(_mainMat);
+            if (_fxMat != null) Destroy(_fxMat);
 
-            _spriteRenderer.flipX = false;
+            _mainMat = null;
+            _fxMat = null;
 
-            _spriteRenderer.flipY = false;
-
-            _spriteRenderer.material = _defaultMaterial;
-
+            RemoveEffectMaterial();
             SetFlip(FlipType.None);
-
             Hide();
         }
 
-        public T AddComponent<T>() where T : Component
+        private async UniTask ApplySpriteRendererTween(Func<SpriteRenderer, UniTask> tween)
         {
-            return gameObject.AddComponent<T>();
+            UniTask mainTask = tween(_main);
+            UniTask fxTask = UniTask.CompletedTask;
+
+            if (_fx != null && _fx.gameObject.activeSelf)
+                fxTask = tween(_fx);
+
+            await UniTask.WhenAll(mainTask, fxTask);
         }
 
         #region Animations
+
         public async UniTask MoveX(float x, float time, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
             await transform.DOMoveX(x, time).SetEase(ease);
         }
 
@@ -125,124 +248,103 @@ namespace SNEngine.CharacterSystem
             await transform.DOShakePosition(duration, strength, vibrato, 90f, fadeOut: fadeOut);
         }
 
-
         public async UniTask Move(CharacterDirection direction, float time, Ease ease)
         {
-            float spriteSizeX = _spriteRenderer.size.x;
-
+            float spriteSizeX = _main.size.x;
             float cameraBorder = Camera.main.aspect * Camera.main.orthographicSize - spriteSizeX / 2;
-
             float x = direction == CharacterDirection.Left ? -cameraBorder : cameraBorder;
-
             await transform.DOMoveX(x, time).SetEase(ease);
-
         }
 
         public async UniTask Fade(float value, float time, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
             value = Mathf.Clamp01(value);
-
-            await _spriteRenderer.DOFade(value, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOFade(value, time).SetEase(ease).ToUniTask());
         }
 
-        public async UniTask Fade(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        public async UniTask Fade(float time, AnimationBehaviourType behaviour, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            float value = AnimationBehaviourHelper.GetValue(animationBehaviour);
-
-            await _spriteRenderer.DOFade(value, time).SetEase(ease);
+            float value = AnimationBehaviourHelper.GetValue(behaviour);
+            await ApplySpriteRendererTween(r => r.DOFade(value, time).SetEase(ease).ToUniTask());
         }
 
         public async UniTask Scale(Vector3 scale, float time, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
             await transform.DOScale(scale, time).SetEase(ease);
         }
 
         public async UniTask Rotate(Vector3 angle, float time, Ease ease, RotateMode rotateMode)
         {
             time = MathfExtensions.ClampTime(time);
-
             await transform.DOLocalRotate(angle, time, rotateMode).SetEase(ease);
         }
 
         public async UniTask ChangeColor(Color color, float time, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOColor(color, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOColor(color, time).SetEase(ease).ToUniTask());
         }
 
-        public async UniTask Dissolve(float time, AnimationBehaviourType animationBehaviour, Ease ease, Texture2D texture = null)
+        public async UniTask Dissolve(float time, AnimationBehaviourType behaviour, Ease ease, Texture2D tex = null)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DODissolve(animationBehaviour, time, texture).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DODissolve(behaviour, time, tex).SetEase(ease).ToUniTask());
         }
 
-        public async UniTask ToBlackAndWhite(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        public async UniTask ToBlackAndWhite(float time, AnimationBehaviourType behaviour, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOBlackAndWhite(animationBehaviour, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOBlackAndWhite(behaviour, time).SetEase(ease).ToUniTask());
         }
 
         public async UniTask ToBlackAndWhite(float time, float value, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOBlackAndWhite(value, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOBlackAndWhite(value, time).SetEase(ease).ToUniTask());
         }
 
-        public async UniTask Celia(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        public async UniTask Celia(float time, AnimationBehaviourType behaviour, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOCelia(animationBehaviour, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOCelia(behaviour, time).SetEase(ease).ToUniTask());
         }
 
         public async UniTask Celia(float time, float value, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOCelia(value, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOCelia(value, time).SetEase(ease).ToUniTask());
         }
 
-        public async UniTask Solid(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        public async UniTask Solid(float time, AnimationBehaviourType behaviour, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOSolid(animationBehaviour, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOSolid(behaviour, time).SetEase(ease).ToUniTask());
         }
 
         public async UniTask Solid(float time, float value, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOSolid(value, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOSolid(value, time).SetEase(ease).ToUniTask());
         }
 
-        public async UniTask Illuminate(float time, AnimationBehaviourType animationBehaviour, Ease ease)
+        public async UniTask Illuminate(float time, AnimationBehaviourType behaviour, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOIllumination(animationBehaviour, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOIllumination(behaviour, time).SetEase(ease).ToUniTask());
         }
 
         public async UniTask Illuminate(float time, float value, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
-
-            await _spriteRenderer.DOIllumination(value, time).SetEase(ease);
+            await ApplySpriteRendererTween(r => r.DOIllumination(value, time).SetEase(ease).ToUniTask());
         }
 
         public UniTask MoveY(float y, float time, Ease ease)
         {
-            NovelGameDebug.LogError($"character not supported move my Y");
+            NovelGameDebug.LogError("character not supported move my Y");
             return UniTask.CompletedTask;
         }
 

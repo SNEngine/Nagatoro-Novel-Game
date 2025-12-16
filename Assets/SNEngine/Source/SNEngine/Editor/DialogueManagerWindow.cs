@@ -212,6 +212,7 @@ namespace SNEngine.Editor
 
             NovelGame.Instance.ResetStateServices();
             NovelGame.Instance.GetService<MainMenuService>().Hide();
+            _dialogueService.StopCurrentDialogue();
             _dialogueService.JumpToDialogue(graph);
         }
     }
