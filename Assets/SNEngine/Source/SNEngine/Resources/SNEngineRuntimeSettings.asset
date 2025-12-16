@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SNEngineRuntimeSettings
   m_EditorClassIdentifier: 
   EnableCrossfade: 1
-  CrossfadeDuration: 0.3
-  CrossfadeEase: 1
+  CrossfadeDuration: 1.11
+  CrossfadeEase: 18

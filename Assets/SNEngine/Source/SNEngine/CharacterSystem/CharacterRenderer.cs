@@ -122,36 +122,54 @@ namespace SNEngine.CharacterSystem
 
         public void ShowWithEmotion(string emotionName = "Default")
         {
-            Sprite newSprite = _character.GetEmotion(emotionName).Sprite;
-            if (newSprite == null) return;
+            if (_character == null)
+            {
+                Debug.LogWarning("Character data not set!");
+                return;
+            }
+
+            Sprite newSprite = _character.GetEmotion(emotionName)?.Sprite;
+            if (newSprite == null)
+            {
+                Debug.LogWarning($"Emotion '{emotionName}' sprite not found!");
+                return;
+            }
+
+            bool canBlend = _blendMaterial != null && SNEngineRuntimeSettings.Instance.EnableCrossfade;
 
             if (_main.sprite == null)
             {
                 _main.sprite = newSprite;
-                if (_fx.gameObject.activeSelf) _fx.sprite = newSprite;
+                _main.color = Color.white;
+
+                if (_fx != null)
+                {
+                    _fx.sprite = newSprite;
+                    _fx.color = Color.white;
+                }
+
                 Show();
                 return;
             }
 
             if (_main.sprite == newSprite)
+            {
+                Show();
                 return;
+            }
 
             EnsureMaterials();
-
-            Sprite oldSprite = _main.sprite;
-
-            bool canBlend = _blendMaterial != null && SNEngineRuntimeSettings.Instance.EnableCrossfade;
 
             if (canBlend)
             {
                 Material activeBlendMat = new Material(_blendMaterial);
+                Sprite oldSprite = _main.sprite;
                 _main.material = activeBlendMat;
                 _main.sprite = newSprite;
-
                 activeBlendMat.SetTexture(BlendTexProperty, oldSprite.texture);
                 activeBlendMat.SetFloat(BlendProperty, 1f);
 
-                if (_fx.gameObject.activeSelf)
+                if (_fx != null && _fx.gameObject.activeSelf)
                     _fx.sprite = newSprite;
 
                 Show();
@@ -164,19 +182,26 @@ namespace SNEngine.CharacterSystem
                 ).SetEase(_crossfadeEase).OnComplete(() =>
                 {
                     _main.material = _mainMat;
-
                     Destroy(activeBlendMat);
                 });
 
                 return;
             }
 
-            // Мгновенный переход
             _main.sprite = newSprite;
             _main.color = Color.white;
-            if (_fx.gameObject.activeSelf) _fx.sprite = newSprite;
+
+            if (_fx != null && _fx.gameObject.activeSelf)
+            {
+                _fx.sprite = newSprite;
+                _fx.color = Color.white;
+            }
+
             Show();
         }
+
+
+
 
         public void SetFlip(FlipType flipType)
         {
