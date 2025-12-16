@@ -14,6 +14,7 @@ namespace SNEngine.CharacterSystem
     {
         private SpriteRenderer _main;
         private SpriteRenderer _fx;
+        private bool _firstShowDone = false;
 
         [SerializeField] private float _crossfadeDuration = 0.3f;
         [SerializeField] private Ease _crossfadeEase = Ease.Linear;
@@ -106,6 +107,7 @@ namespace SNEngine.CharacterSystem
 
         public void Hide()
         {
+            _firstShowDone = false;
             gameObject.SetActive(false);
         }
 
@@ -136,32 +138,28 @@ namespace SNEngine.CharacterSystem
             }
 
             bool canBlend = _blendMaterial != null && SNEngineRuntimeSettings.Instance.EnableCrossfade;
+            bool useBlend = canBlend && _firstShowDone;
 
-            if (_main.sprite == null)
+            if (_main.sprite == null || _main.sprite != newSprite)
             {
-                _main.sprite = newSprite;
-                _main.color = Color.white;
-
-                if (_fx != null)
+                if (!useBlend)
                 {
-                    _fx.sprite = newSprite;
-                    _fx.color = Color.white;
+                    _main.sprite = newSprite;
+                    _main.color = Color.white;
+
+                    if (_fx != null)
+                    {
+                        _fx.sprite = newSprite;
+                        _fx.color = Color.white;
+                    }
+
+                    Show();
+                    _firstShowDone = true;
+                    return;
                 }
 
-                Show();
-                return;
-            }
+                EnsureMaterials();
 
-            if (_main.sprite == newSprite)
-            {
-                Show();
-                return;
-            }
-
-            EnsureMaterials();
-
-            if (canBlend)
-            {
                 Material activeBlendMat = new Material(_blendMaterial);
                 Sprite oldSprite = _main.sprite;
                 _main.material = activeBlendMat;
@@ -185,16 +183,8 @@ namespace SNEngine.CharacterSystem
                     Destroy(activeBlendMat);
                 });
 
+                _firstShowDone = true;
                 return;
-            }
-
-            _main.sprite = newSprite;
-            _main.color = Color.white;
-
-            if (_fx != null && _fx.gameObject.activeSelf)
-            {
-                _fx.sprite = newSprite;
-                _fx.color = Color.white;
             }
 
             Show();
