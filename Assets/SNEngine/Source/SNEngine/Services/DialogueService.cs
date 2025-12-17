@@ -7,6 +7,7 @@ using SNEngine.Utils;
 using System;
 using System.Linq;
 using UnityEngine;
+using XNode;
 
 namespace SNEngine.Services
 {
@@ -36,6 +37,7 @@ namespace SNEngine.Services
 
         public void JumpToDialogue(IDialogue dialogue)
         {
+            NodeHighlighter.ClearAllHighlights(); 
             if (dialogue is null)
             {
                 NovelGameDebug.LogError("dialogue argument is null. Check your graph");
@@ -55,6 +57,7 @@ namespace SNEngine.Services
 
         public void ToDialogue(SaveData saveData)
         {
+            NodeHighlighter.ClearAllHighlights();
             var dislogues = Resources.LoadAll<DialogueGraph>("Dialogues");
             var targetDialogue = dislogues.FirstOrDefault(x => x.GUID == saveData.DialogueGUID);
 
@@ -75,6 +78,7 @@ namespace SNEngine.Services
                 _currentDialogue.OnEndExecute -= OnEndExecute;
                 _currentDialogue.Stop();
                 _currentDialogue = null;
+                NodeHighlighter.ClearAllHighlights();
 
             }
         }
@@ -86,6 +90,7 @@ namespace SNEngine.Services
             OnEndDialogue?.Invoke(_currentDialogue);
 
             ClearScreen();
+            NodeHighlighter.ClearAllHighlights();
         }
 
 
