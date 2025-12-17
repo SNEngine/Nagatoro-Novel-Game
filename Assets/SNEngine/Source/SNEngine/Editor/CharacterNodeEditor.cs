@@ -1,9 +1,8 @@
 ﻿#if UNITY_EDITOR
-using SNEngine.CharacterSystem;
-using SNEngine.Editor;
 using UnityEditor;
 using UnityEngine;
 using XNodeEditor;
+using SNEngine.CharacterSystem;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
@@ -13,9 +12,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         public override void OnBodyGUI()
         {
             serializedObject.Update();
-
             CharacterNode node = target as CharacterNode;
-            SerializedProperty characterProp = serializedObject.FindProperty("_character");
 
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
@@ -23,25 +20,24 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 NodeEditorGUILayout.PropertyField(serializedObject.FindProperty(tag.name));
             }
 
-            GUILayout.Space(8);
+            GUILayout.Space(10);
 
-            string displayName = node.Character != null ? node.Character.name : "Select Character";
-            Color btnColor = node.Character != null ? new Color(0.3f, 0.5f, 0.3f) : new Color(0.4f, 0.2f, 0.2f);
+            string charName = node.Character != null ? node.Character.name : "Select Character";
+            GUIContent content = new GUIContent(charName);
 
-            Color prevColor = GUI.backgroundColor;
-            GUI.backgroundColor = btnColor;
+            Color prevBg = GUI.backgroundColor;
+            GUI.backgroundColor = node.Character != null ? new Color(0.4f, 0.75f, 0.45f) : new Color(0.75f, 0.4f, 0.4f);
 
-            if (GUILayout.Button(displayName, GUILayout.Height(30)))
+            if (GUILayout.Button(content, GUILayout.Height(32)))
             {
-                CharacterSelectorWindow.Open((selectedCharacter) =>
-                {
-                    serializedObject.Update();
-                    characterProp.objectReferenceValue = selectedCharacter;
-                    serializedObject.ApplyModifiedProperties();
+                CharacterSelectorWindow.Open((selected) => {
+                    var so = new SerializedObject(target);
+                    so.FindProperty("_character").objectReferenceValue = selected;
+                    so.ApplyModifiedProperties();
                 });
             }
 
-            GUI.backgroundColor = prevColor;
+            GUI.backgroundColor = prevBg;
             serializedObject.ApplyModifiedProperties();
         }
     }

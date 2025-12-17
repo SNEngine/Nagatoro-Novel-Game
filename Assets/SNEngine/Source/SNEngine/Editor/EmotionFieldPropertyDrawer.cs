@@ -1,75 +1,88 @@
-﻿using SNEngine.Attributes;
+﻿#if UNITY_EDITOR
+using SNEngine.Attributes;
 using SNEngine.CharacterSystem;
-using System;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using SiphoinUnityHelpers.XNodeExtensions.Editor;
 
 namespace SNEngine.Editor
 {
     [CustomPropertyDrawer(typeof(EmotionFieldAttribute))]
     public class EmotionFieldPropertyDrawer : PropertyDrawer
     {
-        private static Color32 _colorWarning = Color.clear;
+        private const float PREVIEW_SIZE = 120f;
+        private const float BUTTON_HEIGHT = 22f;
+        private const float PADDING = 4f;
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            if (property.serializedObject.targetObject is CharacterNode characterNode && characterNode.Character != null)
+            {
+                var emotion = characterNode.Character.GetEmotion(property.stringValue);
+                if (emotion != null && emotion.Sprite != null)
+                    return BUTTON_HEIGHT + PREVIEW_SIZE + (PADDING * 3);
+            }
+            return BUTTON_HEIGHT + PADDING;
+        }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            CharacterNode characterNode = property.serializedObject.targetObject as CharacterNode;
+            EditorGUI.BeginProperty(position, label, property);
 
-            if (characterNode.Character is null)
+            if (property.serializedObject.targetObject is not CharacterNode characterNode || characterNode.Character == null)
             {
-                if (_colorWarning == Color.clear)
-                {
-                    _colorWarning = new Color32(250, 185, 185, 255);
-                }
-                GUIStyle style = new(GUI.skin.label);
-
-                style.normal.textColor = _colorWarning;
-
-                style.alignment = TextAnchor.MiddleCenter;
-
-                EditorGUI.LabelField(position, "Character not seted", style);
-
+                GUI.enabled = false;
+                EditorGUI.TextField(position, label, "Assign Character first");
+                GUI.enabled = true;
+                EditorGUI.EndProperty();
                 return;
             }
 
-            else
+            Rect buttonRect = new Rect(position.x, position.y, position.width, BUTTON_HEIGHT);
+            string btnText = string.IsNullOrEmpty(property.stringValue) ? "Select Emotion..." : property.stringValue;
+
+            if (GUI.Button(buttonRect, btnText, EditorStyles.miniButton))
             {
-                var emotionsList = characterNode.Character.Emotions;
-
-                if (emotionsList == null)
+                EmotionSelectorWindow.Open(characterNode.Character, (val) =>
                 {
-                    GUIStyle style = new(GUI.skin.label);
-                    style.normal.textColor = Color.yellow;
-                    style.alignment = TextAnchor.MiddleCenter;
-                    EditorGUI.LabelField(position, "Character emotion list is null", style);
-                    return;
-                }
-
-                var emotions = emotionsList.ToArray();
-
-                var emotionsVariants = emotions.Select(e => e.Name).ToArray();
-
-                if (emotionsVariants.Length == 0)
-                {
-                    GUIStyle style = new(GUI.skin.label);
-                    style.normal.textColor = Color.yellow;
-                    style.alignment = TextAnchor.MiddleCenter;
-                    EditorGUI.LabelField(position, "No emotions defined", style);
-                    return;
-                }
-
-                int selectedIndex = Array.IndexOf(emotionsVariants, property.stringValue);
-
-                if (selectedIndex < 0)
-                {
-                    selectedIndex = 0;
-                }
-
-                selectedIndex = EditorGUI.Popup(position, label.text, selectedIndex, emotionsVariants);
-
-                property.stringValue = emotionsVariants[selectedIndex];
+                    property.serializedObject.Update();
+                    property.stringValue = val;
+                    property.serializedObject.ApplyModifiedProperties();
+                });
             }
+
+            var emotion = characterNode.Character.GetEmotion(property.stringValue);
+            if (emotion != null && emotion.Sprite != null)
+            {
+                Texture preview = AssetPreview.GetAssetPreview(emotion.Sprite);
+                if (preview != null)
+                {
+                    Rect bgRect = new Rect(position.x, position.y + BUTTON_HEIGHT + PADDING, position.width, PREVIEW_SIZE);
+                    GUI.Box(bgRect, GUIContent.none, EditorStyles.helpBox);
+
+                    float aspect = (float)preview.width / preview.height;
+                    float drawHeight = PREVIEW_SIZE - 8;
+                    float drawWidth = drawHeight * aspect;
+
+                    if (drawWidth > position.width - 8)
+                    {
+                        drawWidth = position.width - 8;
+                        drawHeight = drawWidth / aspect;
+                    }
+
+                    Rect textureRect = new Rect(
+                        bgRect.x + (bgRect.width - drawWidth) / 2,
+                        bgRect.y + (bgRect.height - drawHeight) / 2,
+                        drawWidth,
+                        drawHeight
+                    );
+
+                    GUI.DrawTexture(textureRect, preview, ScaleMode.ScaleToFit);
+                }
+            }
+
+            EditorGUI.EndProperty();
         }
     }
 }
+#endif
