@@ -145,7 +145,40 @@ MonoBehaviour:
     _dynamic: 0
   _varitable: 0
   _value: 150
-  _targetGuid: 6c5d96b248224f7
+  _targetGuid: b188495e26e84de
+--- !u!114 &-5074464420474321165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7c9877b4be5d4d449c7f96418d77421, type: 3}
+  m_Name: <color=#FFFFFF>ssss (Int)</color>
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 664, y: 72}
+  ports:
+    keys:
+    - _value
+    values:
+    - _fieldName: _value
+      _node: {fileID: -5074464420474321165}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: b188495e26e84de
+  _name: ssss
+  _color:
+    serializedVersion: 2
+    rgba: 4294967295
+  _value: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,6 +196,7 @@ MonoBehaviour:
   - {fileID: -8332842427050195959}
   - {fileID: 3524388347289796188}
   - {fileID: -8888571252635226486}
+  - {fileID: -5074464420474321165}
   _guid: a12a8e40cdc241c
 --- !u!114 &3524388347289796188
 MonoBehaviour:

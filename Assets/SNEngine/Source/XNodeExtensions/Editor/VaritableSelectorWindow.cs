@@ -118,7 +118,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
                 if (rect.Contains(Event.current.mousePosition))
                 {
-                    EditorGUI.DrawRect(rect, new Color(1, 1, 1, 0.03f));
+                    EditorGUI.DrawRect(rect, new Color(1, 1, 1, 0.05f));
                 }
 
                 Rect colorStrip = new Rect(rect.x, rect.y + 1, 4, rect.height - 2);
@@ -126,12 +126,23 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
                 GUILayout.Space(8);
 
-                Texture scriptIcon = EditorGUIUtility.IconContent("cs Script Icon").image;
-
                 EditorGUILayout.BeginVertical(GUILayout.Width(32), GUILayout.Height(rowHeight));
                 GUILayout.FlexibleSpace();
+
+                GUIContent iconContent = EditorGUIUtility.ObjectContent(null, node.GetType());
+                Texture nodeIcon = iconContent.image;
+
+                if (nodeIcon == null)
+                {
+                    nodeIcon = EditorGUIUtility.IconContent("cs Script Icon").image;
+                }
+
                 Rect iconRect = GUILayoutUtility.GetRect(26, 26);
-                GUI.DrawTexture(iconRect, scriptIcon, ScaleMode.ScaleToFit);
+                if (nodeIcon != null)
+                {
+                    GUI.DrawTexture(iconRect, nodeIcon, ScaleMode.ScaleToFit);
+                }
+
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndVertical();
 
