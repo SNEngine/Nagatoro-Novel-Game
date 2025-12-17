@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Linq;
+using SNEngine.Graphs;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
 {
@@ -28,24 +30,21 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
 
             if (connectedVaritables.Count == 0 && !string.IsNullOrEmpty(_targetGuid))
             {
+                VaritableNode targetNode = null;
+
                 if (graph is BaseGraph baseGraph)
                 {
-                    var targetNode = baseGraph.GetNodeByGuid(_targetGuid);
-                    if (targetNode is VaritableNode<T> typedNode)
-                    {
-                        if (finalValue is T castValue)
-                        {
-                            typedNode.SetValue(castValue);
-                        }
-                        else
-                        {
-                            try
-                            {
-                                typedNode.SetValue((T)System.Convert.ChangeType(finalValue, typeof(T)));
-                            }
-                            catch { }
-                        }
-                    }
+                    targetNode = baseGraph.GetNodeByGuid(_targetGuid) as VaritableNode;
+                }
+
+                if (targetNode == null)
+                {
+                    targetNode = FindGlobalNode(_targetGuid);
+                }
+
+                if (targetNode is VaritableNode<T> typedNode)
+                {
+                    SetTypedValue(typedNode, finalValue);
                 }
             }
             else
@@ -56,10 +55,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
 
                     if (connectedVaritable is VaritableNode<T> varitableNode)
                     {
-                        if (finalValue is T castValue)
-                        {
-                            varitableNode.SetValue(castValue);
-                        }
+                        SetTypedValue(varitableNode, finalValue);
                     }
 
                     if (connectedVaritable is VaritableCollectionNode<T> collectionNode)
@@ -71,6 +67,33 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
                         }
                     }
                 }
+            }
+        }
+
+        private VaritableNode FindGlobalNode(string guid)
+        {
+            var containers = Resources.LoadAll<VaritableContainerGraph>("");
+            foreach (var container in containers)
+            {
+                var node = container.nodes.OfType<VaritableNode>().FirstOrDefault(n => n.GUID == guid);
+                if (node != null) return node;
+            }
+            return null;
+        }
+
+        private void SetTypedValue(VaritableNode<T> node, object value)
+        {
+            if (value is T castValue)
+            {
+                node.SetValue(castValue);
+            }
+            else
+            {
+                try
+                {
+                    node.SetValue((T)System.Convert.ChangeType(value, typeof(T)));
+                }
+                catch { }
             }
         }
     }

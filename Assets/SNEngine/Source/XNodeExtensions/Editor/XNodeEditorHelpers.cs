@@ -3,7 +3,9 @@ using UnityEditor;
 using UnityEngine;
 using XNodeEditor;
 using System;
+using System.Linq;
 using SiphoinUnityHelpers.XNodeExtensions.Varitables.Set;
+using SNEngine.Graphs;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
@@ -19,7 +21,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
                 if (tag.name == "_varitable" || tag.name == "_targetGuid" || tag.name == "_enumerable") continue;
-
                 if (tag.name == "_elements" && !isCollectionStorage) continue;
 
                 SerializedProperty prop = serializedObject.FindProperty(tag.name);
@@ -40,9 +41,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 string displayName = "Select Variable";
                 Color buttonColor = new Color(0.25f, 0.25f, 0.25f);
 
-                if (!string.IsNullOrEmpty(currentGuid) && editor.target.graph is BaseGraph baseGraph)
+                if (!string.IsNullOrEmpty(currentGuid))
                 {
-                    var linkedNode = baseGraph.GetNodeByGuid(currentGuid) as VaritableNode;
+                    VaritableNode linkedNode = FindVariableByGuid(editor.target.graph as BaseGraph, currentGuid);
+
                     if (linkedNode != null)
                     {
                         displayName = linkedNode.Name;
@@ -77,6 +79,29 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private static VaritableNode FindVariableByGuid(BaseGraph currentGraph, string guid)
+        {
+            if (currentGraph != null)
+            {
+                var localNode = currentGraph.GetNodeByGuid(guid) as VaritableNode;
+                if (localNode != null) return localNode;
+            }
+
+            string[] guids = AssetDatabase.FindAssets($"t:{nameof(VaritableContainerGraph)}");
+            foreach (string assetGuid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(assetGuid);
+                var container = AssetDatabase.LoadAssetAtPath<VaritableContainerGraph>(path);
+                if (container != null)
+                {
+                    var globalNode = container.nodes.OfType<VaritableNode>().FirstOrDefault(n => n.GUID == guid);
+                    if (globalNode != null) return globalNode;
+                }
+            }
+
+            return null;
         }
 
         private static Type GetGenericType(Type type)

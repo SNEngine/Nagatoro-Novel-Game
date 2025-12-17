@@ -13,5 +13,13 @@ namespace SNEngine.Graphs
         {
             BuidVaritableNodes();
         }
+
+        public void ResetState()
+        {
+            foreach (var varitable in Varitables.Values)
+            {
+                varitable.ResetValue();
+            }
+        }
     }
 }

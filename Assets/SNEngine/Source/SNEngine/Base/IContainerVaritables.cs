@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SNEngine.Graphs
 {
-    public interface IContainerVaritables
+    public interface IContainerVaritables : IResetable
     {
         IDictionary<string, VaritableNode> GlobalVaritables { get; }
     }

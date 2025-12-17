@@ -4,17 +4,24 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using SNEngine.Graphs;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
     public class VaritableSelectorWindow : EditorWindow
     {
+        private enum Category { Local, Global }
+
         private BaseGraph _targetGraph;
         private Action<VaritableNode> _onSelect;
         private Type _requiredType;
 
+        private Category _currentCategory = Category.Local;
         private string _searchQuery = "";
         private Vector2 _scrollPos;
+
+        private List<VaritableNode> _localNodes = new List<VaritableNode>();
+        private List<VaritableNode> _globalNodes = new List<VaritableNode>();
 
         public static void Open(BaseGraph graph, Type requiredType, Action<VaritableNode> onSelect)
         {
@@ -23,14 +30,36 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             window._requiredType = requiredType;
             window._onSelect = onSelect;
             window.minSize = new Vector2(350, 450);
+            window.RefreshCache();
             window.ShowAuxWindow();
+        }
+
+        private void RefreshCache()
+        {
+            _localNodes.Clear();
+            _globalNodes.Clear();
+
+            if (_targetGraph != null)
+            {
+                _localNodes.AddRange(_targetGraph.nodes.OfType<VaritableNode>().Where(IsCompatibleType));
+            }
+
+            string[] guids = AssetDatabase.FindAssets($"t:{nameof(VaritableContainerGraph)}");
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var container = AssetDatabase.LoadAssetAtPath<VaritableContainerGraph>(path);
+                if (container != null && container != _targetGraph)
+                {
+                    _globalNodes.AddRange(container.nodes.OfType<VaritableNode>().Where(IsCompatibleType));
+                }
+            }
         }
 
         private void OnGUI()
         {
-            if (_targetGraph == null) return;
-
             DrawHeader();
+            DrawCategoryToggles();
             DrawSearchBar();
 
             EditorGUILayout.Space(5);
@@ -41,10 +70,17 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             GUILayout.Space(2);
-            EditorGUILayout.LabelField("Select Target Variable", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField($"Filter: {(_requiredType != null ? _requiredType.Name : "All")}", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Variable Selector", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Type: {(_requiredType != null ? _requiredType.Name : "Any")}", EditorStyles.miniLabel);
             GUILayout.Space(2);
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawCategoryToggles()
+        {
+            GUILayout.Space(2);
+            _currentCategory = (Category)GUILayout.Toolbar((int)_currentCategory, new string[] { "Local", "Global" });
+            GUILayout.Space(2);
         }
 
         private void DrawSearchBar()
@@ -60,15 +96,16 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
         private void DrawVariableList()
         {
-            var nodes = _targetGraph.nodes
-                .OfType<VaritableNode>()
-                .Where(IsCompatibleType)
+            var sourceList = _currentCategory == Category.Local ? _localNodes : _globalNodes;
+
+            var nodes = sourceList
                 .Where(n => string.IsNullOrEmpty(_searchQuery) || n.Name.IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
+                .OrderBy(n => n.Name)
                 .ToList();
 
             if (nodes.Count == 0)
             {
-                EditorGUILayout.HelpBox("No variables found.", MessageType.Info);
+                EditorGUILayout.HelpBox($"No {(_currentCategory == Category.Local ? "local" : "global")} variables found.", MessageType.Info);
                 return;
             }
 
@@ -93,7 +130,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
                 EditorGUILayout.BeginVertical(GUILayout.Width(32), GUILayout.Height(rowHeight));
                 GUILayout.FlexibleSpace();
-                Rect iconRect = GUILayoutUtility.GetRect(28, 28);
+                Rect iconRect = GUILayoutUtility.GetRect(26, 26);
                 GUI.DrawTexture(iconRect, scriptIcon, ScaleMode.ScaleToFit);
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndVertical();
@@ -103,7 +140,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 EditorGUILayout.BeginVertical(GUILayout.Height(rowHeight));
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.LabelField(node.Name, EditorStyles.boldLabel);
-                EditorGUILayout.LabelField(node.GetType().Name, EditorStyles.miniLabel);
+                EditorGUILayout.LabelField(_currentCategory == Category.Global ? $"Container: {node.graph.name}" : node.GetType().Name, EditorStyles.miniLabel);
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndVertical();
 
