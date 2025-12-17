@@ -847,7 +847,7 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
-  _emotion: Naga_Lean_Bikini_Sidelook_CatClosed
+  _emotion: Naga_Lean_Shirt_Sidelook_Smile
 --- !u!114 &-227128895472038767
 MonoBehaviour:
   m_ObjectHideFlags: 0
