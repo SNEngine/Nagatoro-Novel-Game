@@ -5,4 +5,5 @@ namespace SNEngine.Serialisation
 {
     [CreateAssetMenu(menuName = "SNEngine/Asset Libraries/Sprite Library")]
     public class SpriteLibrary : BaseAssetLibrary<Sprite> { }
+
 }
