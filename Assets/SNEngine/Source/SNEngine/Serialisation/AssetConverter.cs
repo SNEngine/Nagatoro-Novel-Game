@@ -22,7 +22,7 @@ namespace SNEngine.Serialization
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null) return null;
-            return _library.GetAsset((string)reader.Value);
+            return _library.GetAsset((string)reader.Value) as T;
         }
 
     }

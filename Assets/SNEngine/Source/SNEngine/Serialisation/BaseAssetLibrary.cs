@@ -17,7 +17,9 @@ namespace SNEngine.Serialization
 {
     public abstract class BaseAssetLibrary : ScriptableObjectIdentity
     {
-
+        public abstract Type GetTypeAsset();
+        public abstract object GetAsset(string guid);
+        public abstract void Add(object asset);
     }
     public abstract partial class BaseAssetLibrary<T> : BaseAssetLibrary where T : UnityEngine.Object
     {
@@ -26,7 +28,7 @@ namespace SNEngine.Serialization
 
         public IReadOnlyList<Entry> Entries => _entries;
 
-        public void Add(object asset)
+        public override void Add(object asset)
         {
             var targetType = GetTypeAsset();
 
@@ -65,7 +67,7 @@ namespace SNEngine.Serialization
             }
         }
 
-        public T GetAsset(string guid)
+        public override object GetAsset(string guid)
         {
             var entity = Entries.FirstOrDefault(x => x.Guid == guid);
             if (entity is null)
@@ -94,7 +96,7 @@ namespace SNEngine.Serialization
         }
              
 
-        public Type GetTypeAsset ()
+        public override Type GetTypeAsset ()
         {
             return typeof(T); 
         }

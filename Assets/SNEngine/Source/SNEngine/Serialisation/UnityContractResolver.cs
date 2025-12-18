@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using SNEngine.Debugging;
 using SNEngine.Serialization;
 using System;
 using System.Collections.Generic;
@@ -22,11 +23,14 @@ namespace SNEngine.Serialisation
             { typeof(Rect), new[] { "x", "y", "width", "height" } }
         };
 
-        public void RegisterLibrary<T>(BaseAssetLibrary<T> library) where T : UnityEngine.Object
+        public void RegisterLibrary(BaseAssetLibrary library)
         {
-            _assetConverters[typeof(T)] = new AssetConverter<T>(library);
-        }
+            Type assetType = library.GetTypeAsset();
+            Type converterType = typeof(AssetConverter<>).MakeGenericType(assetType);
 
+            var constructor = converterType.GetConstructors()[0];
+            _assetConverters[assetType] = (JsonConverter)constructor.Invoke(new object[] { library });
+        }
         protected override JsonConverter ResolveContractConverter(Type objectType)
         {
             foreach (var kvp in _assetConverters)

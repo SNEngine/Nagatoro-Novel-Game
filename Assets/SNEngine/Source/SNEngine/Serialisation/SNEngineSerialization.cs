@@ -16,5 +16,15 @@ namespace SNEngine.Serialisation
 
             _assetLibraryService.AddAssetToLibrary<TLibrary>(asset);
         }
+
+        public static TObject GetFromLibrary<TLibrary, TObject>(string guid) where TLibrary : BaseAssetLibrary where TObject : UnityEngine.Object
+        {
+            if (!_assetLibraryService)
+            {
+                _assetLibraryService = ResourceLoader.LoadCustomOrVanilla<AssetLibraryService>("Asset Library Service");
+            }
+
+            return _assetLibraryService.GetFromLibrary<TLibrary, TObject>(guid);
+        }
     }
 }

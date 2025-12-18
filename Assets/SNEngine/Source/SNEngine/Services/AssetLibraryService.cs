@@ -13,7 +13,7 @@ namespace SNEngine.Services
     public class AssetLibraryService : ServiceBase
     {
         private UnityContractResolver _resolver;
-        private SpriteLibrary[] _libraries;
+        private BaseAssetLibrary[] _libraries;
 
         public override void Initialize()
         {
@@ -41,7 +41,7 @@ namespace SNEngine.Services
 
         private void LoadLibraries()
         {
-            _libraries = ResourceLoader.LoadAllCustomizable<SpriteLibrary>("AssetLibraries");
+            _libraries = ResourceLoader.LoadAllCustomizable<BaseAssetLibrary>("AssetLibraries");
         }
 
         public void AddAssetToLibrary<TLibrary> (UnityEngine.Object asset) where TLibrary : BaseAssetLibrary
@@ -59,6 +59,23 @@ namespace SNEngine.Services
             }
 
             library.Add(asset);
+        }
+
+        public TObject GetFromLibrary<TLibrary, TObject>(string guid) where TLibrary : BaseAssetLibrary where TObject : UnityEngine.Object
+        {
+            if (_libraries is null || _libraries.Length == 0)
+            {
+                LoadLibraries();
+            }
+            Type type = typeof(TObject);
+
+            var library = _libraries.FirstOrDefault(x => x.GetTypeAsset() == type);
+            if (!library)
+            {
+                NovelGameDebug.LogError($"asset library with Type asset {type.Name} not found");
+            }
+
+            return library.GetAsset(guid) as TObject;
         }
     }
 }
