@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Service Container
   m_EditorClassIdentifier: 
   _services:
+  - {fileID: 11400000, guid: 7a904b2c5510e344bafb33a872421b52, type: 2}
   - {fileID: 11400000, guid: 126d9ca1dea004548bb7ed83a11647be, type: 2}
   - {fileID: 11400000, guid: dc212f899f7e82b4094edddc61c80407, type: 2}
   - {fileID: 11400000, guid: f79fc241b6890b54284183e7e3f18bbe, type: 2}
@@ -39,4 +40,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ff544f1da3415ff459634de2f0d60502, type: 2}
   - {fileID: 11400000, guid: f61ec568aaaf63b4d99c21ae165e2c10, type: 2}
   - {fileID: 11400000, guid: 85e86715b1cc84c468b107ce7ea485fb, type: 2}
+  - {fileID: 11400000, guid: 92d7adbbddb47754c9001fdc82a41e5c, type: 2}
   - {fileID: 11400000, guid: 92d7adbbddb47754c9001fdc82a41e5c, type: 2}
