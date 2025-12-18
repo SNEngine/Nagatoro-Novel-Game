@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using SNEngine.Graphs;
+using System.Collections.Generic;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
 {
@@ -11,6 +12,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
         [Input, SerializeField] private T _value;
 
         [HideInInspector, SerializeField] private string _targetGuid;
+
+        private T _editorOldValue;
 
         public string TargetGuid { get => _targetGuid; set => _targetGuid = value; }
 
@@ -70,6 +73,25 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
             }
         }
 
+        protected virtual void OnSetTargetValueChanged(VaritableNode<T> targetNode, T newValue) { }
+
+#if UNITY_EDITOR
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _editorOldValue = _value;
+        }
+
+        protected virtual void OnValidate()
+        {
+            if (!EqualityComparer<T>.Default.Equals(_editorOldValue, _value))
+            {
+                _editorOldValue = _value;
+                OnSetTargetValueChanged(null, _value);
+            }
+        }
+#endif
+
         private VaritableNode FindGlobalNode(string guid)
         {
             var containers = Resources.LoadAll<VaritableContainerGraph>("");
@@ -83,17 +105,28 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
 
         private void SetTypedValue(VaritableNode<T> node, object value)
         {
-            if (value is T castValue)
+            T castValue = default;
+            bool success = false;
+
+            if (value is T directValue)
             {
-                node.SetValue(castValue);
+                castValue = directValue;
+                success = true;
             }
             else
             {
                 try
                 {
-                    node.SetValue((T)System.Convert.ChangeType(value, typeof(T)));
+                    castValue = (T)System.Convert.ChangeType(value, typeof(T));
+                    success = true;
                 }
                 catch { }
+            }
+
+            if (success)
+            {
+                node.SetValue(castValue);
+                OnSetTargetValueChanged(node, castValue);
             }
         }
     }

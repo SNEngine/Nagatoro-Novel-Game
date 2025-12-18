@@ -33,6 +33,5 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
     [CustomNodeEditor(typeof(ColorNode))] public class SetColorCollectionNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(Vector2Node))] public class SetVector2CollectionNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(QuaternionNode))] public class SetQuaternionCollectionNodeEditor : SetVaritableNodeEditor { }
-    [CustomNodeEditor(typeof(SetSpriteNode))] public class SetSpritenNodeEditor : SetVaritableNodeEditor { }
 }
 #endif
