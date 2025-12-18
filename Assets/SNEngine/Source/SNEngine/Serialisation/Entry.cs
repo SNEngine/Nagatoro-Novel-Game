@@ -10,7 +10,7 @@ namespace SNEngine.Serialization
     public abstract partial class BaseAssetLibrary<T> where T : UnityEngine.Object
     {
         [Serializable]
-        public struct Entry
+        public class Entry
         {
             [field: SerializeField] public string Guid { get; set; }
             [field: SerializeField] public T Asset { get; set; }

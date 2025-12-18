@@ -24,7 +24,6 @@ namespace SNEngine.Serialisation
 
         public void RegisterLibrary<T>(BaseAssetLibrary<T> library) where T : UnityEngine.Object
         {
-            library.Initialize();
             _assetConverters[typeof(T)] = new AssetConverter<T>(library);
         }
 

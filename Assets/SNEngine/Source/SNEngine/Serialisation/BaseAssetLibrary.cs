@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SNEngine.Debugging;
+using System.Linq;
+using UnityEditor.VersionControl;
+
+
 
 
 
@@ -21,24 +25,6 @@ namespace SNEngine.Serialization
         [SerializeField] private List<Entry> _entries = new List<Entry>();
 
         public IReadOnlyList<Entry> Entries => _entries;
-
-        [field: SerializeReference]  protected Dictionary<string, T> GuidToAsset { get; set; } = new Dictionary<string, T>();
-        [field: SerializeReference]  protected Dictionary<T, string> AssetToGuid { get; set; } = new Dictionary<T, string>();
-
-        public virtual void Initialize()
-        {
-            GuidToAsset.Clear();
-            AssetToGuid.Clear();
-
-            foreach (var entry in _entries)
-            {
-                if (entry.Asset != null && !string.IsNullOrEmpty(entry.Guid))
-                {
-                    GuidToAsset[entry.Guid] = entry.Asset;
-                    AssetToGuid[entry.Asset] = entry.Guid;
-                }
-            }
-        }
 
         public void Add(object asset)
         {
@@ -77,16 +63,36 @@ namespace SNEngine.Serialization
                 EditorUtility.SetDirty(this);
 #endif
             }
-
-            GuidToAsset[guid] = convertedAsset;
-            AssetToGuid[convertedAsset] = guid;
         }
 
-        public T GetAsset(string guid) =>
-            GuidToAsset.TryGetValue(guid, out var asset) ? asset : null;
+        public T GetAsset(string guid)
+        {
+            var entity = Entries.FirstOrDefault(x => x.Guid == guid);
+            if (entity is null)
+            {
+                return null;
+            }
 
-        public string GetGuid(T asset) =>
-            AssetToGuid.TryGetValue(asset, out var guid) ? guid : null;
+            else
+            {
+                return entity.Asset;
+            }
+        }
+
+        public string GetGuid(T asset)
+        {
+            var entity = Entries.FirstOrDefault(x => x.Asset == asset);
+            if (entity is null)
+            {
+                return null;
+            }
+
+            else
+            {
+                return entity.Guid;
+            }
+        }
+             
 
         public Type GetTypeAsset ()
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using UnityEngine;
 #if UNITY_EDITOR
 #endif
 
@@ -14,6 +15,7 @@ namespace SNEngine.Serialization
         {
             if (value == null) { writer.WriteNull(); return; }
             string guid = _library.GetGuid(value);
+            Debug.Log(guid);
             writer.WriteValue(guid);
         }
 
