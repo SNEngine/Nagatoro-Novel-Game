@@ -22,6 +22,11 @@ namespace SNEngine.Graphs
             base.Execute();
         }
 
+        public override string GetWindowTitle()
+        {
+            return $"Dialogue Graph | {name}";
+        }
+
         public bool HasNextDialogueOnExit()
         {
             return Queue.HasNextDialogueOnExit();

@@ -78,6 +78,11 @@ namespace XNode {
             return graph;
         }
 
+        /// <summary> Virtual method to get the window title for this graph. Override to provide a custom title. </summary>
+        public virtual string GetWindowTitle() {
+            return "XNode";
+        }
+
         protected virtual void OnDestroy() {
             // Remove all nodes prior to graph destruction
             Clear();
