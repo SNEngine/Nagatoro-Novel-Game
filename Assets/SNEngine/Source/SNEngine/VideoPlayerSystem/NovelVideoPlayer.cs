@@ -290,5 +290,18 @@ namespace SNEngine.VideoPlayerSystem
         {
             Stop();
         }
+
+        private void OnDestroy()
+        {
+            if (_renderTexture != null)
+            {
+                if (_renderTexture.IsCreated())
+                {
+                    _renderTexture.Release();
+                }
+                Destroy(_renderTexture);
+                _renderTexture = null;
+            }
+        }
     }
 }

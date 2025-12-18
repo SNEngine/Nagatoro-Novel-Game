@@ -3,7 +3,6 @@ using UnityEngine;
 using SNEngine.Debugging;
 using System.Linq;
 using UnityEngine.Events;
-using SharpYaml.Serialization;
 using SNEngine.Utils;
 using Object = UnityEngine.Object;
 
@@ -16,8 +15,8 @@ namespace SNEngine.Services
 
         private IInputForm[] _forms;
         private IInputForm _activeForm;
+        
         private const string FORMS_VANILLA_PATH = "UI";
-
 
         public override void Initialize()
         {
@@ -25,57 +24,53 @@ namespace SNEngine.Services
 
             if (forms == null || forms.Length == 0)
             {
-                NovelGameDebug.LogError("No Input Forms were loaded.");
-
+                NovelGameDebug.LogError($"No Input Forms were loaded from {FORMS_VANILLA_PATH}. Check folder and prefab components.");
                 return;
             }
 
             var uiService = NovelGame.Instance.GetService<UIService>();
-
-            _forms = new IInputForm[forms.Length];
-
-            for (int i = 0; i < forms.Length; i++)
+            if (uiService == null)
             {
-                var form = Object.Instantiate(forms[i]);
-
-                _forms[i] = form;
-
-                uiService.AddElementToUIContainer(form.gameObject);
+                NovelGameDebug.LogError("UIService not found! Cannot initialize InputForms.");
+                return;
             }
 
+            var validForms = forms.Where(f => f != null).ToList();
+            _forms = new IInputForm[validForms.Count];
 
-            NovelGameDebug.Log($"loaded {_forms.Length} {nameof(InputForm)}s");
+            for (int i = 0; i < validForms.Count; i++)
+            {
+                var formInstance = Object.Instantiate(validForms[i]);
+                _forms[i] = formInstance;
+                uiService.AddElementToUIContainer(formInstance.gameObject);
+            }
 
+            NovelGameDebug.Log($"Successfully loaded {_forms.Length} InputForms");
             ResetState();
-
-
         }
 
         public void Show(InputFormType type, string label, bool isTriming)
         {
-
             var form = _forms.SingleOrDefault(x => x.Type == type);
 
             if (form is null)
             {
-                NovelGameDebug.LogError($"input form with type {type} not found on service {GetType().Name}");
-
+                NovelGameDebug.LogError($"Input form with type {type} not found in {GetType().Name}");
                 return;
             }
 
             form.Label = label;
             form.IsTrimming = isTriming;
-
             form.Show();
 
             _activeForm = form;
-
             _activeForm.OnSubmit += OnSumbitText;
         }
 
         private void OnSumbitText(string text)
         {
-            _activeForm.OnSubmit -= OnSumbitText;
+            if (_activeForm != null)
+                _activeForm.OnSubmit -= OnSumbitText;
 
             OnSubmit?.Invoke(text);
         }
@@ -83,14 +78,17 @@ namespace SNEngine.Services
         public void Hide()
         {
             _activeForm?.Hide();
+            if (_activeForm != null)
+                _activeForm.OnSubmit -= OnSumbitText;
             _activeForm = null;
         }
 
         public override void ResetState()
         {
-            for (int i = 0; i < _forms.Length; i++)
+            if (_forms == null) return;
+            foreach (var form in _forms)
             {
-                _forms[i].ResetState();
+                form?.Hide();
             }
         }
     }

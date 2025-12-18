@@ -17,23 +17,33 @@ namespace SNEngine.Audio
 
         private void OnEnable()
         {
-
             if (!_service)
             {
                 _service = NovelGame.Instance.GetService<AudioService>();
             }
+
+            if (_service == null)
+            {
+                return;
+            }
+
             if (_type is null)
             {
                 if (_defaultAudioType == AudioType.None)
                 {
                     _type = TryGetComponent(out MusicPlayer _) ? AudioType.Music : AudioType.FX;
                 }
-
                 else
                 {
                     _type = _defaultAudioType;
                 }
             }
+
+            if (_service.AudioData == null)
+            {
+                return;
+            }
+
             switch (_type.Value)
             {
                 case AudioType.Music:
@@ -56,6 +66,8 @@ namespace SNEngine.Audio
 
         private void OnDisable()
         {
+            if (_service == null || _type is null) return;
+
             switch (_type.Value)
             {
                 case AudioType.Music:
@@ -65,9 +77,6 @@ namespace SNEngine.Audio
                 case AudioType.FX:
                     _service.OnFXMuteChanged -= OnFXMuteChanged;
                     _service.OnFXVolumeChanged -= OnFXVolumeChanged;
-                    break;
-                default:
-                    NovelGameDebug.LogError($"unkown type of audio type: {_type.Value}");
                     break;
             }
         }
@@ -82,23 +91,22 @@ namespace SNEngine.Audio
 
         private void OnFXVolumeChanged(float value)
         {
-            _audioSource.volume = value;
+            if (_audioSource) _audioSource.volume = value;
         }
 
         private void OnMusicVolumeChanged(float volume)
         {
-            _audioSource.volume = volume;
+            if (_audioSource) _audioSource.volume = volume;
         }
 
         private void OnFXMuteChanged(bool mute)
         {
-            _audioSource.mute = mute;
+            if (_audioSource) _audioSource.mute = mute;
         }
 
         private void OnMusicMuteChanged(bool mute)
         {
-            _audioSource.mute = mute;
+            if (_audioSource) _audioSource.mute = mute;
         }
     }
-
 }

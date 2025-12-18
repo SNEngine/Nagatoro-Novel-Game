@@ -36,19 +36,18 @@ namespace SNEngine.UserDataSystem
                     NovelGameDebug.Log($"[FileUserDataProvider] Created directory: {folderPath}");
                 }
 
+                if (!NovelFile.Exists(filePath))
+                {
+                    return new UserData();
+                }
+
                 string json = await NovelFile.ReadAllTextAsync(filePath);
                 UserData data = JsonConvert.DeserializeObject<UserData>(json);
-                NovelGameDebug.Log($"[FileUserDataProvider] Loaded successfully from: {filePath}");
                 return data;
-            }
-            catch (FileNotFoundException)
-            {
-                NovelGameDebug.LogWarning($"[FileUserDataProvider] File not found at: {filePath}. Returning new UserData.");
-                return new UserData();
             }
             catch (Exception ex)
             {
-                NovelGameDebug.LogError($"[FileUserDataProvider] Failed to load/deserialize data: {ex.Message}. Returning new UserData.");
+                NovelGameDebug.LogWarning($"[FileUserDataProvider] Load failed: {ex.Message}");
                 return new UserData();
             }
         }
@@ -73,12 +72,11 @@ namespace SNEngine.UserDataSystem
 #endif
 
                 string json = JsonConvert.SerializeObject(data, formatting);
-                NovelGameDebug.Log($"[FileUserDataProvider] Saving to: {filePath} (Format: {formatting})");
                 return NovelFile.WriteAllTextAsync(filePath, json);
             }
             catch (Exception ex)
             {
-                NovelGameDebug.LogError($"[FileUserDataProvider] Failed to save data: {ex.Message}");
+                NovelGameDebug.LogError($"[FileUserDataProvider] Save failed: {ex.Message}");
                 return UniTask.CompletedTask;
             }
         }

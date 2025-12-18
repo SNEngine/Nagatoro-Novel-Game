@@ -182,5 +182,18 @@ namespace CoreGame
 
             _videoPlayer.Play();
         }
+
+        private void OnDestroy()
+        {
+            if (_renderTexture != null)
+            {
+                if (_renderTexture.IsCreated())
+                {
+                    _renderTexture.Release();
+                }
+                Destroy(_renderTexture);
+                _renderTexture = null;
+            }
+        }
     }
 }

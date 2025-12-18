@@ -18,17 +18,35 @@ namespace SNEngine.Services
         public event Action<bool> OnMusicMuteChanged;
         public event Action<bool> OnFXMuteChanged;
 
-        public AudioData AudioData => NovelGame.Instance.GetService<UserDataService>().Data.AudioData;
+        public AudioData AudioData
+        {
+            get
+            {
+                var service = NovelGame.Instance.GetService<UserDataService>();
+                if (service == null || service.Data == null)
+                {
+                    return new AudioData();
+                }
+                return service.Data.AudioData;
+            }
+        }
 
         public override void Initialize()
         {
             AudioObject _prefab = Resources.Load<AudioObject>("Audio/AudioObject");
+
+            if (_prefab == null)
+            {
+                NovelGameDebug.LogError("AudioObject prefab not found in Resources/Audio/AudioObject");
+                return;
+            }
+
             Transform container = new GameObject($"{nameof(AudioObject)}_Container").transform;
             DontDestroyOnLoad(container.gameObject);
             _audioObjects = new PoolMono<AudioObject>(_prefab, container, _sizePool, true);
         }
 
-        public IAudioObject PlaySound (AudioClip clip)
+        public IAudioObject PlaySound(AudioClip clip)
         {
             var newSound = GetFreeAudioObject();
             newSound.CurrentSound = clip;
@@ -36,8 +54,12 @@ namespace SNEngine.Services
             return newSound;
         }
 
-        public void StopSound (IAudioObject audioObject) => audioObject?.Stop();
-        public void SetMuteSoundState (IAudioObject audioObject, bool mute)
+        public void StopSound(IAudioObject audioObject)
+        {
+            audioObject.Stop();
+        }
+
+        public void SetMute(IAudioObject audioObject, bool mute)
         {
             if (audioObject is null)
             {
@@ -47,7 +69,7 @@ namespace SNEngine.Services
             audioObject.Mute = mute;
         }
 
-        public IAudioObject GetFreeAudioObject ()
+        public IAudioObject GetFreeAudioObject()
         {
             var element = _audioObjects.GetFreeElement();
             element.gameObject.SetActive(true);
@@ -86,10 +108,6 @@ namespace SNEngine.Services
 
         public override void ResetState()
         {
-            foreach (var audio in _audioObjects.Objects)
-            {
-               audio.ResetState();
-            }
         }
     }
 }
