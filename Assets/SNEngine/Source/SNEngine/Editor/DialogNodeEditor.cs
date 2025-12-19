@@ -10,8 +10,7 @@ namespace SNEngine.Editor
     [CustomNodeEditor(typeof(DialogNode))]
     public class DialogNodeEditor : NodeEditor
     {
-        private GUIStyle _wrappedTextStyle;
-        private GUIStyle _textAreaBoxStyle;
+        private GUIStyle _textInputStyle;
 
         public override void OnBodyGUI()
         {
@@ -25,23 +24,22 @@ namespace SNEngine.Editor
             }
 
             GUILayout.Space(5);
-            DrawDynamicTextArea();
+            DrawDialogueField();
             GUILayout.Space(10);
             DrawCharacterSelector(node);
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawDynamicTextArea()
+        private void DrawDialogueField()
         {
-            if (_wrappedTextStyle == null)
+            if (_textInputStyle == null)
             {
-                _wrappedTextStyle = new GUIStyle(EditorStyles.textArea);
-                _wrappedTextStyle.wordWrap = true;
-                _wrappedTextStyle.fontSize = 12;
-                _wrappedTextStyle.padding = new RectOffset(8, 8, 8, 8);
-                _wrappedTextStyle.normal.background = null;
-                _wrappedTextStyle.focused.background = null;
+                _textInputStyle = new GUIStyle(EditorStyles.textArea);
+                _textInputStyle.wordWrap = true;
+                _textInputStyle.richText = false;
+                _textInputStyle.normal.background = null;
+                _textInputStyle.focused.background = null;
             }
 
             SerializedProperty textProp = serializedObject.FindProperty("_text");
@@ -49,36 +47,12 @@ namespace SNEngine.Editor
 
             EditorGUILayout.LabelField("Dialogue Text", EditorStyles.boldLabel);
 
-            float nodeWidth = 200;
-            if (NodeEditorWindow.current != null && NodeEditorWindow.current.nodeSizes.ContainsKey(target))
-            {
-                nodeWidth = NodeEditorWindow.current.nodeSizes[target].x;
-            }
-
-            float availableWidth = nodeWidth - 30;
-            float contentHeight = _wrappedTextStyle.CalcHeight(new GUIContent(textProp.stringValue), availableWidth);
-            float finalHeight = Mathf.Max(60f, contentHeight + 15f);
-
             GUILayout.BeginVertical(EditorStyles.helpBox);
-
-            Event e = Event.current;
-            if (e.isKey && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter))
-            {
-                if (GUI.GetNameOfFocusedControl() == "DialogueField")
-                {
-                    e.Use();
-                }
-            }
-
-            GUI.SetNextControlName("DialogueField");
-            string rawText = EditorGUILayout.TextArea(
+            textProp.stringValue = EditorGUILayout.TextArea(
                 textProp.stringValue,
-                _wrappedTextStyle,
-                GUILayout.Height(finalHeight)
+                _textInputStyle,
+                GUILayout.ExpandHeight(false)
             );
-
-            textProp.stringValue = rawText.Replace("\n", "").Replace("\r", "");
-
             GUILayout.EndVertical();
         }
 
@@ -86,7 +60,6 @@ namespace SNEngine.Editor
         {
             string charName = node.Character != null ? node.Character.name : "Select Character";
             GUIContent content = new GUIContent(charName);
-
             Color prevBg = GUI.backgroundColor;
             GUI.backgroundColor = node.Character != null ? new Color(0.4f, 0.75f, 0.45f) : new Color(0.75f, 0.4f, 0.4f);
 
@@ -94,12 +67,8 @@ namespace SNEngine.Editor
             {
                 CharacterSelectorWindow.Open((selected) => {
                     var so = new SerializedObject(target);
-                    var prop = so.FindProperty("_character");
-                    if (prop != null)
-                    {
-                        prop.objectReferenceValue = selected;
-                        so.ApplyModifiedProperties();
-                    }
+                    var p = so.FindProperty("_character");
+                    if (p != null) { p.objectReferenceValue = selected; so.ApplyModifiedProperties(); }
                 });
             }
             GUI.backgroundColor = prevBg;

@@ -9,12 +9,11 @@ namespace SNEngine.Editor
     [CustomNodeEditor(typeof(DialogOnScreenNode))]
     public class DialogOnScreenNodeEditor : NodeEditor
     {
-        private GUIStyle _wrappedTextStyle;
+        private GUIStyle _textInputStyle;
 
         public override void OnBodyGUI()
         {
             serializedObject.Update();
-
             DrawPort("_enter");
 
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
@@ -23,11 +22,10 @@ namespace SNEngine.Editor
                 NodeEditorGUILayout.PropertyField(serializedObject.FindProperty(tag.name));
             }
 
-            DrawDynamicTextArea();
+            DrawDialogueField();
 
             GUILayout.Space(10);
             DrawPort("_exit");
-
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -37,14 +35,15 @@ namespace SNEngine.Editor
             if (port != null) NodeEditorGUILayout.PortField(port);
         }
 
-        private void DrawDynamicTextArea()
+        private void DrawDialogueField()
         {
-            if (_wrappedTextStyle == null)
+            if (_textInputStyle == null)
             {
-                _wrappedTextStyle = new GUIStyle(EditorStyles.textArea);
-                _wrappedTextStyle.wordWrap = true;
-                _wrappedTextStyle.fontSize = 12;
-                _wrappedTextStyle.padding = new RectOffset(8, 8, 8, 8);
+                _textInputStyle = new GUIStyle(EditorStyles.textArea);
+                _textInputStyle.wordWrap = true;
+                _textInputStyle.richText = false;
+                _textInputStyle.normal.background = null;
+                _textInputStyle.focused.background = null;
             }
 
             SerializedProperty textProp = serializedObject.FindProperty("_text");
@@ -52,25 +51,11 @@ namespace SNEngine.Editor
 
             EditorGUILayout.LabelField("Text Content", EditorStyles.boldLabel);
 
-            float nodeWidth = 200;
-            if (NodeEditorWindow.current != null)
-            {
-                nodeWidth = NodeEditorWindow.current.nodeSizes.ContainsKey(target)
-                    ? NodeEditorWindow.current.nodeSizes[target].x
-                    : 200;
-            }
-
-            float availableWidth = nodeWidth - 30;
-            float height = _wrappedTextStyle.CalcHeight(new GUIContent(textProp.stringValue), availableWidth);
-
-            float extraPadding = 20f;
-            float finalHeight = Mathf.Max(60f, height + extraPadding);
-
             GUILayout.BeginVertical(EditorStyles.helpBox);
             textProp.stringValue = EditorGUILayout.TextArea(
                 textProp.stringValue,
-                _wrappedTextStyle,
-                GUILayout.Height(finalHeight)
+                _textInputStyle,
+                GUILayout.ExpandHeight(false)
             );
             GUILayout.EndVertical();
         }
