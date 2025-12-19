@@ -160,7 +160,7 @@ namespace SNEngine.Editor
                 GUIUtility.ExitGUI();
             }
             GUILayout.Space(4);
-            if (GUILayout.Button("Duplicate", GUILayout.Width(50), GUILayout.Height(22)))
+            if (GUILayout.Button("Duplicate", GUILayout.Width(67), GUILayout.Height(22)))
             {
                 Event.current.Use();
                 DialogueDuplicateWindow.Open(graph);
