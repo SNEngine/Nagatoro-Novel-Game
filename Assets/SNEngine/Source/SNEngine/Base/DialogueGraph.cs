@@ -24,7 +24,7 @@ namespace SNEngine.Graphs
 
         public override string GetWindowTitle()
         {
-            return $"Dialogue Graph | {name}";
+            return name;
         }
 
         public bool HasNextDialogueOnExit()
