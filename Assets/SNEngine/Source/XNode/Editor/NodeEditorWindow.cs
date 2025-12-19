@@ -262,7 +262,10 @@ namespace XNodeEditor
             }
 
             NodeEditorWindow w = CreateInstance<NodeEditorWindow>();
-            w.titleContent = new GUIContent(windowTitle);
+
+            GUIContent content = EditorGUIUtility.ObjectContent(graph, graph.GetType());
+            w.titleContent = new GUIContent(windowTitle, content.image);
+
             w.wantsMouseMove = true;
             w.Show();
 
