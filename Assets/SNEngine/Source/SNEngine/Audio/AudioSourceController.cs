@@ -15,17 +15,13 @@ namespace SNEngine.Audio
         [SerializeField, ReadOnly] private AudioSource _audioSource;
         [SerializeField] private AudioType _defaultAudioType;
 
+        private float _settingsVolume = 1f;
+        private float _multiplier = 1f;
+
         private void OnEnable()
         {
-            if (!_service)
-            {
-                _service = NovelGame.Instance.GetService<AudioService>();
-            }
-
-            if (_service == null)
-            {
-                return;
-            }
+            if (!_service) _service = NovelGame.Instance.GetService<AudioService>();
+            if (_service == null) return;
 
             if (_type is null)
             {
@@ -39,10 +35,7 @@ namespace SNEngine.Audio
                 }
             }
 
-            if (_service.AudioData == null)
-            {
-                return;
-            }
+            if (_service.AudioData == null) return;
 
             switch (_type.Value)
             {
@@ -58,9 +51,21 @@ namespace SNEngine.Audio
                     OnFXMuteChanged(_service.AudioData.MuteFX);
                     OnFXVolumeChanged(_service.AudioData.FXVolume);
                     break;
-                default:
-                    NovelGameDebug.LogError($"unkown type of audio type: {_type.Value}");
-                    break;
+            }
+        }
+
+        // ЭТОТ МЕТОД НУЖНО ДОБАВИТЬ
+        public void UpdateVolumeWithMultiplier(float multiplier)
+        {
+            _multiplier = multiplier;
+            ApplyFinalVolume();
+        }
+
+        private void ApplyFinalVolume()
+        {
+            if (_audioSource)
+            {
+                _audioSource.volume = _settingsVolume * _multiplier;
             }
         }
 
@@ -81,32 +86,24 @@ namespace SNEngine.Audio
             }
         }
 
-        private void OnValidate()
+        private void OnMusicVolumeChanged(float volume)
         {
-            if (!_audioSource)
-            {
-                _audioSource = GetComponent<AudioSource>();
-            }
+            _settingsVolume = volume;
+            ApplyFinalVolume();
         }
 
         private void OnFXVolumeChanged(float value)
         {
-            if (_audioSource) _audioSource.volume = value;
+            _settingsVolume = value;
+            ApplyFinalVolume();
         }
 
-        private void OnMusicVolumeChanged(float volume)
-        {
-            if (_audioSource) _audioSource.volume = volume;
-        }
+        private void OnFXMuteChanged(bool mute) => _audioSource.mute = mute;
+        private void OnMusicMuteChanged(bool mute) => _audioSource.mute = mute;
 
-        private void OnFXMuteChanged(bool mute)
+        private void OnValidate()
         {
-            if (_audioSource) _audioSource.mute = mute;
-        }
-
-        private void OnMusicMuteChanged(bool mute)
-        {
-            if (_audioSource) _audioSource.mute = mute;
+            if (!_audioSource) _audioSource = GetComponent<AudioSource>();
         }
     }
 }

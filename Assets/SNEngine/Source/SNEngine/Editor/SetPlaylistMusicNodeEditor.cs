@@ -10,9 +10,16 @@ namespace SNEngine.Audio
     [CustomNodeEditor(typeof(SetPlaylistMusicNode))]
     public class SetPlaylistMusicNodeEditor : NodeEditor
     {
+        private Texture2D _customAudioIcon;
+
         public override void OnBodyGUI()
         {
             serializedObject.Update();
+
+            if (_customAudioIcon == null)
+            {
+                _customAudioIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/SNEngine/Source/SNEngine/Editor/Sprites/audio_editor_icon.png");
+            }
 
             string[] excludes = { "m_Script", "graph", "position", "ports", "_input" };
 
@@ -49,6 +56,8 @@ namespace SNEngine.Audio
             EditorGUI.LabelField(new Rect(headerRect.x + 20, headerRect.y, headerRect.width - 20, headerRect.height),
                 "Playlist (" + inputProp.arraySize + ")", EditorStyles.boldLabel);
 
+            int indexToRemove = -1;
+
             if (inputProp.arraySize == 0)
             {
                 EditorGUILayout.HelpBox("Playlist is empty", MessageType.None);
@@ -58,29 +67,44 @@ namespace SNEngine.Audio
                 for (int i = 0; i < inputProp.arraySize; i++)
                 {
                     SerializedProperty element = inputProp.GetArrayElementAtIndex(i);
+                    AudioClip currentClip = element.objectReferenceValue as AudioClip;
+
                     EditorGUILayout.BeginHorizontal();
 
-                    Rect fieldRect = EditorGUILayout.GetControlRect(true);
+                    Rect fullRect = EditorGUILayout.GetControlRect(true, 22);
+                    Rect iconRect = new Rect(fullRect.x, fullRect.y + 2, 18, 18);
+                    Rect buttonRect = new Rect(fullRect.x + 22, fullRect.y, fullRect.width - 45, fullRect.height);
+                    Rect removeRect = new Rect(fullRect.xMax - 22, fullRect.y + 1, 20, 20);
 
-                    AudioClip currentClip = element.objectReferenceValue as AudioClip;
+                    if (_customAudioIcon != null)
+                    {
+                        GUI.DrawTexture(iconRect, _customAudioIcon, ScaleMode.ScaleToFit);
+                    }
+                    else
+                    {
+                        GUI.DrawTexture(iconRect, EditorGUIUtility.IconContent("AudioClip Icon").image, ScaleMode.ScaleToFit);
+                    }
+
                     string displayName = currentClip != null ? currentClip.name : "None (AudioClip)";
-
-                    if (GUI.Button(fieldRect, displayName, EditorStyles.objectField))
+                    if (GUI.Button(buttonRect, displayName, EditorStyles.objectField))
                     {
                         int index = i;
                         AudioClipSelectorWindow.Open((selectedClip) =>
                         {
                             element.serializedObject.Update();
-                            element.serializedObject.FindProperty("_input").GetArrayElementAtIndex(index).objectReferenceValue = selectedClip;
+                            var p = element.serializedObject.FindProperty("_input");
+                            p.GetArrayElementAtIndex(index).objectReferenceValue = selectedClip;
                             element.serializedObject.ApplyModifiedProperties();
                         });
                     }
 
-                    if (GUILayout.Button("x", GUILayout.Width(20)))
+                    if (GUI.Button(removeRect, "x", EditorStyles.miniButton))
                     {
-                        inputProp.DeleteArrayElementAtIndex(i);
+                        indexToRemove = i;
                     }
+
                     EditorGUILayout.EndHorizontal();
+                    GUILayout.Space(2);
                 }
             }
 
@@ -90,6 +114,12 @@ namespace SNEngine.Audio
             }
 
             GUILayout.EndVertical();
+
+            if (indexToRemove != -1)
+            {
+                inputProp.DeleteArrayElementAtIndex(indexToRemove);
+                serializedObject.ApplyModifiedProperties();
+            }
         }
     }
 }

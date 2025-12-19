@@ -13,17 +13,24 @@ namespace SNEngine.Audio.Music
     public class MusicPlayer : MonoBehaviour, IMusicPlayer
     {
         [SerializeField] private AudioSource _audioSource;
+        [SerializeField] private AudioSourceController _controller; // Добавили ссылку
         private CancellationTokenSource _fadeCts;
         private Queue<AudioClip> _currentQueue;
 
+        private float _internalVolume = 1f;
         public float Volume
         {
-            get => _audioSource.volume;
-            set => _audioSource.volume = Mathf.Clamp01(value);
+            get => _internalVolume;
+            set
+            {
+                _internalVolume = Mathf.Clamp01(value);
+                UpdateFinalVolume();
+            }
         }
 
         public bool IsPlaying => _audioSource.isPlaying;
         public AudioClip CurrentTrack => _audioSource.clip;
+
         public bool Mute
         {
             get => _audioSource.mute;
@@ -50,6 +57,19 @@ namespace SNEngine.Audio.Music
         private void Awake()
         {
             _currentQueue = new Queue<AudioClip>();
+            if (!_controller) _controller = GetComponent<AudioSourceController>();
+        }
+
+        private void UpdateFinalVolume()
+        {
+            if (_controller != null)
+            {
+                _controller.UpdateVolumeWithMultiplier(_internalVolume);
+            }
+            else
+            {
+                _audioSource.volume = _internalVolume;
+            }
         }
 
         public void SetPlaylist(IEnumerable<AudioClip> playlist)
@@ -65,23 +85,14 @@ namespace SNEngine.Audio.Music
             PlayNextTrackAsync().Forget();
         }
 
-        public void Pause()
-        {
-            if (_audioSource.isPlaying)
-                _audioSource.Pause();
-        }
-
-        public void UnPause()
-        {
-            if (!_audioSource.isPlaying)
-                _audioSource.UnPause();
-        }
+        public void Pause() => _audioSource.Pause();
+        public void UnPause() => _audioSource.UnPause();
 
         public async UniTask StopAsync(float fadeDuration = 1f)
         {
             CancelFade();
             _fadeCts = new CancellationTokenSource();
-            await FadeRoutineAsync(_audioSource.volume, 0f, fadeDuration, _fadeCts.Token, stopAfterFade: true);
+            await FadeRoutineAsync(_internalVolume, 0f, fadeDuration, _fadeCts.Token, stopAfterFade: true);
         }
 
         private async UniTaskVoid PlayNextTrackAsync()
@@ -94,6 +105,12 @@ namespace SNEngine.Audio.Music
 
             var clip = _currentQueue.Dequeue();
             _audioSource.clip = clip;
+
+            if (_internalVolume <= 0.001f)
+            {
+                Volume = 1f;
+            }
+
             _audioSource.Play();
 
             try
@@ -111,65 +128,63 @@ namespace SNEngine.Audio.Music
                     PlayNextTrackAsync().Forget();
                 }
             }
-            catch (OperationCanceledException)
-            {
-            }
+            catch (OperationCanceledException) { }
         }
 
         public async UniTask FadeVolumeAsync(float targetVolume, float duration)
         {
             CancelFade();
             _fadeCts = new CancellationTokenSource();
-            await FadeRoutineAsync(_audioSource.volume, targetVolume, duration, _fadeCts.Token);
+            await FadeRoutineAsync(_internalVolume, targetVolume, duration, _fadeCts.Token);
         }
 
         private async UniTask FadeRoutineAsync(float from, float to, float duration, CancellationToken token, bool stopAfterFade = false)
         {
+            if (duration <= 0)
+            {
+                Volume = to;
+                if (stopAfterFade) _audioSource.Stop();
+                return;
+            }
+
             float elapsed = 0f;
-            if (!_audioSource.isPlaying && to > 0f)
-                _audioSource.Play();
+            if (!_audioSource.isPlaying && to > 0f) _audioSource.Play();
 
             try
             {
                 while (elapsed < duration)
                 {
                     elapsed += Time.deltaTime;
-                    _audioSource.volume = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration));
+                    Volume = Mathf.Lerp(from, to, elapsed / duration);
                     await UniTask.Yield(PlayerLoopTiming.Update, token);
                 }
 
-                _audioSource.volume = to;
-
-                if (stopAfterFade)
-                    _audioSource.Stop();
+                Volume = to;
+                if (stopAfterFade) _audioSource.Stop();
             }
-            catch (OperationCanceledException)
-            {
-            }
+            catch (OperationCanceledException) { }
         }
 
         private void CancelFade()
         {
-            if (_fadeCts != null && !_fadeCts.IsCancellationRequested)
+            if (_fadeCts != null)
             {
                 _fadeCts.Cancel();
                 _fadeCts.Dispose();
+                _fadeCts = null;
             }
         }
 
-        private void OnDestroy()
-        {
-            CancelFade();
-        }
+        private void OnDestroy() => CancelFade();
 
         public void ResetState()
         {
-            Volume = 1;
+            CancelFade();
+            _audioSource.Stop();
+            Volume = 1f;
             Mute = false;
             Loop = false;
-            StopAsync(0f).Forget();
-            SetPlaylist(Enumerable.Empty<AudioClip>());
-
+            _currentQueue.Clear();
         }
     }
 }
