@@ -21,5 +21,10 @@ namespace SNEngine.Graphs
                 varitable.ResetValue();
             }
         }
+
+        public override string GetWindowTitle()
+        {
+            return "Global Varitables";
+        }
     }
 }
