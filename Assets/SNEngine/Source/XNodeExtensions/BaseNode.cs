@@ -1,10 +1,7 @@
-﻿using SiphoinUnityHelpers.Attributes;
-using SiphoinUnityHelpers.XNodeExtensions.Attributes;
-using SiphoinUnityHelpers.XNodeExtensions.Extensions;
+﻿using SiphoinUnityHelpers.XNodeExtensions.Extensions;
 using SNEngine.AsyncNodes;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using XNode;
 #if UNITY_EDITOR
@@ -17,7 +14,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
     [NodeWidth(230)]
     public abstract class BaseNode : Node
     {
-        [SerializeField, NodeGuid]
+        [SerializeField, HideInInspector]
         private string _nodeGuid;
 
         public string GUID

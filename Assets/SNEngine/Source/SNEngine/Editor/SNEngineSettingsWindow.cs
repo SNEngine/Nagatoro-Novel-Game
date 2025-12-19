@@ -65,8 +65,6 @@ namespace SNEngine.Editor
             });
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-
-            DrawNodeSettings();
             DrawRuntimeSettings();
 
             EditorGUILayout.EndScrollView();
@@ -76,28 +74,6 @@ namespace SNEngine.Editor
             EditorGUI.LabelField(footerRect, "Version: 1.0", EditorStyles.centeredGreyMiniLabel);
         }
 
-        private void DrawNodeSettings()
-        {
-            EditorGUILayout.Space(5);
-
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-            EditorGUILayout.LabelField("XNode/Graph Settings", EditorStyles.boldLabel);
-            EditorGUILayout.Space(5);
-
-            EditorGUI.BeginChangeCheck();
-
-            bool showGuid = SNEngineEditorSettings.ShowNodeGuidInInspector;
-            showGuid = EditorGUILayout.Toggle(new GUIContent("Show Node GUID", "Display the unique identifier (GUID) of the node in the Inspector."), showGuid);
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                SNEngineEditorSettings.ShowNodeGuidInInspector = showGuid;
-            }
-
-            EditorGUILayout.Space(5);
-            EditorGUILayout.EndVertical();
-        }
 
         private void DrawRuntimeSettings()
         {
