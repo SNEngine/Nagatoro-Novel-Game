@@ -15,6 +15,12 @@ namespace SNEngine.Editor
         private string _searchQuery = "";
         private Vector2 _scrollPos;
         private List<string> _dialoguePaths = new List<string>();
+        private List<string> _filteredDialoguePaths = new List<string>();
+
+        // Virtualization variables
+        private const float ROW_HEIGHT = 48f;
+        private int _startIndex = 0;
+        private int _endIndex = 0;
 
         public static void Open(Action<DialogueGraph> onSelect)
         {
@@ -31,6 +37,20 @@ namespace SNEngine.Editor
             _dialoguePaths = guids.Select(AssetDatabase.GUIDToAssetPath)
                 .OrderBy(Path.GetFileName)
                 .ToList();
+
+            // Apply current filter
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            _filteredDialoguePaths = _dialoguePaths
+                .Where(p => string.IsNullOrEmpty(_searchQuery) || Path.GetFileName(p).IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+
+            // Reset indices for virtualization
+            _startIndex = 0;
+            _endIndex = Mathf.Min(10, _filteredDialoguePaths.Count); // Start with first 10 items
         }
 
         private void OnGUI()
@@ -53,10 +73,16 @@ namespace SNEngine.Editor
         private void DrawSearchBar()
         {
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            _searchQuery = EditorGUILayout.TextField(new GUIContent("", EditorGUIUtility.FindTexture("Search Icon")), _searchQuery, GUILayout.Height(20));
+            string newSearchQuery = EditorGUILayout.TextField(new GUIContent("", EditorGUIUtility.FindTexture("Search Icon")), _searchQuery, GUILayout.Height(20));
+            if (newSearchQuery != _searchQuery)
+            {
+                _searchQuery = newSearchQuery;
+                ApplyFilter();
+            }
             if (GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(20)))
             {
                 _searchQuery = "";
+                ApplyFilter();
             }
             if (GUILayout.Button(EditorGUIUtility.IconContent("Refresh"), GUILayout.Width(25), GUILayout.Height(20)))
             {
@@ -67,69 +93,82 @@ namespace SNEngine.Editor
 
         private void DrawDialogueList()
         {
-            var filteredPaths = _dialoguePaths
-                .Where(p => string.IsNullOrEmpty(_searchQuery) || Path.GetFileName(p).IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToList();
-
-            _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
-
-            foreach (var path in filteredPaths)
+            if (_filteredDialoguePaths.Count == 0)
             {
+                EditorGUILayout.HelpBox("No dialogues found matching search.", MessageType.Info);
+                return;
+            }
+
+            float viewHeight = position.height - 100;
+            Rect scrollPositionRect = GUILayoutUtility.GetRect(0, viewHeight, GUILayout.ExpandWidth(true));
+            float contentWidth = scrollPositionRect.width - 20;
+            Rect viewRect = new Rect(0, 0, contentWidth, _filteredDialoguePaths.Count * ROW_HEIGHT);
+
+            _scrollPos = GUI.BeginScrollView(scrollPositionRect, _scrollPos, viewRect);
+
+            int buffer = 2;
+            _startIndex = Mathf.Max(0, Mathf.FloorToInt(_scrollPos.y / ROW_HEIGHT) - buffer);
+            _endIndex = Mathf.Min(_filteredDialoguePaths.Count, Mathf.CeilToInt((_scrollPos.y + viewHeight) / ROW_HEIGHT) + buffer);
+
+            GUIStyle pathStyle = new GUIStyle(EditorStyles.miniLabel);
+            pathStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+            pathStyle.clipping = TextClipping.Clip;
+            pathStyle.wordWrap = false;
+
+            for (int i = _startIndex; i < _endIndex; i++)
+            {
+                string path = _filteredDialoguePaths[i];
                 string fileName = Path.GetFileNameWithoutExtension(path);
                 string directoryPath = Path.GetDirectoryName(path);
                 string relativePath = directoryPath.Replace("Assets/SNEngine/Source/SNEngine/Resources/", "")
                                                    .Replace("Assets/", "");
 
-                float rowHeight = 48f;
-                Rect rect = EditorGUILayout.BeginHorizontal(GUI.skin.button, GUILayout.Height(rowHeight));
+                Rect rowRect = new Rect(0, i * ROW_HEIGHT, contentWidth, ROW_HEIGHT);
 
-                if (rect.Contains(Event.current.mousePosition))
+                // Draw alternating row background
+                if (i % 2 == 0)
                 {
-                    EditorGUI.DrawRect(rect, new Color(1, 1, 1, 0.05f));
+                    EditorGUI.DrawRect(rowRect, new Color(0.3f, 0.3f, 0.3f, 0.05f));
                 }
 
-                GUILayout.Space(8);
+                if (rowRect.Contains(Event.current.mousePosition))
+                {
+                    EditorGUI.DrawRect(rowRect, new Color(1f, 1f, 1f, 0.05f));
+                    if (Event.current.type == EventType.MouseMove) Repaint();
+                }
 
-                EditorGUILayout.BeginVertical(GUILayout.Width(32), GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
+                GUI.BeginGroup(rowRect);
+
+                Rect iconRect = new Rect(10, (ROW_HEIGHT - 28) / 2, 28, 28);
 
                 Texture icon = AssetDatabase.GetCachedIcon(path);
-                Rect iconRect = GUILayoutUtility.GetRect(26, 26);
                 if (icon != null) GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
 
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                // Calculate available text width
+                float textWidth = rowRect.width - 140;
 
-                GUILayout.Space(4);
+                Rect labelRect = new Rect(45, 6, textWidth, 20);
+                GUI.Label(labelRect, fileName, EditorStyles.boldLabel);
 
-                EditorGUILayout.BeginVertical(GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField(fileName, EditorStyles.boldLabel);
+                // Path with category
+                Rect categoryRect = new Rect(45, 24, textWidth, 18);
+                GUI.Label(categoryRect, relativePath, pathStyle);
 
-                GUIStyle pathStyle = new GUIStyle(EditorStyles.miniLabel);
-                pathStyle.normal.textColor = new Color(0.7f, 0.7f, 0.7f);
-                EditorGUILayout.LabelField(relativePath, pathStyle);
-
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
-
-                EditorGUILayout.BeginVertical(GUILayout.Width(75), GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Select", GUILayout.Height(26)))
+                Rect buttonRect = new Rect(rowRect.width - 85, (ROW_HEIGHT - 26) / 2, 75, 26);
+                if (GUI.Button(buttonRect, "Select"))
                 {
                     DialogueGraph dialogue = AssetDatabase.LoadAssetAtPath<DialogueGraph>(path);
                     _onSelect?.Invoke(dialogue);
                     Close();
                 }
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
 
-                GUILayout.Space(4);
-                EditorGUILayout.EndHorizontal();
-                GUILayout.Space(2);
+                GUI.EndGroup();
+
+                Rect lineRect = new Rect(5, (i + 1) * ROW_HEIGHT - 1, rowRect.width - 10, 1);
+                EditorGUI.DrawRect(lineRect, new Color(0, 0, 0, 0.1f));
             }
 
-            EditorGUILayout.EndScrollView();
+            GUI.EndScrollView();
         }
     }
 }

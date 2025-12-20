@@ -14,6 +14,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private Character _character;
         private string _searchQuery = "";
         private Vector2 _scrollPos;
+        private List<Emotion> _filteredEmotions = new List<Emotion>();
+
+        // Virtualization variables
+        private const float ROW_HEIGHT = 64f;
+        private int _startIndex = 0;
+        private int _endIndex = 0;
 
         public static void Open(Character character, Action<string> onSelect)
         {
@@ -21,7 +27,21 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             window._character = character;
             window._onSelect = onSelect;
             window.minSize = new Vector2(300, 450);
+            window.ApplyFilter(); // Initialize filter
             window.ShowAuxWindow();
+        }
+
+        private void ApplyFilter()
+        {
+            if (_character == null) return;
+
+            _filteredEmotions = _character.Emotions
+                .Where(e => string.IsNullOrEmpty(_searchQuery) || e.Name.IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+
+            // Reset indices for virtualization
+            _startIndex = 0;
+            _endIndex = Mathf.Min(10, _filteredEmotions.Count); // Start with first 10 items
         }
 
         private void OnGUI()
@@ -49,42 +69,65 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private void DrawSearchBar()
         {
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            _searchQuery = EditorGUILayout.TextField(new GUIContent("", EditorGUIUtility.FindTexture("Search Icon")), _searchQuery, GUILayout.Height(20));
+            string newSearchQuery = EditorGUILayout.TextField(new GUIContent("", EditorGUIUtility.FindTexture("Search Icon")), _searchQuery, GUILayout.Height(20));
+            if (newSearchQuery != _searchQuery)
+            {
+                _searchQuery = newSearchQuery;
+                ApplyFilter();
+            }
             if (GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(20)))
             {
                 _searchQuery = "";
+                ApplyFilter();
             }
             EditorGUILayout.EndHorizontal();
         }
 
         private void DrawEmotionList()
         {
-            var emotions = _character.Emotions
-                .Where(e => string.IsNullOrEmpty(_searchQuery) || e.Name.IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToList();
-
-            if (emotions.Count == 0)
+            if (_filteredEmotions.Count == 0)
             {
                 EditorGUILayout.HelpBox("No emotions found.", MessageType.Info);
                 return;
             }
 
-            _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
+            float viewHeight = position.height - 100;
+            Rect scrollPositionRect = GUILayoutUtility.GetRect(0, viewHeight, GUILayout.ExpandWidth(true));
+            float contentWidth = scrollPositionRect.width - 20;
+            Rect viewRect = new Rect(0, 0, contentWidth, _filteredEmotions.Count * ROW_HEIGHT);
 
-            foreach (var emotion in emotions)
+            _scrollPos = GUI.BeginScrollView(scrollPositionRect, _scrollPos, viewRect);
+
+            int buffer = 2;
+            _startIndex = Mathf.Max(0, Mathf.FloorToInt(_scrollPos.y / ROW_HEIGHT) - buffer);
+            _endIndex = Mathf.Min(_filteredEmotions.Count, Mathf.CeilToInt((_scrollPos.y + viewHeight) / ROW_HEIGHT) + buffer);
+
+            GUIStyle pathStyle = new GUIStyle(EditorStyles.miniLabel);
+            pathStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+            pathStyle.clipping = TextClipping.Clip;
+            pathStyle.wordWrap = false;
+
+            for (int i = _startIndex; i < _endIndex; i++)
             {
-                float rowHeight = 64f;
-                Rect rect = EditorGUILayout.BeginHorizontal(GUI.skin.button, GUILayout.Height(rowHeight));
+                var emotion = _filteredEmotions[i];
 
-                if (rect.Contains(Event.current.mousePosition))
+                Rect rowRect = new Rect(0, i * ROW_HEIGHT, contentWidth, ROW_HEIGHT);
+
+                // Draw alternating row background
+                if (i % 2 == 0)
                 {
-                    EditorGUI.DrawRect(rect, new Color(1, 1, 1, 0.05f));
+                    EditorGUI.DrawRect(rowRect, new Color(0.3f, 0.3f, 0.3f, 0.05f));
                 }
 
-                GUILayout.Space(5);
+                if (rowRect.Contains(Event.current.mousePosition))
+                {
+                    EditorGUI.DrawRect(rowRect, new Color(1f, 1f, 1f, 0.05f));
+                    if (Event.current.type == EventType.MouseMove) Repaint();
+                }
 
-                EditorGUILayout.BeginVertical(GUILayout.Width(56), GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
+                GUI.BeginGroup(rowRect);
+
+                Rect iconRect = new Rect(5, (ROW_HEIGHT - 52) / 2, 52, 52);
 
                 Texture preview = null;
                 if (emotion.Sprite != null)
@@ -98,37 +141,32 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                     preview = iconContent != null ? iconContent.image : null;
                 }
 
-                Rect iconRect = GUILayoutUtility.GetRect(52, 52);
-                if (preview != null)
-                {
-                    GUI.DrawTexture(iconRect, preview, ScaleMode.ScaleToFit);
-                }
+                if (preview != null) GUI.DrawTexture(iconRect, preview, ScaleMode.ScaleToFit);
 
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                // Calculate available text width
+                float textWidth = rowRect.width - 130;
 
-                EditorGUILayout.BeginVertical(GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField(emotion.Name, EditorStyles.boldLabel);
-                EditorGUILayout.LabelField("Character Emotion", EditorStyles.miniLabel);
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                Rect labelRect = new Rect(65, 8, textWidth, 20);
+                GUI.Label(labelRect, emotion.Name, EditorStyles.boldLabel);
 
-                EditorGUILayout.BeginVertical(GUILayout.Width(65), GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Select", GUILayout.Height(28)))
+                // Path with category
+                Rect categoryRect = new Rect(65, 26, textWidth, 18);
+                GUI.Label(categoryRect, "Character Emotion", pathStyle);
+
+                Rect buttonRect = new Rect(rowRect.width - 70, (ROW_HEIGHT - 28) / 2, 65, 28);
+                if (GUI.Button(buttonRect, "Select"))
                 {
                     _onSelect?.Invoke(emotion.Name);
                     Close();
                 }
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
 
-                EditorGUILayout.EndHorizontal();
-                GUILayout.Space(2);
+                GUI.EndGroup();
+
+                Rect lineRect = new Rect(5, (i + 1) * ROW_HEIGHT - 1, rowRect.width - 10, 1);
+                EditorGUI.DrawRect(lineRect, new Color(0, 0, 0, 0.1f));
             }
 
-            EditorGUILayout.EndScrollView();
+            GUI.EndScrollView();
         }
     }
 }

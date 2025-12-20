@@ -14,6 +14,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private string _searchQuery = "";
         private Vector2 _scrollPos;
         private List<Character> _characters = new List<Character>();
+        private List<Character> _filteredCharacters = new List<Character>();
+
+        // Virtualization variables
+        private const float ROW_HEIGHT = 48f;
+        private int _startIndex = 0;
+        private int _endIndex = 0;
 
         public static void Open(Action<Character> onSelect)
         {
@@ -27,6 +33,20 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private void RefreshCache()
         {
             _characters = Resources.LoadAll<Character>("").OrderBy(c => c.name).ToList();
+
+            // Apply current filter
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            _filteredCharacters = _characters
+                .Where(c => string.IsNullOrEmpty(_searchQuery) || c.name.IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+
+            // Reset indices for virtualization
+            _startIndex = 0;
+            _endIndex = Mathf.Min(10, _filteredCharacters.Count); // Start with first 10 items
         }
 
         private void OnGUI()
@@ -49,42 +69,65 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private void DrawSearchBar()
         {
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            _searchQuery = EditorGUILayout.TextField(new GUIContent("", EditorGUIUtility.FindTexture("Search Icon")), _searchQuery, GUILayout.Height(20));
+            string newSearchQuery = EditorGUILayout.TextField(new GUIContent("", EditorGUIUtility.FindTexture("Search Icon")), _searchQuery, GUILayout.Height(20));
+            if (newSearchQuery != _searchQuery)
+            {
+                _searchQuery = newSearchQuery;
+                ApplyFilter();
+            }
             if (GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(20)))
             {
                 _searchQuery = "";
+                ApplyFilter();
             }
             EditorGUILayout.EndHorizontal();
         }
 
         private void DrawCharacterList()
         {
-            var filtered = _characters
-                .Where(c => string.IsNullOrEmpty(_searchQuery) || c.name.IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToList();
-
-            if (filtered.Count == 0)
+            if (_filteredCharacters.Count == 0)
             {
                 EditorGUILayout.HelpBox("No characters found in Resources.", MessageType.Info);
                 return;
             }
 
-            _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
+            float viewHeight = position.height - 100;
+            Rect scrollPositionRect = GUILayoutUtility.GetRect(0, viewHeight, GUILayout.ExpandWidth(true));
+            float contentWidth = scrollPositionRect.width - 20;
+            Rect viewRect = new Rect(0, 0, contentWidth, _filteredCharacters.Count * ROW_HEIGHT);
 
-            foreach (var character in filtered)
+            _scrollPos = GUI.BeginScrollView(scrollPositionRect, _scrollPos, viewRect);
+
+            int buffer = 2;
+            _startIndex = Mathf.Max(0, Mathf.FloorToInt(_scrollPos.y / ROW_HEIGHT) - buffer);
+            _endIndex = Mathf.Min(_filteredCharacters.Count, Mathf.CeilToInt((_scrollPos.y + viewHeight) / ROW_HEIGHT) + buffer);
+
+            GUIStyle pathStyle = new GUIStyle(EditorStyles.miniLabel);
+            pathStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+            pathStyle.clipping = TextClipping.Clip;
+            pathStyle.wordWrap = false;
+
+            for (int i = _startIndex; i < _endIndex; i++)
             {
-                float rowHeight = 48f;
-                Rect rect = EditorGUILayout.BeginHorizontal(GUI.skin.button, GUILayout.Height(rowHeight));
+                Character character = _filteredCharacters[i];
 
-                if (rect.Contains(Event.current.mousePosition))
+                Rect rowRect = new Rect(0, i * ROW_HEIGHT, contentWidth, ROW_HEIGHT);
+
+                // Draw alternating row background
+                if (i % 2 == 0)
                 {
-                    EditorGUI.DrawRect(rect, new Color(1, 1, 1, 0.05f));
+                    EditorGUI.DrawRect(rowRect, new Color(0.3f, 0.3f, 0.3f, 0.05f));
                 }
 
-                GUILayout.Space(8);
+                if (rowRect.Contains(Event.current.mousePosition))
+                {
+                    EditorGUI.DrawRect(rowRect, new Color(1f, 1f, 1f, 0.05f));
+                    if (Event.current.type == EventType.MouseMove) Repaint();
+                }
 
-                EditorGUILayout.BeginVertical(GUILayout.Width(32), GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
+                GUI.BeginGroup(rowRect);
+
+                Rect iconRect = new Rect(10, (ROW_HEIGHT - 28) / 2, 28, 28);
 
                 Texture icon = AssetPreview.GetAssetPreview(character);
                 if (icon == null)
@@ -92,40 +135,32 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                     icon = EditorGUIUtility.ObjectContent(character, typeof(Character)).image;
                 }
 
-                Rect iconRect = GUILayoutUtility.GetRect(26, 26);
-                if (icon != null)
-                {
-                    GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
-                }
+                if (icon != null) GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
 
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                // Calculate available text width
+                float textWidth = rowRect.width - 140;
 
-                GUILayout.Space(4);
+                Rect labelRect = new Rect(45, 6, textWidth, 20);
+                GUI.Label(labelRect, character.name, EditorStyles.boldLabel);
 
-                EditorGUILayout.BeginVertical(GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.LabelField(character.name, EditorStyles.boldLabel);
-                EditorGUILayout.LabelField("Character Asset", EditorStyles.miniLabel);
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                // Path with category
+                Rect categoryRect = new Rect(45, 24, textWidth, 18);
+                GUI.Label(categoryRect, "Character Asset", pathStyle);
 
-                EditorGUILayout.BeginVertical(GUILayout.Width(75), GUILayout.Height(rowHeight));
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Select", GUILayout.Height(26)))
+                Rect buttonRect = new Rect(rowRect.width - 85, (ROW_HEIGHT - 26) / 2, 75, 26);
+                if (GUI.Button(buttonRect, "Select"))
                 {
                     _onSelect?.Invoke(character);
                     Close();
                 }
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
 
-                GUILayout.Space(4);
-                EditorGUILayout.EndHorizontal();
-                GUILayout.Space(2);
+                GUI.EndGroup();
+
+                Rect lineRect = new Rect(5, (i + 1) * ROW_HEIGHT - 1, rowRect.width - 10, 1);
+                EditorGUI.DrawRect(lineRect, new Color(0, 0, 0, 0.1f));
             }
 
-            EditorGUILayout.EndScrollView();
+            GUI.EndScrollView();
         }
     }
 }
