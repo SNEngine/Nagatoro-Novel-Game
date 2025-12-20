@@ -25,7 +25,7 @@ namespace SNEngine.InputWindowSystem
             _icon.sprite = icon;
             _icon.SetAdaptiveSize();
 
-            if (!_title.NotCanTranslite)
+            if (_title.NotCanTranslite)
             {
                 _title.GetComponent<TextMeshProUGUI>().text = defaultTitle;
             }

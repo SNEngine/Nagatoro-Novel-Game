@@ -253,6 +253,17 @@ namespace SNEngine.SaveSystem
             await Save(saveName, saveData);
         }
 
+        public async UniTask<bool> DeleteSave(string saveName)
+        {
+            if (_provider == null)
+            {
+                NovelGameDebug.LogError("[SaveLoadService] Provider is not initialized.");
+                return false;
+            }
+
+            return await _provider.DeleteSaveAsync(saveName);
+        }
+
 #if UNITY_EDITOR
         private void RestoreOriginalVaritableValues()
         {

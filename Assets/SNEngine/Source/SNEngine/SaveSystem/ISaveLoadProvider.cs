@@ -11,5 +11,6 @@ namespace SNEngine.SaveSystem
         UniTask<PreloadSave> LoadPreloadSaveAsync(string saveName);
         UniTask<SaveData> LoadSaveAsync(string saveName);
         UniTask<IEnumerable<string>> GetAllAvailableSavesAsync();
+        UniTask<bool> DeleteSaveAsync(string saveName);
     }
 }

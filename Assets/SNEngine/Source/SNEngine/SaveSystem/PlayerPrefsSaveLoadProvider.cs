@@ -152,5 +152,30 @@ namespace SNEngine.SaveSystem
                 return UniTask.FromResult<Texture2D>(null);
             }
         }
+
+        public async UniTask<bool> DeleteSaveAsync(string saveName)
+        {
+            try
+            {
+                PlayerPrefs.DeleteKey(string.Format(SAVE_KEY_FORMAT, saveName));
+                PlayerPrefs.DeleteKey(string.Format(PREVIEW_KEY_FORMAT, saveName));
+
+                if (_availableSaves.Contains(saveName))
+                {
+                    _availableSaves.Remove(saveName);
+                    string listJson = JsonConvert.SerializeObject(_availableSaves);
+                    PlayerPrefs.SetString(LIST_KEY, listJson);
+                }
+
+                PlayerPrefs.Save();
+                NovelGameDebug.Log($"[PlayerPrefsSaveLoadProvider] Deleted save: {saveName}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                NovelGameDebug.LogError($"[PlayerPrefsSaveLoadProvider] Failed to delete save '{saveName}': {ex.Message}");
+                return false;
+            }
+        }
     }
 }

@@ -172,5 +172,30 @@ namespace SNEngine.SaveSystem
         {
             return Path.Combine(GetSaveFolderPath(saveName), PREVIEW_FILE_NAME);
         }
+
+        public async UniTask<bool> DeleteSaveAsync(string saveName)
+        {
+            string saveFolderPath = GetSaveFolderPath(saveName);
+
+            try
+            {
+                if (NovelDirectory.Exists(saveFolderPath))
+                {
+                    NovelDirectory.Delete(saveFolderPath, true);
+                    NovelGameDebug.Log($"[FileSaveLoadProvider] Deleted save: {saveName} at {saveFolderPath}");
+                    return true;
+                }
+                else
+                {
+                    NovelGameDebug.LogWarning($"[FileSaveLoadProvider] Save folder not found for deletion: {saveName}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                NovelGameDebug.LogError($"[FileSaveLoadProvider] Failed to delete save '{saveName}': {ex.Message}");
+                return false;
+            }
+        }
     }
 }

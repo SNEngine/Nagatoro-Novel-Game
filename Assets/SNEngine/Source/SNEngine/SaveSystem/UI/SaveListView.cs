@@ -119,5 +119,40 @@ namespace SNEngine.SaveSystem.UI
         {
             gameObject.SetActive(true);
         }
+
+        public async void RefreshList()
+        {
+            // Clear existing saves
+            foreach (var save in _cacheSaves)
+                save.Dispose();
+            _cacheSaves.Clear();
+
+            for (int i = 0; i < _containerSaves.childCount; i++)
+                _containerSaves.GetChild(i).gameObject.SetActive(false);
+
+            // Load new saves
+            var saveLoadService = NovelGame.Instance.GetService<SaveLoadService>();
+            var savesDirectories = await saveLoadService.GetAllAvailableSaves();
+            foreach (var saveName in savesDirectories)
+            {
+                try
+                {
+                    var save = await saveLoadService.LoadPreloadSave(saveName);
+                    var view = _pool.GetFreeElement();
+                    view.gameObject.SetActive(true);
+                    view.SetData(save);
+
+                    view.OnSelect -= OnSaveSelected;
+                    view.OnSelect += OnSaveSelected;
+
+                    _cacheSaves.Add(save);
+                }
+                catch (Exception ex)
+                {
+                    NovelGameDebug.LogError($"Error getting save {saveName}: {ex.Message}");
+                    continue;
+                }
+            }
+        }
     }
 }

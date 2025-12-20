@@ -37,5 +37,10 @@ namespace SNEngine.SaveSystem
         {
             _view.Hide();
         }
+
+        public async void RefreshList()
+        {
+            _view.RefreshList();
+        }
     }
 }
