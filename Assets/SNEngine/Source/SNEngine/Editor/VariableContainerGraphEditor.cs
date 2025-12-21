@@ -11,7 +11,7 @@ using SiphoinUnityHelpers.XNodeExtensions;
 namespace SNEngine.Editor
 {
     [CustomNodeGraphEditor(typeof(VariableContainerGraph))]
-    public class VaritableContainerGraphEditor : FilteredNodeGraphEditor
+    public class VariableContainerGraphEditor : FilteredNodeGraphEditor
     {
         private static readonly Dictionary<Type, bool> _typeCache = new Dictionary<Type, bool>();
 

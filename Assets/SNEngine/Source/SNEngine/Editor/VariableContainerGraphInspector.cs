@@ -8,7 +8,7 @@ using XNodeEditor;
 namespace SNEngine.Editor
 {
     [CustomEditor(typeof(VariableContainerGraph), true)]
-    public class VaritableContainerGraphInspector : UnityEditor.Editor
+    public class VariableContainerGraphInspector : UnityEditor.Editor
     {
         private VariableContainerGraph _graph;
 

@@ -1,5 +1,38 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9127443707840318147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5acde752b930912419750714915433bd, type: 3}
+  m_Name: <color=#FFFFFF>myString (String)</color>
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 56.424393, y: 687.4998}
+  ports:
+    keys:
+    - _value
+    values:
+    - _fieldName: _value
+      _node: {fileID: -9127443707840318147}
+      _typeQualifiedName: System.String, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: 9204fd48d53f478
+  _name: myString
+  _color:
+    serializedVersion: 2
+    rgba: 4294967295
+  _value: Hello World
 --- !u!114 &-6255575277214355243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21,46 +54,6 @@ MonoBehaviour:
   _height: 235
   _color: {r: 0.94509804, g: 1, b: 0, a: 0.14901961}
   _summary: Start excecutes in the start dialog
---- !u!114 &-1887720859668630739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5801266f9a89f7048a01c3a2a1fbe030, type: 3}
-  m_Name: To YAML
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: 5, y: 567.5}
-  ports:
-    keys:
-    - _targetObject
-    - _yaml
-    values:
-    - _fieldName: _targetObject
-      _node: {fileID: -1887720859668630739}
-      _typeQualifiedName: UnityEngine.Object, UnityEngine.CoreModule, Version=0.0.0.0,
-        Culture=neutral, PublicKeyToken=null
-      connections: []
-      _direction: 0
-      _connectionType: 1
-      _typeConstraint: 0
-      _dynamic: 0
-    - _fieldName: _yaml
-      _node: {fileID: -1887720859668630739}
-      _typeQualifiedName: System.String, mscorlib, Version=4.0.0.0, Culture=neutral,
-        PublicKeyToken=b77a5c561934e089
-      connections: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  _nodeGuid: 87e204679d74444
-  _targetObject: {fileID: 0}
-  _yaml: 
 --- !u!114 &-1012642115470749886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,7 +133,7 @@ MonoBehaviour:
   - {fileID: -6255575277214355243}
   - {fileID: 6975833096194481592}
   - {fileID: 3876454115482309541}
-  - {fileID: -1887720859668630739}
+  - {fileID: -9127443707840318147}
   _guid: 5e5985443ba24c7
 --- !u!114 &1881418443929538774
 MonoBehaviour:
