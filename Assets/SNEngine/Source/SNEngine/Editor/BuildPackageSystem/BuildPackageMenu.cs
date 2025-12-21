@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
-using SNEngine.Editor; // Доступ к DialogueCreatorEditor и CharacterCreatorWindow
+using SNEngine.Editor;
 
 namespace SNEngine.Editor.BuildPackageSystem
 {
@@ -24,6 +24,7 @@ namespace SNEngine.Editor.BuildPackageSystem
         [MenuItem(MENU_1_CLEAN)]
         public static async void Step1_Cleanup()
         {
+            if (!ValidateBranch()) return;
             if (!EditorUtility.DisplayDialog("Step 1: Cleanup", "Run Python script to delete garbage?", "Yes", "Cancel")) return;
 
             try
@@ -35,13 +36,19 @@ namespace SNEngine.Editor.BuildPackageSystem
                 AssetDatabase.Refresh();
                 Debug.Log("<color=cyan>[Package System]</color> Step 1: Cleanup complete.");
             }
-            catch (Exception e) { AssetDatabase.StopAssetEditing(); Debug.LogError(e.Message); }
+            catch (Exception e)
+            {
+                AssetDatabase.StopAssetEditing();
+                Debug.LogError(e.Message);
+            }
             finally { EditorUtility.ClearProgressBar(); }
         }
 
         [MenuItem(MENU_2_DIAL)]
         public static void Step2_CreateDialogue()
         {
+            if (!ValidateBranch()) return;
+
             EditorUtility.DisplayProgressBar("Package System", "Creating Dialogue...", 0.5f);
             DialogueCreatorEditor.CreateNewDialogueAssetFromName("_startDialogue.asset");
             AssetDatabase.Refresh();
@@ -52,6 +59,8 @@ namespace SNEngine.Editor.BuildPackageSystem
         [MenuItem(MENU_3_CHAR)]
         public static void Step3_CreateCharacter()
         {
+            if (!ValidateBranch()) return;
+
             EditorUtility.DisplayProgressBar("Package System", "Creating Character...", 0.5f);
 
             if (!Directory.Exists(CHAR_SAVE_PATH)) Directory.CreateDirectory(CHAR_SAVE_PATH);
@@ -72,11 +81,7 @@ namespace SNEngine.Editor.BuildPackageSystem
         [MenuItem(MENU_4_BUILD)]
         public static void Step4_Build()
         {
-            if (IsOnMasterBranch())
-            {
-                EditorUtility.DisplayDialog("Build Package", "Switch branch from master!", "OK");
-                return;
-            }
+            if (!ValidateBranch()) return;
 
             string exportPath = EditorUtility.OpenFolderPanel("Save unitypackage", "", "");
             if (string.IsNullOrEmpty(exportPath)) return;
@@ -89,12 +94,23 @@ namespace SNEngine.Editor.BuildPackageSystem
         [MenuItem(MENU_5_RESTORE)]
         public static void Step5_Restore()
         {
+            if (!ValidateBranch()) return;
             if (!EditorUtility.DisplayDialog("Step 5: Restore", "Revert all changes via Git?", "Yes", "Cancel")) return;
 
             EditorUtility.DisplayProgressBar("Package System", "Git Restore...", 0.5f);
             RestoreGitState();
             EditorUtility.ClearProgressBar();
             Debug.Log("<color=orange>[Package System]</color> Step 5: Project restored.");
+        }
+
+        private static bool ValidateBranch()
+        {
+            if (IsOnMasterBranch())
+            {
+                EditorUtility.DisplayDialog("Blocked", "This action is not allowed on the 'master' branch. Please switch to a release or dev branch.", "OK");
+                return false;
+            }
+            return true;
         }
 
         private static async Task RunPythonCleanup()
@@ -113,7 +129,7 @@ namespace SNEngine.Editor.BuildPackageSystem
             {
                 string output = await p.StandardOutput.ReadToEndAsync();
                 p.WaitForExit();
-                if (!string.IsNullOrEmpty(output)) Debug.Log($"[Python]: {output}");
+                if (!string.IsNullOrEmpty(output)) Debug.Log($"[Python Cleanup]: {output}");
             }
         }
 
@@ -121,13 +137,32 @@ namespace SNEngine.Editor.BuildPackageSystem
 
         private static bool IsOnMasterBranch()
         {
-            ProcessStartInfo si = new ProcessStartInfo { FileName = "powershell.exe", Arguments = "-Command \"git branch --show-current\"", UseShellExecute = false, RedirectStandardOutput = true, CreateNoWindow = true, WorkingDirectory = GetProjectRoot() };
-            using (Process p = Process.Start(si)) { return p.StandardOutput.ReadToEnd().Trim().Equals("master", StringComparison.OrdinalIgnoreCase); }
+            ProcessStartInfo si = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = "-Command \"git branch --show-current\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+                WorkingDirectory = GetProjectRoot()
+            };
+            using (Process p = Process.Start(si))
+            {
+                string branch = p.StandardOutput.ReadToEnd().Trim();
+                return branch.Equals("master", StringComparison.OrdinalIgnoreCase) || branch.Equals("main", StringComparison.OrdinalIgnoreCase);
+            }
         }
 
         private static void RestoreGitState()
         {
-            ProcessStartInfo si = new ProcessStartInfo { FileName = "powershell.exe", Arguments = "-Command \"git checkout .; git clean -fd\"", UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = GetProjectRoot() };
+            ProcessStartInfo si = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = "-Command \"git checkout .; git clean -fd\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = GetProjectRoot()
+            };
             using (Process p = Process.Start(si)) { p.WaitForExit(); }
             AssetDatabase.Refresh();
         }
