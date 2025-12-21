@@ -14,7 +14,7 @@ namespace SNEngine.Localization
             return GetStartValue();
         }
 
-        public void SetValue(object value)
+        public override void SetValue(object value)
         {
             if (value is string str)
             {
