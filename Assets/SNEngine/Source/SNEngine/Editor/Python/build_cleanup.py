@@ -3,16 +3,12 @@ import shutil
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(script_dir, "../../../../../.."))
-
-# Список объектов для полного удаления (папки или файлы)
 PATHS_TO_DELETE = [
     "Assets/SNEngine/Source/SNEngine/Resources/Custom",
     "Assets/StreamingAssets",
     "Assets/SNEngine/Demo",
     "Assets/SNEngine/Source/SNEngine/Resources/Editor/TextTemplates/custom_ui_template.yaml"
 ]
-
-# Список папок, которые нужно только очистить
 PATHS_TO_CLEAR = [
     "Assets/SNEngine/Source/SNEngine/Resources/Characters",
     "Assets/SNEngine/Source/SNEngine/Resources/Dialogues"
