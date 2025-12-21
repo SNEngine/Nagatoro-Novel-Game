@@ -11,12 +11,9 @@ namespace SNEngine.Editor.BuildPackageSystem
     public static class BuildPackageMenu
     {
         private const string MENU_PATH = "SNEngine/Build Packages";
-        private const string CUSTOM_RESOURCES_PATH = "Assets/SNEngine/Source/SNEngine/Resources/Custom";
-        private const string CHARACTERS_PATH = "Assets/SNEngine/Source/SNEngine/Resources/Characters";
-        private const string DEMO_PATH = "Assets/SNEngine/Demo";
-        private const string STREAMING_ASSETS_PATH = "Assets/StreamingAssets";
         private const string DIALOGUES_PATH = "Assets/SNEngine/Source/SNEngine/Resources/Dialogues";
         private const string TEMPLATE_PATH = "Assets/SNEngine/Source/SNEngine/Editor/Templates/DialogueTemplate.asset";
+        private const string PYTHON_SCRIPT_REL_PATH = "Assets/SNEngine/Source/SNEngine/Editor/Python/build_cleanup.py";
         private const string START_DIALOGUE_NAME = "_startDialogue.asset";
 
         [MenuItem(MENU_PATH)]
@@ -24,53 +21,47 @@ namespace SNEngine.Editor.BuildPackageSystem
         {
             if (IsOnMasterBranch())
             {
-                EditorUtility.DisplayDialog("Build Package",
-                    "You are currently on the master branch. Please switch to a different branch before building the package.",
-                    "OK");
+                EditorUtility.DisplayDialog("Build Package", "Switch branch from master first!", "OK");
                 return;
             }
 
-            string exportPath = EditorUtility.OpenFolderPanel("Select folder to save unitypackage", "", "");
+            string exportPath = EditorUtility.OpenFolderPanel("Save unitypackage", "", "");
             if (string.IsNullOrEmpty(exportPath)) return;
-
             string packagePath = Path.Combine(exportPath, "SNEngine.unitypackage");
 
             try
             {
                 string gitState = GetGitState();
 
-                EditorUtility.DisplayProgressBar("Building Package", "Preparing assets...", 0.1f);
-                AssetDatabase.SaveAssets();
+                EditorUtility.DisplayProgressBar("Building", "Running Python Cleanup...", 0.2f);
+                await RunPythonCleanup();
 
-                await DeleteAssetSafeAsync(CUSTOM_RESOURCES_PATH);
-                await DeleteAssetSafeAsync(STREAMING_ASSETS_PATH);
-                await DeleteAssetSafeAsync(DEMO_PATH);
-
-                await ClearFolderAsync(CHARACTERS_PATH);
-                await ClearFolderAsync(DIALOGUES_PATH);
-
-                await CreateStartDialogueAsync();
-
-                EditorUtility.DisplayProgressBar("Building Package", "Refreshing Database...", 0.4f);
+                // После работы внешнего скрипта обязательно обновляем базу
                 AssetDatabase.Refresh();
                 await WaitUntilReady();
 
-                EditorUtility.DisplayProgressBar("Building Package", "Exporting package...", 0.6f);
+                EditorUtility.DisplayProgressBar("Building", "Creating Start Dialogue...", 0.4f);
+                CreateStartDialogue();
+
+                // Финальный Refresh перед экспортом
+                AssetDatabase.Refresh();
+                await WaitUntilReady();
+
+                EditorUtility.DisplayProgressBar("Building", "Exporting Package...", 0.6f);
                 ExportWorker.ExportPackage(packagePath);
 
-                while (!File.Exists(packagePath))
-                {
-                    await Task.Delay(500);
-                }
+                // Ожидаем физического завершения записи файла
+                while (!File.Exists(packagePath)) await Task.Delay(500);
+                await Task.Delay(1000);
 
-                EditorUtility.DisplayProgressBar("Building Package", "Restoring Git state...", 0.8f);
+                EditorUtility.DisplayProgressBar("Building", "Restoring Git State...", 0.8f);
                 RestoreGitState(gitState);
 
-                Debug.Log($"<color=green>[BuildPackage]</color> Completed: {packagePath}");
+                Debug.Log($"<color=green>[BuildPackage]</color> Done! Package: {packagePath}");
             }
             catch (Exception e)
             {
-                Debug.LogError($"Error during build: {e.Message}");
+                Debug.LogError($"Build failed: {e.Message}");
             }
             finally
             {
@@ -78,54 +69,53 @@ namespace SNEngine.Editor.BuildPackageSystem
             }
         }
 
-        private static async Task DeleteAssetSafeAsync(string path)
+        private static async Task RunPythonCleanup()
         {
-            if (AssetDatabase.IsValidFolder(path) || File.Exists(path))
+            string scriptPath = Path.Combine(GetProjectRoot(), PYTHON_SCRIPT_REL_PATH);
+
+            ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                AssetDatabase.DeleteAsset(path);
-                await WaitUntilReady();
+                FileName = "python",
+                Arguments = $"\"{scriptPath}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WorkingDirectory = GetProjectRoot()
+            };
+
+            using (Process process = Process.Start(startInfo))
+            {
+                string output = await process.StandardOutput.ReadToEndAsync();
+                string error = await process.StandardError.ReadToEndAsync();
+
+                process.WaitForExit();
+
+                if (!string.IsNullOrEmpty(output)) Debug.Log($"[Python]: {output}");
+                if (!string.IsNullOrEmpty(error)) Debug.LogError($"[Python Error]: {error}");
             }
         }
 
-        private static async Task ClearFolderAsync(string folderPath)
+        private static void CreateStartDialogue()
         {
-            if (!AssetDatabase.IsValidFolder(folderPath)) return;
-
-            string fullPath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", folderPath));
-            if (!Directory.Exists(fullPath)) return;
-
-            string[] files = Directory.GetFiles(fullPath);
-            foreach (string file in files)
+            string dest = Path.Combine(DIALOGUES_PATH, START_DIALOGUE_NAME);
+            if (File.Exists(TEMPLATE_PATH))
             {
-                if (file.EndsWith(".meta")) continue;
-                string assetPath = folderPath + "/" + Path.GetFileName(file);
-                AssetDatabase.DeleteAsset(assetPath);
+                if (!Directory.Exists(DIALOGUES_PATH)) Directory.CreateDirectory(DIALOGUES_PATH);
+                File.Copy(TEMPLATE_PATH, dest, true);
+                AssetDatabase.ImportAsset(dest, ImportAssetOptions.ForceUpdate);
             }
-
-            string[] subFolders = AssetDatabase.GetSubFolders(folderPath);
-            foreach (string subFolder in subFolders)
+            else
             {
-                AssetDatabase.DeleteAsset(subFolder);
+                Debug.LogError($"Template not found at {TEMPLATE_PATH}");
             }
-
-            await WaitUntilReady();
-        }
-
-        private static async Task CreateStartDialogueAsync()
-        {
-            string startDialoguePath = Path.Combine(DIALOGUES_PATH, START_DIALOGUE_NAME);
-            if (!File.Exists(TEMPLATE_PATH)) return;
-
-            File.Copy(TEMPLATE_PATH, startDialoguePath, true);
-            AssetDatabase.ImportAsset(startDialoguePath, ImportAssetOptions.ForceUpdate);
-            await WaitUntilReady();
         }
 
         private static async Task WaitUntilReady()
         {
             while (EditorApplication.isUpdating || EditorApplication.isCompiling)
             {
-                await Task.Delay(100);
+                await Task.Delay(200);
             }
         }
 
@@ -133,7 +123,7 @@ namespace SNEngine.Editor.BuildPackageSystem
 
         private static bool IsOnMasterBranch()
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            ProcessStartInfo si = new ProcessStartInfo
             {
                 FileName = "powershell.exe",
                 Arguments = "-Command \"git branch --show-current\"",
@@ -142,17 +132,15 @@ namespace SNEngine.Editor.BuildPackageSystem
                 CreateNoWindow = true,
                 WorkingDirectory = GetProjectRoot()
             };
-            using (Process process = Process.Start(startInfo))
+            using (Process p = Process.Start(si))
             {
-                string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-                return output.Trim().Equals("master", StringComparison.OrdinalIgnoreCase);
+                return p.StandardOutput.ReadToEnd().Trim().Equals("master", StringComparison.OrdinalIgnoreCase);
             }
         }
 
         private static string GetGitState()
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            ProcessStartInfo si = new ProcessStartInfo
             {
                 FileName = "powershell.exe",
                 Arguments = "-Command \"git status --porcelain\"",
@@ -161,17 +149,12 @@ namespace SNEngine.Editor.BuildPackageSystem
                 CreateNoWindow = true,
                 WorkingDirectory = GetProjectRoot()
             };
-            using (Process process = Process.Start(startInfo))
-            {
-                string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-                return output.Trim();
-            }
+            using (Process p = Process.Start(si)) { return p.StandardOutput.ReadToEnd().Trim(); }
         }
 
         private static void RestoreGitState(string state)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            ProcessStartInfo si = new ProcessStartInfo
             {
                 FileName = "powershell.exe",
                 Arguments = "-Command \"git checkout .; git clean -fd\"",
@@ -179,7 +162,7 @@ namespace SNEngine.Editor.BuildPackageSystem
                 CreateNoWindow = true,
                 WorkingDirectory = GetProjectRoot()
             };
-            using (Process process = Process.Start(startInfo)) { process.WaitForExit(); }
+            using (Process p = Process.Start(si)) { p.WaitForExit(); }
             AssetDatabase.Refresh();
         }
     }
