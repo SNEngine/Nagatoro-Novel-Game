@@ -34,25 +34,39 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                     if (connect.Connection != null)
                     {
                         var node = connect.node as BaseNodeInteraction;
+                        if (node == null) continue;
 
-                        node.Execute();
-
-                        if (node is IIncludeWaitingNode)
-                        {
-                            var asyncNode = node as IIncludeWaitingNode;
-
-                            XNodeExtensionsDebug.Log($"Wait node <b>{node.name} GUID: {node.GUID} (in {name} GUID {GUID})</b>");
-
-                            await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
-                        }
+                        await ExecuteAndHighlightBranch(node);
                     }
                 }
             }
 
             _cancellationTokenSource?.Cancel();
-
             _cancellationTokenSource = null;
         }
-        
+
+        private async UniTask ExecuteAndHighlightBranch(BaseNodeInteraction node)
+        {
+            NodeHighlighter.HighlightNode(node, Color.cyan);
+
+            node.Execute();
+
+            if (node is IIncludeWaitingNode waitingNode)
+            {
+                await XNodeExtensionsUniTask.WaitAsyncNode(waitingNode, _cancellationTokenSource);
+            }
+
+            var exitPort = node.GetExitPort();
+            if (exitPort != null && exitPort.IsConnected)
+            {
+                var nextNode = exitPort.Connection.node as BaseNodeInteraction;
+                if (nextNode != null)
+                {
+                    await ExecuteAndHighlightBranch(nextNode);
+                }
+            }
+
+            NodeHighlighter.RemoveHighlight(node);
+        }
     }
 }
