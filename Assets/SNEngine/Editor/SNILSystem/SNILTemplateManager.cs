@@ -62,6 +62,11 @@ namespace SNEngine.Editor.SNILSystem
         {
             return _nodeTemplates.ContainsKey(nodeName) ? _nodeTemplates[nodeName] : null;
         }
+
+        public static void ReloadTemplates()
+        {
+            LoadNodeTemplates();
+        }
     }
     
     public class SNILTemplateInfo

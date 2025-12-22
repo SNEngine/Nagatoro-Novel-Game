@@ -320,7 +320,21 @@ Start
 Show Background beachBackground
 call greetNagatoro
 Jump To nextDialogue
+
+function greetNagatoro
+Nagatoro says Hi there!
+Player says Hello Nagatoro!
 end
+```
+
+**Alternative - Dialogue with functions that ends**:
+```
+name: FunctionExampleWithEnd
+Start
+Show Background beachBackground
+call greetNagatoro
+Nagatoro says This dialogue is now complete!
+End
 
 function greetNagatoro
 Nagatoro says Hi there!
@@ -332,9 +346,10 @@ end
 
 The system validates function syntax:
 - Functions must have a name
-- Functions must be properly closed with `end`
+- Functions must be properly closed with lowercase `end`
 - Nested functions are not allowed
-- Each `end` must match a `function`
+- Each function `end` must match a `function`
+- Use uppercase `End` to terminate the main dialogue (different from function `end`)
 
 ## Resource Finding System
 
@@ -412,7 +427,7 @@ public class WaitNode : AsyncNode
 
 **Template File** (`WaitNode.cs.snil`):
 ```
-Wait {_waitTime} seconds
+Wait {seconds} seconds
 worker:WaitNodeWorker
 ```
 
@@ -426,17 +441,64 @@ public class WaitNodeWorker : SNILWorker
 {
     public override void ApplyParameters(BaseNode node, Dictionary<string, string> parameters)
     {
-        if (parameters.ContainsKey("waitTime"))
+        // The WaitNode inherits from AsyncNodeWithSeconds which has a _seconds field
+        // Check that this is actually a WaitNode or its subclass
+        if (!(node is WaitNode waitNode))
         {
-            var field = node.GetType().GetField("_waitTime");
+            return;
+        }
+
+        // Get all fields including from base classes
+        var fields = GetAllFields(node.GetType());
+
+        foreach (var kvp in parameters)
+        {
+            var field = fields.FirstOrDefault(f =>
+                f.Name.Equals(kvp.Key, System.StringComparison.OrdinalIgnoreCase) ||
+                f.Name.Equals("_" + kvp.Key, System.StringComparison.OrdinalIgnoreCase));
+
             if (field != null)
             {
-                if (float.TryParse(parameters["waitTime"], out float value))
+                object val = ConvertValue(kvp.Value, field.FieldType);
+                if (val != null || !field.FieldType.IsValueType)
                 {
-                    field.SetValue(node, value);
+                    field.SetValue(node, val);
                 }
             }
         }
+    }
+
+    private static FieldInfo[] GetAllFields(System.Type type)
+    {
+        var fields = new List<FieldInfo>();
+        while (type != null && type != typeof(object))
+        {
+            fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            type = type.BaseType;
+        }
+        return fields.ToArray();
+    }
+
+    private static object ConvertValue(string value, System.Type targetType)
+    {
+        if (targetType == typeof(string)) return value;
+        if (targetType == typeof(int)) return int.TryParse(value, out int i) ? i : 0;
+        if (targetType == typeof(float)) return float.TryParse(value, out float f) ? f : 0f;
+        if (targetType == typeof(bool)) return bool.TryParse(value, out bool b) ? b : false;
+        if (targetType.IsEnum) return System.Enum.Parse(targetType, value, true);
+
+        if (typeof(Object).IsAssignableFrom(targetType))
+        {
+            string filter = $"t:{targetType.Name} {value}";
+            string[] guids = AssetDatabase.FindAssets(filter);
+            if (guids.Length > 0)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                return AssetDatabase.LoadAssetAtPath(path, targetType);
+            }
+        }
+
+        return null;
     }
 }
 ```

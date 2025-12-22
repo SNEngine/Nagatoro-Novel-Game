@@ -87,8 +87,11 @@ namespace SNEngine.Editor.SNILSystem
                     return;
                 }
 
+                // Reload templates to ensure latest changes are used
+                SNILTemplateManager.ReloadTemplates();
+
                 List<string[]> scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
-                
+
                 if (scriptParts.Count > 1)
                 {
                     ImportMultiScript(scriptParts);
@@ -97,7 +100,7 @@ namespace SNEngine.Editor.SNILSystem
                 {
                     ImportSingleScript(scriptParts[0]);
                 }
-                
+
                 if (doPostProcessing)
                 {
                     SNILPostProcessor.ProcessAllReferences();
@@ -271,9 +274,9 @@ namespace SNEngine.Editor.SNILSystem
                 var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                 if (nameMatch.Success) continue;
 
-                // Пропускаем только определения функций и концы
+                // Пропускаем только определения функций и концы функций (не конец диалога)
                 if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
-                    trimmed.Equals("end", StringComparison.OrdinalIgnoreCase))
+                    trimmed.Equals("end", StringComparison.Ordinal)) // Только lowercase "end" для функций, не "End" для диалога
                 {
                     continue;
                 }
@@ -309,9 +312,9 @@ namespace SNEngine.Editor.SNILSystem
                 var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                 if (nameMatch.Success) continue;
 
-                // Пропускаем только определения функций и концы
+                // Пропускаем только определения функций и концы функций (не конец диалога)
                 if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
-                    trimmed.Equals("end", StringComparison.OrdinalIgnoreCase))
+                    trimmed.Equals("end", StringComparison.Ordinal)) // Только lowercase "end" для функций, не "End" для диалога
                 {
                     continue;
                 }

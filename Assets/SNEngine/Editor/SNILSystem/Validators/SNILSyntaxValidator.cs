@@ -214,21 +214,20 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 if (trimmedLine.StartsWith("function ", StringComparison.OrdinalIgnoreCase))
                 {
                     insideFunction = true;
-                    // Добавляем строку function в основной скрипт как отдельную инструкцию
-                    mainScript.Add(line);
+                    // Do NOT add function definition to main script
                 }
-                else if (trimmedLine.Equals("end", StringComparison.OrdinalIgnoreCase) && insideFunction)
+                // Only consider lowercase "end" as function end, not uppercase "End"
+                else if (trimmedLine.Equals("end", StringComparison.Ordinal) && insideFunction)
                 {
                     insideFunction = false;
-                    // Добавляем строку end в основной скрипт как отдельную инструкцию
-                    mainScript.Add(line);
+                    // Do NOT add function end to main script
                 }
                 else if (!insideFunction)
                 {
-                    // Добавляем строку в основной скрипт только если мы не внутри функции
+                    // Add line to main script only if we are not inside a function
                     mainScript.Add(line);
                 }
-                // Строки внутри функций игнорируются при проверке основного скрипта
+                // Lines inside functions are ignored when extracting main script
             }
 
             return mainScript.ToArray();
@@ -259,7 +258,7 @@ namespace SNEngine.Editor.SNILSystem.Validators
                     {
                         functionDepth++;
                         functionStartLine = i;
-                        
+
                         // Проверяем, что после "function" идет имя функции
                         string functionName = line.Substring(9).Trim();
                         if (string.IsNullOrEmpty(functionName))
@@ -274,7 +273,8 @@ namespace SNEngine.Editor.SNILSystem.Validators
                         }
                     }
                 }
-                else if (line.Equals("end", StringComparison.OrdinalIgnoreCase))
+                // Only consider lowercase "end" as function end, not uppercase "End"
+                else if (line.Equals("end", StringComparison.Ordinal))
                 {
                     if (functionDepth == 0)
                     {
