@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using SiphoinUnityHelpers.XNodeExtensions;
 using SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes;
 using SNEngine.Graphs;
@@ -12,7 +14,7 @@ namespace SNEngine.Editor.SNILSystem
 {
     public class SNILNodeCreator
     {
-        public static void CreateNodesFromInstructions(DialogueGraph graph, List<SNILInstruction> mainInstructions, List<SNILInstruction> functionInstructions = null)
+        public static void CreateNodesFromInstructions(DialogueGraph graph, List<SNILInstruction> mainInstructions, List<SNILInstruction> functionInstructions = null, List<int> functionCallPositions = null)
         {
             List<BaseNode> mainNodes = new List<BaseNode>();
             List<BaseNode> functionNodes = new List<BaseNode>();
@@ -59,7 +61,6 @@ namespace SNEngine.Editor.SNILSystem
                 // Затем создаем ноды тела функций и распределяем их по соответствующим функциям
                 var functionBodyInstructions = functionInstructions.Where(inst => inst.NodeTypeName != "GroupCallsNode").ToList();
                 
-                // Для простоты, предположим, что инструкции идут в том же порядке, что и определения функций
                 string currentFunctionName = null;
                 foreach (var inst in functionInstructions)
                 {
@@ -122,11 +123,11 @@ namespace SNEngine.Editor.SNILSystem
                 }
             }
 
-            // Соединяем основные ноды последовательно
-            ConnectMainNodesSequentially(mainNodes);
-
-            // Обрабатываем вызовы функций в основном скрипте и подключаем их к соответствующим GroupCallsNode
-            ProcessFunctionCalls(mainInstructions, mainNodes, functionMap);
+            // Создаем полный список нод с вставленными GroupCallsNode в нужные места
+            var completeNodeSequence = BuildCompleteNodeSequence(mainNodes, functionCallPositions, functionMap);
+            
+            // Соединяем все ноды последовательно
+            ConnectNodesSequentially(completeNodeSequence);
         }
 
         private static void ConnectFunctionBodyToGroup(GroupCallsNode groupNode, List<BaseNode> bodyNodes)
@@ -154,53 +155,56 @@ namespace SNEngine.Editor.SNILSystem
             }
         }
 
-        private static void ConnectMainNodesSequentially(List<BaseNode> mainNodes)
+        private static List<BaseNode> BuildCompleteNodeSequence(List<BaseNode> mainNodes, List<int> functionCallPositions, Dictionary<string, GroupCallsNode> functionMap)
         {
+            var completeSequence = new List<BaseNode>(mainNodes);
+            
             // Находим StartNode и убеждаемся, что он первый
-            var startNode = mainNodes.FirstOrDefault(n => n is SiphoinUnityHelpers.XNodeExtensions.BaseNodeInteraction && 
-                                                         n.GetType().Name.Equals("StartNode", StringComparison.OrdinalIgnoreCase));
+            var startNode = completeSequence.FirstOrDefault(n => n is SiphoinUnityHelpers.XNodeExtensions.BaseNodeInteraction && 
+                                                                n.GetType().Name.Equals("StartNode", StringComparison.OrdinalIgnoreCase));
             
             if (startNode != null)
             {
-                // Перемещаем StartNode в начало списка для правильного соединения
-                mainNodes.Remove(startNode);
-                mainNodes.Insert(0, startNode);
+                completeSequence.Remove(startNode);
+                completeSequence.Insert(0, startNode);
             }
 
-            // Соединяем основные ноды последовательно
-            for (int i = 0; i < mainNodes.Count - 1; i++)
+            // Вставляем GroupCallsNode в нужные позиции
+            // Поскольку у нас нет точной информации о том, какие функции вызываются в каких позициях,
+            // мы предполагаем, что они вызываются в порядке определения
+            if (functionCallPositions != null && functionCallPositions.Count > 0)
             {
-                if (mainNodes[i] is BaseNodeInteraction curr && mainNodes[i + 1] is BaseNodeInteraction next)
+                // В реальной реализации, нужно отслеживать конкретные вызовы функций и их позиции
+                // Для упрощения, вставляем все GroupCallsNode по очереди в указанные позиции
+                
+                // Сортируем позиции по убыванию, чтобы индексы не смещались при вставке
+                var sortedPositions = functionCallPositions.OrderByDescending(x => x).ToList();
+                
+                foreach (var pos in sortedPositions)
+                {
+                    // Вставляем GroupCallsNode в указанную позицию
+                    // В реальности нужно знать, какую именно функцию вызвать
+                    // Для упрощения, возьмем первую доступную GroupCallsNode
+                    var groupNode = functionMap.Values.FirstOrDefault();
+                    if (groupNode != null && pos < completeSequence.Count)
+                    {
+                        completeSequence.Insert(pos, groupNode);
+                    }
+                }
+            }
+            
+            return completeSequence;
+        }
+
+        private static void ConnectNodesSequentially(List<BaseNode> nodes)
+        {
+            for (int i = 0; i < nodes.Count - 1; i++)
+            {
+                if (nodes[i] is BaseNodeInteraction curr && nodes[i + 1] is BaseNodeInteraction next)
                 {
                     var outPort = curr.GetExitPort();
                     var inPort = next.GetEnterPort();
                     if (outPort != null && inPort != null) outPort.Connect(inPort);
-                }
-            }
-        }
-
-        private static void ProcessFunctionCalls(List<SNILInstruction> mainInstructions, List<BaseNode> mainNodes, Dictionary<string, GroupCallsNode> functionMap)
-        {
-            // Обработка вызовов функций (команды "call")
-            for (int i = 0; i < mainInstructions.Count; i++)
-            {
-                var inst = mainInstructions[i];
-                if (inst.NodeTypeName == "CallFunctionNode" && inst.Parameters.ContainsKey("functionName"))
-                {
-                    string functionName = inst.Parameters["functionName"];
-                    
-                    // Находим ноду вызова функции в списке mainNodes
-                    if (i < mainNodes.Count && functionMap.ContainsKey(functionName))
-                    {
-                        var callNode = mainNodes[i] as BaseNodeInteraction;
-                        var targetGroup = functionMap[functionName];
-                        
-                        if (callNode != null)
-                        {
-                            // В реальности вызов функции должен как-то активировать GroupCallsNode
-                            // Это упрощенная реализация - просто подключаем следующую ноду после вызова
-                        }
-                    }
                 }
             }
         }

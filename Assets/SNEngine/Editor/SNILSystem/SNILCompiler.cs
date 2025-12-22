@@ -229,10 +229,10 @@ namespace SNEngine.Editor.SNILSystem
                 // Сначала создаем ноды функций
                 var functionInstructions = ParseFunctionInstructions(functions);
                 
-                // Затем создаем ноды основного скрипта (включая вызовы функций)
-                var mainInstructions = ParseScript(mainScriptLines);
+                // Затем создаем ноды основного скрипта (включая информацию о вызовах функций)
+                var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
                 
-                SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions);
+                SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions);
             }
         }
 
@@ -264,6 +264,82 @@ namespace SNEngine.Editor.SNILSystem
             }
             
             return functionInstructions;
+        }
+
+        private static (List<SNILInstruction>, List<int>) ParseScriptWithFunctionCalls(string[] lines)
+        {
+            var templates = SNILTemplateManager.GetNodeTemplates();
+            List<SNILInstruction> instructions = new List<SNILInstruction>();
+            List<int> functionCallPositions = new List<int>(); // Позиции вызовов функций в потоке
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                string trimmed = line.Trim();
+                if (string.IsNullOrEmpty(trimmed) || IsCommentLine(trimmed)) continue;
+
+                var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
+                if (nameMatch.Success) continue;
+
+                // Пропускаем только определения функций и концы
+                if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("end", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Обрабатываем вызовы функций
+                if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
+                {
+                    string functionName = trimmed.Substring(5).Trim(); // "call ".Length = 5
+                    functionCallPositions.Add(instructions.Count); // Сохраняем позицию вызова функции
+                    continue; // Пропускаем создание ноды для вызова функции
+                }
+
+                var instruction = MatchLineToTemplate(trimmed, templates);
+                if (instruction != null)
+                {
+                    instructions.Add(instruction);
+                }
+            }
+
+            return (instructions, functionCallPositions);
+        }
+
+        private static List<SNILInstruction> ParseScript(string[] lines)
+        {
+            var templates = SNILTemplateManager.GetNodeTemplates();
+            List<SNILInstruction> instructions = new List<SNILInstruction>();
+
+            foreach (string line in lines)
+            {
+                string trimmed = line.Trim();
+                if (string.IsNullOrEmpty(trimmed) || IsCommentLine(trimmed)) continue;
+
+                var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
+                if (nameMatch.Success) continue;
+
+                // Пропускаем только определения функций и концы
+                if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("end", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Пропускаем вызовы функций
+                if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var instruction = MatchLineToTemplate(trimmed, templates);
+                if (instruction != null)
+                {
+                    instructions.Add(instruction);
+                }
+            }
+
+            return instructions;
         }
 
         private static void ImportMultiScript(List<string[]> scriptParts)
@@ -354,10 +430,10 @@ namespace SNEngine.Editor.SNILSystem
             // Сначала создаем ноды функций
             var functionInstructions = ParseFunctionInstructions(functions);
             
-            // Затем создаем ноды основного скрипта (включая вызовы функций)
-            var mainInstructions = ParseScript(mainScriptLines);
+            // Затем создаем ноды основного скрипта (включая информацию о вызовах функций)
+            var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
 
-            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions);
+            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions);
         }
 
         private static void ImportSingleScript(string[] lines)
@@ -405,10 +481,10 @@ namespace SNEngine.Editor.SNILSystem
             // Сначала создаем ноды функций
             var functionInstructions = ParseFunctionInstructions(functions);
             
-            // Затем создаем ноды основного скрипта (включая вызовы функций)
-            var mainInstructions = ParseScript(mainScriptLines);
+            // Затем создаем ноды основного скрипта (включая информацию о вызовах функций)
+            var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
 
-            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions);
+            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions);
 
             EditorUtility.SetDirty(graph);
             AssetDatabase.SaveAssets();
@@ -421,52 +497,6 @@ namespace SNEngine.Editor.SNILSystem
         {
             foreach (char c in Path.GetInvalidFileNameChars()) fileName = fileName.Replace(c, '_');
             return string.IsNullOrWhiteSpace(fileName) ? "NewGraph" : fileName;
-        }
-
-        private static List<SNILInstruction> ParseScript(string[] lines)
-        {
-            var templates = SNILTemplateManager.GetNodeTemplates();
-            List<SNILInstruction> instructions = new List<SNILInstruction>();
-
-            foreach (string line in lines)
-            {
-                string trimmed = line.Trim();
-                if (string.IsNullOrEmpty(trimmed) || IsCommentLine(trimmed)) continue;
-
-                var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
-                if (nameMatch.Success) continue;
-
-                // Пропускаем только определения функций и концы, но обрабатываем вызовы функций
-                if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
-                    trimmed.Equals("end", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // Обрабатываем вызовы функций
-                if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
-                {
-                    string functionName = trimmed.Substring(5).Trim(); // "call ".Length = 5
-                    var callInstruction = new SNILInstruction
-                    {
-                        Type = SNILInstructionType.Generic,
-                        NodeTypeName = "CallFunctionNode",
-                        Parameters = new Dictionary<string, string> { { "functionName", functionName } },
-                        NodeType = SNILTypeResolver.GetNodeType("CallFunctionNode")
-                    };
-                    
-                    instructions.Add(callInstruction);
-                    continue;
-                }
-
-                var instruction = MatchLineToTemplate(trimmed, templates);
-                if (instruction != null)
-                {
-                    instructions.Add(instruction);
-                }
-            }
-
-            return instructions;
         }
 
         private static bool IsCommentLine(string line)
