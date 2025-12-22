@@ -1,2 +1,2 @@
 Show Variants {_variants}
-worker: ShowVariantsNodeWorker
+worker:ShowVariantsNodeWorker

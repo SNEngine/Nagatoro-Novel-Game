@@ -1,0 +1,6 @@
+name: TestArrayVariants
+Start
+Nagatoro says Welcome to the choice system test!
+Show Variants [Option 1: The safe choice, Option 2: The risky choice, Option 3: The mysterious choice]
+Nagatoro says You made your choice!
+End

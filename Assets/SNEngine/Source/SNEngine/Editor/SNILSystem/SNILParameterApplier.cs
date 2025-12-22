@@ -5,6 +5,7 @@ using System.Reflection;
 using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.DialogSystem;
 using SNEngine.Editor.SNILSystem.Workers;
+using SNEngine.SelectVariantsSystem;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -64,6 +65,10 @@ namespace SNEngine.Editor.SNILSystem
             else if (node is ErrorNode)
             {
                 return new ErrorNodeWorker();
+            }
+            else if (node is ShowVariantsNode)
+            {
+                return new ShowVariantsNodeWorker();
             }
             else if (nodeName.Equals("StartNode", System.StringComparison.OrdinalIgnoreCase))
             {
@@ -127,6 +132,13 @@ namespace SNEngine.Editor.SNILSystem
             if (targetType == typeof(bool)) return bool.TryParse(value, out bool b) ? b : false;
             if (targetType.IsEnum) return System.Enum.Parse(targetType, value, true);
 
+            // Обработка массива строк для _variants
+            if (targetType == typeof(string[]))
+            {
+                // Используем ту же логику, что и в ShowVariantsNodeWorker
+                return ParseOptionsString(value);
+            }
+
             if (typeof(Object).IsAssignableFrom(targetType))
             {
                 string filter = $"t:{targetType.Name} {value}";
@@ -140,8 +152,114 @@ namespace SNEngine.Editor.SNILSystem
 
             return null;
         }
+
+        internal static string[] ParseOptionsString(string input)
+        {
+            // Check if the input is in array format (e.g., "[Option 1, Option 2, Option 3]")
+            if (input.StartsWith("[") && input.EndsWith("]"))
+            {
+                // Extract content between brackets
+                string arrayContent = input.Substring(1, input.Length - 2);
+
+                // Split by comma, but handle nested commas properly by tracking brackets/quotes
+                List<string> parts = new List<string>();
+                int bracketLevel = 0;
+                bool inDoubleQuote = false;
+                bool inSingleQuote = false;
+                int lastSplit = 0;
+
+                for (int i = 0; i < arrayContent.Length; i++)
+                {
+                    char c = arrayContent[i];
+                    bool isEscaped = (i > 0 && arrayContent[i-1] == '\\');
+
+                    if (c == '[' && !isEscaped) bracketLevel++;
+                    else if (c == ']' && !isEscaped) bracketLevel--;
+                    else if (c == '"' && !isEscaped)
+                    {
+                        if (!inSingleQuote) // Only toggle double quotes if not inside single quotes
+                        {
+                            inDoubleQuote = !inDoubleQuote;
+                        }
+                    }
+                    else if (c == '\'' && !isEscaped)
+                    {
+                        if (!inDoubleQuote) // Only toggle single quotes if not inside double quotes
+                        {
+                            inSingleQuote = !inSingleQuote;
+                        }
+                    }
+                    else if (c == ',' && bracketLevel == 0 && !inDoubleQuote && !inSingleQuote)
+                    {
+                        parts.Add(arrayContent.Substring(lastSplit, i - lastSplit).Trim());
+                        lastSplit = i + 1;
+                    }
+                }
+
+                // Add the last part
+                if (lastSplit < arrayContent.Length)
+                {
+                    parts.Add(arrayContent.Substring(lastSplit).Trim());
+                }
+
+                // Trim whitespace from each part and remove quotes if they exist
+                for (int i = 0; i < parts.Count; i++)
+                {
+                    string part = parts[i].Trim();
+
+                    // Remove surrounding quotes if they exist
+                    if ((part.StartsWith("\"") && part.EndsWith("\"") && part.Length >= 2) ||
+                        (part.StartsWith("'") && part.EndsWith("'") && part.Length >= 2))
+                    {
+                        part = part.Substring(1, part.Length - 2);
+                    }
+
+                    parts[i] = part;
+                }
+
+                return parts.ToArray();
+            }
+            // Check if the input uses dash separator format (e.g., " - Variant A - Variant B - Variant C")
+            // If it contains the pattern " - " at the beginning, we'll treat it as dash-separated
+            else if (input.Contains(" - "))
+            {
+                // Split by " - " (dash with spaces)
+                string[] parts = input.Split(new string[] { " - " }, StringSplitOptions.RemoveEmptyEntries);
+
+                // The first part might be empty if the string starts with " - ", so we remove it
+                if (parts.Length > 0 && string.IsNullOrEmpty(parts[0].Trim()))
+                {
+                    // Remove the first empty element
+                    List<string> partsList = new List<string>(parts);
+                    partsList.RemoveAt(0);
+                    parts = partsList.ToArray();
+                }
+
+                // Trim whitespace from each part
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    parts[i] = parts[i].Trim();
+                }
+
+                return parts;
+            }
+            else
+            {
+                // Original format: split by comma
+                // Example: "Option 1: The safe choice, Option 2: The risky choice, Option 3: The mysterious choice"
+                string[] parts = input.Split(',');
+
+                // Trim whitespace from each part
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    parts[i] = parts[i].Trim();
+                }
+
+                return parts;
+            }
+        }
     }
-    
+
     // Добавляем общий воркер для остальных нод
     public class GenericNodeWorker : Workers.SNILWorker
     {
