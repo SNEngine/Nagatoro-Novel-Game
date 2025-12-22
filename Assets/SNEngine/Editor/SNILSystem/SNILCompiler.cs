@@ -18,6 +18,65 @@ namespace SNEngine.Editor.SNILSystem
     {
         public static void ImportScript(string filePath)
         {
+            ImportScriptInternal(filePath, true);
+        }
+
+        public static bool ValidateScript(string filePath, out List<Validators.SNILValidationError> errors)
+        {
+            errors = new List<Validators.SNILValidationError>();
+            
+            try
+            {
+                filePath = filePath.Trim().Trim('"', '@', '\'');
+
+                if (!File.Exists(filePath))
+                {
+                    errors.Add(new Validators.SNILValidationError
+                    {
+                        LineNumber = 0,
+                        LineContent = "",
+                        ErrorType = Validators.SNILValidationErrorType.EmptyFile,
+                        Message = $"File not found: {filePath}"
+                    });
+                    return false;
+                }
+
+                // Проверяем, содержит ли файл несколько скриптов
+                List<string[]> scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
+                
+                bool isValid = true;
+                foreach (string[] part in scriptParts)
+                {
+                    Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
+                    if (!validator.Validate(part, out string errorMessage, out List<Validators.SNILValidationError> partErrors))
+                    {
+                        errors.AddRange(partErrors);
+                        isValid = false;
+                    }
+                }
+                
+                return isValid;
+            }
+            catch (Exception e)
+            {
+                errors.Add(new Validators.SNILValidationError
+                {
+                    LineNumber = 0,
+                    LineContent = "",
+                    ErrorType = Validators.SNILValidationErrorType.EmptyFile,
+                    Message = $"Import failed: {e.Message}"
+                });
+                return false;
+            }
+        }
+
+        public static void ImportScriptWithoutPostProcessing(string filePath)
+        {
+            ImportScriptInternal(filePath, false);
+        }
+
+        private static void ImportScriptInternal(string filePath, bool doPostProcessing)
+        {
             try
             {
                 filePath = filePath.Trim().Trim('"', '@', '\'');
@@ -43,11 +102,121 @@ namespace SNEngine.Editor.SNILSystem
                 }
                 
                 // Выполняем пост-обработку для установки всех ссылок
-                SNILPostProcessor.ProcessAllReferences();
+                if (doPostProcessing)
+                {
+                    SNILPostProcessor.ProcessAllReferences();
+                }
             }
             catch (Exception e)
             {
                 Debug.LogError($"Import failed: {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        public static List<string> GetAllGraphNamesInFile(string filePath)
+        {
+            List<string> graphNames = new List<string>();
+            
+            if (!File.Exists(filePath))
+            {
+                return graphNames;
+            }
+
+            var scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
+            
+            foreach (string[] part in scriptParts)
+            {
+                string graphName = "NewGraph"; // Заглушка
+                foreach (string line in part)
+                {
+                    var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
+                    if (nameMatch.Success)
+                    {
+                        graphName = nameMatch.Groups[1].Value.Trim();
+                        break;
+                    }
+                }
+                
+                graphNames.Add(graphName);
+            }
+            
+            return graphNames;
+        }
+
+        public static void CreateAllGraphsInFile(string filePath)
+        {
+            var scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
+            
+            foreach (string[] part in scriptParts)
+            {
+                string graphName = "NewGraph"; // Заглушка
+                foreach (string line in part)
+                {
+                    var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
+                    if (nameMatch.Success)
+                    {
+                        graphName = nameMatch.Groups[1].Value.Trim();
+                        break;
+                    }
+                }
+
+                graphName = SanitizeFileName(graphName);
+                
+                // Проверяем, существует ли уже такой граф
+                string assetPath = $"Assets/Resources/Dialogues/{graphName}.asset";
+                DialogueGraph graph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(assetPath);
+                
+                if (graph == null)
+                {
+                    graph = ScriptableObject.CreateInstance<DialogueGraph>();
+                    graph.name = graphName;
+
+                    string folderPath = "Assets/Resources/Dialogues";
+                    if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
+                    if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/Resources", "Dialogues");
+
+                    AssetDatabase.CreateAsset(graph, assetPath);
+                    AssetDatabase.SaveAssets();
+                }
+                
+                // Регистрируем граф для пост-обработки
+                SNILPostProcessor.RegisterGraph(graphName, graph);
+            }
+        }
+
+        public static void ProcessAllGraphsInFile(string filePath)
+        {
+            var scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
+            
+            foreach (string[] part in scriptParts)
+            {
+                string graphName = "NewGraph"; // Заглушка
+                foreach (string line in part)
+                {
+                    var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
+                    if (nameMatch.Success)
+                    {
+                        graphName = nameMatch.Groups[1].Value.Trim();
+                        break;
+                    }
+                }
+
+                graphName = SanitizeFileName(graphName);
+                
+                // Получаем существующий граф
+                string assetPath = $"Assets/Resources/Dialogues/{graphName}.asset";
+                DialogueGraph graph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(assetPath);
+                
+                if (graph == null)
+                {
+                    Debug.LogError($"Could not load graph: {assetPath}");
+                    continue;
+                }
+
+                var instructions = ParseScript(part);
+                SNILNodeCreator.CreateNodesFromInstructions(graph, instructions);
+
+                EditorUtility.SetDirty(graph);
             }
         }
 
@@ -71,7 +240,7 @@ namespace SNEngine.Editor.SNILSystem
             if (lines.Length == 0) return;
 
             // Валидируем синтаксис перед компиляцией
-            SNILSyntaxValidator validator = new SNILSyntaxValidator();
+            Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
                 Debug.LogError($"SNIL script validation failed: {errorMessage}");
@@ -143,7 +312,7 @@ namespace SNEngine.Editor.SNILSystem
             if (lines.Length == 0) return;
 
             // Валидируем синтаксис перед компиляцией
-            SNILSyntaxValidator validator = new SNILSyntaxValidator();
+            Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
                 Debug.LogError($"SNIL script validation failed: {errorMessage}");
@@ -200,7 +369,7 @@ namespace SNEngine.Editor.SNILSystem
             foreach (string line in lines)
             {
                 string trimmed = line.Trim();
-                if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("//")) continue;
+                if (string.IsNullOrEmpty(trimmed) || IsCommentLine(trimmed)) continue;
 
                 var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                 if (nameMatch.Success) continue;
@@ -213,6 +382,12 @@ namespace SNEngine.Editor.SNILSystem
             }
 
             return instructions;
+        }
+
+        private static bool IsCommentLine(string line)
+        {
+            string trimmed = line.Trim();
+            return trimmed.StartsWith("//") || trimmed.StartsWith("#");
         }
 
         private static SNILInstruction MatchLineToTemplate(string line, Dictionary<string, SNILTemplateInfo> templates)

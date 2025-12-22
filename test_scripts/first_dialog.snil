@@ -1,0 +1,11 @@
+# First dialogue script
+name: FirstDialog
+Start
+# This is a comment using # symbol
+Nagatoro says Hello there!
+Player says Hi Nagatoro!
+// This is a comment using // symbol
+Nagatoro says Do you want to hear a story?
+Player says Yes, please!
+Nagatoro says Once upon a time...
+Jump To SecondDialog
