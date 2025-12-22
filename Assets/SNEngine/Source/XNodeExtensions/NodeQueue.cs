@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
 using SiphoinUnityHelpers.XNodeExtensions.Debugging;
-using SiphoinUnityHelpers.XNodeExtensions.Exceptions;
 using SiphoinUnityHelpers.XNodeExtensions.Extensions;
 using SNEngine.AsyncNodes;
 using System;
@@ -11,7 +10,6 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using XNode;
-using SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -95,6 +93,9 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             foreach (var node in allNodes)
             {
                 if (internalNodes.Contains(node)) continue;
+
+                var enterPort = node.GetEnterPort();
+                if (enterPort != null && !enterPort.IsConnected && !(node is StartNode)) continue;
 
                 _nodes.Add(node);
 
