@@ -57,6 +57,14 @@ namespace SNEngine.Editor.SNILSystem
             {
                 return new DialogNodeWorker();
             }
+            else if (node is DebugNode)
+            {
+                return new DebugNodeWorker();
+            }
+            else if (node is ErrorNode)
+            {
+                return new ErrorNodeWorker();
+            }
             else if (nodeName.Equals("StartNode", System.StringComparison.OrdinalIgnoreCase))
             {
                 return new StartNodeWorker();
@@ -65,7 +73,7 @@ namespace SNEngine.Editor.SNILSystem
             {
                 return new ExitNodeWorker();
             }
-            
+
             // Для других типов нод возвращаем общий воркер
             return new GenericNodeWorker();
         }
