@@ -274,6 +274,62 @@ Hide Nagatoro
 End
 ```
 
+## Background System Nodes
+
+The system includes support for background management:
+
+### Show Background Node
+Sets a background image:
+
+**Template** (`SetBackgroundNode.cs.snil`):
+```
+Show Background {_background}
+worker:SetBackgroundNodeWorker
+```
+
+The `_background` parameter can be:
+- Just the filename (e.g., `beachBackground`) - searches for the asset by name
+- Full path (e.g., `SNEngine/Demo/Sprites/beachBackground.png`) - uses exact path
+
+If multiple assets have the same name, specify the full path or you'll get an error.
+
+**Usage in SNIL script**:
+```
+name: BackgroundExample
+Start
+Show Background beachBackground
+Nagatoro says Nice view!
+End
+```
+
+### Clear Background Node
+Clears the current background:
+
+**Template** (`ClearBackgroundNode.cs.snil`):
+```
+Clear Background
+worker:ClearBackgroundNodeWorker
+```
+
+**Usage in SNIL script**:
+```
+name: ClearBackgroundExample
+Start
+Show Background beachBackground
+Nagatoro says Beautiful place!
+Clear Background
+End
+```
+
+## Resource Finding System
+
+The system includes a universal resource finder that can locate any type of asset by name or path:
+
+- **By name**: Just specify the filename without extension (e.g., `beachBackground`)
+- **By path**: Specify the full path from Assets folder (e.g., `SNEngine/Demo/Sprites/beachBackground.png`)
+- **Type checking**: The system verifies that the found asset is of the correct type
+- **Duplicate handling**: If multiple assets have the same name, an error is shown with available paths
+
 ## Troubleshooting
 
 - If your node doesn't appear in the graph, check that:
