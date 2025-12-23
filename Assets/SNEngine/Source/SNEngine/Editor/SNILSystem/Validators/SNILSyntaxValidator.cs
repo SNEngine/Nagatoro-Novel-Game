@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-
 namespace SNEngine.Editor.SNILSystem.Validators
 {
     public class SNILSyntaxValidator : SNILValidator
