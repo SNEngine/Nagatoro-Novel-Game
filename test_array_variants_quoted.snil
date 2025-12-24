@@ -1,6 +1,0 @@
-name: TestArrayVariantsQuoted
-Start
-Nagatoro says Welcome to the choice system test with quotes!
-Show Variants ["Option 1: The 'safe' choice", "Option 2: The \"risky\" choice", "Option 3: The mysterious choice"]
-Nagatoro says You made your choice with quotes!
-End

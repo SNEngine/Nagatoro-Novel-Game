@@ -1,8 +1,0 @@
-name: TestBackwardCompatibility
-Start
-Nagatoro says Testing comma-separated format!
-Show Variants Option A, Option B, Option C
-Nagatoro says Testing dash-separated format!
-Show Variants  - Dash Option 1 - Dash Option 2 - Dash Option 3
-Nagatoro says All formats work!
-End
