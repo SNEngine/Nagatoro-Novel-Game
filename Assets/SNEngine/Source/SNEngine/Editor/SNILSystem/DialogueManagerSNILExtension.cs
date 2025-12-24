@@ -19,14 +19,21 @@ namespace SNEngine.Editor.SNILSystem
             {
                 // Extract graph name from filename if not specified in the file
                 string graphName = Path.GetFileNameWithoutExtension(selectedPath);
-                
+
                 // Call the SNIL compiler to import the script
-                SNILCompiler.ImportScript(selectedPath);
-                
+                bool success = SNILCompiler.ImportScript(selectedPath);
+
                 // Refresh the asset database
                 AssetDatabase.Refresh();
-                
-                Debug.Log($"SNIL script imported successfully as '{graphName}'!");
+
+                if (success)
+                {
+                    Debug.Log($"SNIL script imported successfully as '{graphName}'!");
+                }
+                else
+                {
+                    Debug.LogError($"Failed to import SNIL script '{graphName}'. Check console for errors.");
+                }
             }
         }
     }

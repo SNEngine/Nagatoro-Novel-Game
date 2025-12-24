@@ -96,6 +96,9 @@ namespace SNEngine.Editor.SNILSystem
                     context.Functions[function.Name] = function;
             }
 
+            bool hasProcessingErrors = false;
+            List<string> errorMessages = new List<string>();
+
             // Обрабатываем основной скрипт (после регистрации функций)
             foreach (string line in mainScriptLines)
             {
@@ -109,8 +112,18 @@ namespace SNEngine.Editor.SNILSystem
 
                 if (!result.Success)
                 {
-                    Debug.LogError($"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}");
+                    string errorMsg = $"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}";
+                    Debug.LogError(errorMsg);
+                    errorMessages.Add(errorMsg);
+                    hasProcessingErrors = true;
                 }
+            }
+
+            // Если были ошибки обработки инструкций, не продолжаем импорт
+            if (hasProcessingErrors)
+            {
+                Debug.LogError($"Script processing failed with the following errors:\n{string.Join("\n", errorMessages)}");
+                return;
             }
 
             // После обработки всех инструкций, соединяем ноды последовательно

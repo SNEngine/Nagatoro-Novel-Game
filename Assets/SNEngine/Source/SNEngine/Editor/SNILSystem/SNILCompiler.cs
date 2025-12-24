@@ -10,10 +10,19 @@ namespace SNEngine.Editor.SNILSystem
 {
     public class SNILCompiler
     {
-        public static void ImportScript(string filePath)
+        public static bool ImportScript(string filePath)
         {
             // Используем новую систему обработчиков инструкций
-            SNILInstructionBasedCompiler.CompileScript(filePath);
+            try
+            {
+                SNILInstructionBasedCompiler.CompileScript(filePath);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Import failed with exception: {ex.Message}");
+                return false;
+            }
         }
 
         public static bool ValidateScript(string filePath, out List<SNILValidationError> errors)
@@ -21,9 +30,18 @@ namespace SNEngine.Editor.SNILSystem
             return SNILScriptValidator.ValidateScript(filePath, out errors);
         }
 
-        public static void ImportScriptWithoutPostProcessing(string filePath)
+        public static bool ImportScriptWithoutPostProcessing(string filePath)
         {
-            SNILInstructionBasedCompiler.CompileScriptWithoutPostProcessing(filePath);
+            try
+            {
+                SNILInstructionBasedCompiler.CompileScriptWithoutPostProcessing(filePath);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Import without post-processing failed with exception: {ex.Message}");
+                return false;
+            }
         }
 
         public static List<string> GetAllGraphNamesInFile(string filePath)
@@ -31,24 +49,49 @@ namespace SNEngine.Editor.SNILSystem
             return SNILScriptValidator.GetAllGraphNamesInFile(filePath);
         }
 
-        public static void CreateAllGraphsInFile(string filePath)
+        public static bool CreateAllGraphsInFile(string filePath)
         {
-            SNILScriptValidator.CreateAllGraphsInFile(filePath);
-        }
-
-        public static void ProcessAllGraphsInFile(string filePath)
-        {
-            var scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
-
-            foreach (string[] part in scriptParts)
+            try
             {
-                // Используем новую систему обработчиков инструкций
-                ProcessSingleScriptPart(part);
+                SNILScriptValidator.CreateAllGraphsInFile(filePath);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Create all graphs failed with exception: {ex.Message}");
+                return false;
             }
         }
 
-        private static void ProcessSingleScriptPart(string[] lines)
+        public static bool ProcessAllGraphsInFile(string filePath)
         {
+            try
+            {
+                var scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
+                bool allSuccessful = true;
+
+                foreach (string[] part in scriptParts)
+                {
+                    // Используем новую систему обработчиков инструкций
+                    if (!ProcessSingleScriptPart(part))
+                    {
+                        allSuccessful = false;
+                    }
+                }
+
+                return allSuccessful;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Process all graphs failed with exception: {ex.Message}");
+                return false;
+            }
+        }
+
+        private static bool ProcessSingleScriptPart(string[] lines)
+        {
+            bool hasErrors = false;
+
             // Создаем контекст выполнения
             var context = new InstructionContext();
 
@@ -66,8 +109,11 @@ namespace SNEngine.Editor.SNILSystem
                 if (!result.Success)
                 {
                     Debug.LogError($"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}");
+                    hasErrors = true;
                 }
             }
+
+            return !hasErrors;
         }
 
         private static bool IsCommentLine(string line)
