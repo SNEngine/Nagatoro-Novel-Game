@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using SNEngine.Editor.SNILSystem.FunctionSystem;
 using SNEngine.Editor.SNILSystem.Importers;
 using SNEngine.Editor.SNILSystem.InstructionHandlers;
 using SNEngine.Editor.SNILSystem.Parsers;
 using SNEngine.Editor.SNILSystem.Validators;
+using SNEngine.Graphs;
 using UnityEngine;
 
 namespace SNEngine.Editor.SNILSystem
@@ -64,13 +66,38 @@ namespace SNEngine.Editor.SNILSystem
 
         private static bool ProcessSingleScriptPart(string[] lines)
         {
-            bool hasErrors = false;
+            // Используем ту же логику, что и в CompileSingleScript
+            if (lines.Length == 0) return true;
+
+            // Валидация
+            Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
+            if (!validator.Validate(lines, out string errorMessage))
+            {
+                SNILDebug.LogError($"SNIL script validation failed: {errorMessage}");
+                return false;
+            }
+
+            // Извлекаем функции и основной скрипт один раз
+            var functions = SNILFunctionParser.ParseFunctions(lines);
+            var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
 
             // Создаем контекст выполнения
             var context = new InstructionContext();
 
-            // Обрабатываем каждую инструкцию
-            foreach (string line in lines)
+            // Регистрируем все функции в контексте
+            foreach (var function in functions)
+            {
+                if (!context.Functions.ContainsKey(function.Name))
+                    context.Functions.Add(function.Name, function);
+                else
+                    context.Functions[function.Name] = function;
+            }
+
+            bool hasProcessingErrors = false;
+            List<string> errorMessages = new List<string>();
+
+            // Обрабатываем основной скрипт (после регистрации функций)
+            foreach (string line in mainScriptLines)
             {
                 string trimmedLine = line.Trim();
 
@@ -82,12 +109,28 @@ namespace SNEngine.Editor.SNILSystem
 
                 if (!result.Success)
                 {
-                    SNILDebug.LogError($"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}");
-                    hasErrors = true;
+                    string errorMsg = $"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}";
+                    SNILDebug.LogError(errorMsg);
+                    errorMessages.Add(errorMsg);
+                    hasProcessingErrors = true;
                 }
             }
 
-            return !hasErrors;
+            // Если были ошибки обработки инструкций, не продолжаем импорт
+            if (hasProcessingErrors)
+            {
+                SNILDebug.LogError($"Script processing failed with the following errors:\n{string.Join("\n", errorMessages)}");
+                return false;
+            }
+
+            // После обработки всех инструкций, соединяем ноды последовательно
+            if (context.Graph != null)
+            {
+                var dialogueGraph = (DialogueGraph)context.Graph;
+                NodeConnectionUtility.ConnectNodesSequentially(dialogueGraph, context.Nodes);
+            }
+
+            return true;
         }
 
         private static bool IsCommentLine(string line)
