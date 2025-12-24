@@ -1,49 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+
 namespace SNEngine.Editor.SNILSystem.Validators
 {
     public class SNILSyntaxValidator : SNILValidator
     {
-        private readonly Dictionary<string, string> _nodeTemplates;
-
         public SNILSyntaxValidator()
         {
-            // Загружаем шаблоны для проверки существования нод
-            _nodeTemplates = new Dictionary<string, string>();
-            
-            string snilDirectory = "Assets/SNEngine/Source/SNEngine/Editor/SNIL";
-            if (Directory.Exists(snilDirectory))
-            {
-                string[] templateFiles = Directory.GetFiles(snilDirectory, "*.snil");
-
-                foreach (string templateFile in templateFiles)
-                {
-                    string fileName = Path.GetFileNameWithoutExtension(templateFile);
-                    if (fileName.EndsWith(".cs")) fileName = Path.GetFileNameWithoutExtension(fileName);
-
-                    string[] lines = File.ReadAllLines(templateFile);
-                    string templateContent = "";
-
-                    foreach (string line in lines)
-                    {
-                        if (!line.StartsWith("worker:", StringComparison.OrdinalIgnoreCase) && 
-                            !string.IsNullOrEmpty(line.Trim()) && 
-                            !IsCommentLine(line))
-                        {
-                            templateContent = line; // Берём первую непустую строку как шаблон
-                            break;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(templateContent))
-                    {
-                        _nodeTemplates[fileName] = templateContent;
-                    }
-                }
-            }
         }
 
         public override bool Validate(string[] lines, out string errorMessage)
@@ -76,11 +41,13 @@ namespace SNEngine.Editor.SNILSystem.Validators
 
             // Проверяем наличие директивы name в основном скрипте:
             bool hasNameDirective = false;
+            int nameLineIndex = -1;
             for (int i = 0; i < mainScriptLines.Length; i++)
             {
                 if (Regex.IsMatch(mainScriptLines[i].Trim(), @"^name:\s*.+", RegexOptions.IgnoreCase))
                 {
                     hasNameDirective = true;
+                    nameLineIndex = i;
                     break;
                 }
             }
@@ -96,99 +63,120 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 });
             }
 
-            // Проверяем существование нод в строках основного скрипта (кроме служебных и комментариев)
-            List<ContentLineInfo> contentLines = new List<ContentLineInfo>();
+            // Проверяем, что первая значимая строка (после name:) - это Start
+            if (hasNameDirective)
+            {
+                // Ищем первую строку после name:
+                for (int i = nameLineIndex + 1; i < mainScriptLines.Length; i++)
+                {
+                    string trimmed = mainScriptLines[i].Trim();
+                    if (!string.IsNullOrEmpty(trimmed) && !IsCommentLine(trimmed))
+                    {
+                        if (!trimmed.Equals("Start", StringComparison.OrdinalIgnoreCase))
+                        {
+                            errors.Add(new SNILValidationError
+                            {
+                                LineNumber = GetOriginalLineIndex(lines, mainScriptLines[i], 0) + 1,
+                                LineContent = trimmed,
+                                ErrorType = SNILValidationErrorType.InvalidStart,
+                                Message = "Script must start with 'Start' line after 'name:' directive."
+                            });
+                        }
+                        break; // Проверяем только первую значимую строку
+                    }
+                }
+            }
+
+            // Валидируем все инструкции
             for (int i = 0; i < mainScriptLines.Length; i++)
             {
-                string trimmed = mainScriptLines[i].Trim();
-                if (!string.IsNullOrEmpty(trimmed) && 
-                    !IsCommentLine(trimmed) && 
-                    !trimmed.StartsWith("name:", StringComparison.OrdinalIgnoreCase) &&
-                    !trimmed.StartsWith("worker:", StringComparison.OrdinalIgnoreCase))
+                string line = mainScriptLines[i];
+                string trimmedLine = line.Trim();
+
+                if (string.IsNullOrEmpty(trimmedLine) || IsCommentLine(trimmedLine))
+                    continue;
+
+                // Получаем оригинальный индекс строки в исходном массиве
+                int originalLineIndex = GetOriginalLineIndex(lines, line, 0);
+
+                // Проверяем специальные инструкции
+                if (Regex.IsMatch(trimmedLine, @"^name:\s*.+", RegexOptions.IgnoreCase))
                 {
-                    contentLines.Add(new ContentLineInfo { LineIndex = GetOriginalLineIndex(lines, mainScriptLines[i], 0), LineContent = trimmed });
+                    // Уже проверили выше
+                    continue;
                 }
-            }
-
-            if (contentLines.Count == 0)
-            {
-                errors.Add(new SNILValidationError
+                else if (trimmedLine.Equals("Start", StringComparison.OrdinalIgnoreCase))
                 {
-                    LineNumber = 0,
-                    LineContent = "No content lines found",
-                    ErrorType = SNILValidationErrorType.NoContent,
-                    Message = "No content lines found in script."
-                });
-                errorMessage = string.Join("\n", errors.Select(e => e.ToString()));
-                return false;
-            }
-
-            // Проверяем, что первая строка основного скрипта - это Start
-            if (contentLines.Count > 0 && contentLines[0].LineContent != "Start")
-            {
-                errors.Add(new SNILValidationError
+                    // Уже проверили выше
+                    continue;
+                }
+                else if (trimmedLine.Equals("End", StringComparison.OrdinalIgnoreCase))
                 {
-                    LineNumber = contentLines[0].LineIndex + 1,
-                    LineContent = contentLines[0].LineContent,
-                    ErrorType = SNILValidationErrorType.InvalidStart,
-                    Message = "Script must start with 'Start' line."
-                });
-            }
-
-            // Проверяем, что последняя строка основного скрипта - это End или JumpTo
-            if (contentLines.Count > 0)
-            {
-                ContentLineInfo lastLine = contentLines[contentLines.Count - 1];
-                bool endsWithValidExit = lastLine.LineContent.Equals("End", StringComparison.OrdinalIgnoreCase) ||
-                                       lastLine.LineContent.StartsWith("Jump To ", StringComparison.OrdinalIgnoreCase);
-
-                if (!endsWithValidExit)
-                {
-                    errors.Add(new SNILValidationError
+                    // Проверяем, что это последняя значимая строка
+                    if (!IsLastSignificantLine(mainScriptLines, i))
                     {
-                        LineNumber = lastLine.LineIndex + 1,
-                        LineContent = lastLine.LineContent,
-                        ErrorType = SNILValidationErrorType.InvalidEnd,
-                        Message = "Script must end with 'End' or 'Jump To [dialogue_name]' line."
-                    });
+                        errors.Add(new SNILValidationError
+                        {
+                            LineNumber = originalLineIndex + 1,
+                            LineContent = trimmedLine,
+                            ErrorType = SNILValidationErrorType.InvalidEnd,
+                            Message = "Script must end with 'End' line."
+                        });
+                    }
                 }
-            }
-
-            // Проверяем существование нод в строках основного скрипта
-            for (int i = 0; i < contentLines.Count; i++)
-            {
-                ContentLineInfo lineInfo = contentLines[i];
-                bool isValidNode = false;
-
-                // Пропускаем служебные строки
-                if (lineInfo.LineContent.Equals("Start", StringComparison.OrdinalIgnoreCase) ||
-                    lineInfo.LineContent.Equals("End", StringComparison.OrdinalIgnoreCase) ||
-                    lineInfo.LineContent.StartsWith("Jump To ", StringComparison.OrdinalIgnoreCase) ||
-                    lineInfo.LineContent.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
+                else if (trimmedLine.StartsWith("Jump To ", StringComparison.OrdinalIgnoreCase))
                 {
-                    isValidNode = true; // Эти строки валидны
+                    // Проверяем, что это последняя значимая строка
+                    if (!IsLastSignificantLine(mainScriptLines, i))
+                    {
+                        errors.Add(new SNILValidationError
+                        {
+                            LineNumber = originalLineIndex + 1,
+                            LineContent = trimmedLine,
+                            ErrorType = SNILValidationErrorType.InvalidEnd,
+                            Message = "Script with 'Jump To' must end with this line."
+                        });
+                    }
+                }
+                else if (trimmedLine.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Проверяем формат вызова функции
+                    string functionName = trimmedLine.Substring(5).Trim();
+                    if (string.IsNullOrEmpty(functionName))
+                    {
+                        errors.Add(new SNILValidationError
+                        {
+                            LineNumber = originalLineIndex + 1,
+                            LineContent = trimmedLine,
+                            ErrorType = SNILValidationErrorType.InvalidFunctionDefinition,
+                            Message = "Function name is required after 'call' keyword."
+                        });
+                    }
+                }
+                else if (trimmedLine.StartsWith("function ", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Уже обработали в ValidateFunctions
+                    continue;
+                }
+                else if (trimmedLine.Equals("end", StringComparison.Ordinal))
+                {
+                    // Уже обработали в ValidateFunctions
+                    continue;
                 }
                 else
                 {
-                    foreach (var template in _nodeTemplates)
+                    // Для всех остальных инструкций используем систему валидаторов
+                    var validationResult = InstructionValidatorManager.Instance.ValidateInstruction(trimmedLine);
+                    if (!validationResult.IsValid)
                     {
-                        if (SNILTemplateMatcher.MatchLineWithTemplate(lineInfo.LineContent, template.Value) != null)
+                        errors.Add(new SNILValidationError
                         {
-                            isValidNode = true;
-                            break;
-                        }
+                            LineNumber = originalLineIndex + 1,
+                            LineContent = trimmedLine,
+                            ErrorType = SNILValidationErrorType.UnknownNode,
+                            Message = validationResult.ErrorMessage
+                        });
                     }
-                }
-
-                if (!isValidNode)
-                {
-                    errors.Add(new SNILValidationError
-                    {
-                        LineNumber = lineInfo.LineIndex + 1,
-                        LineContent = lineInfo.LineContent,
-                        ErrorType = SNILValidationErrorType.UnknownNode,
-                        Message = $"Unknown node format: '{lineInfo.LineContent}'"
-                    });
                 }
             }
 
@@ -199,6 +187,19 @@ namespace SNEngine.Editor.SNILSystem.Validators
             }
 
             return true;
+        }
+
+        private bool IsLastSignificantLine(string[] lines, int currentIndex)
+        {
+            for (int i = currentIndex + 1; i < lines.Length; i++)
+            {
+                string trimmed = lines[i].Trim();
+                if (!string.IsNullOrEmpty(trimmed) && !IsCommentLine(trimmed))
+                {
+                    return false; // Найдена еще одна значимая строка
+                }
+            }
+            return true; // Это последняя значимая строка
         }
 
         private string[] ExtractMainScriptWithoutFunctions(string[] lines)
@@ -303,20 +304,13 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 });
             }
         }
-        
+
         private static bool IsCommentLine(string line)
         {
             string trimmed = line.Trim();
             return trimmed.StartsWith("//") || trimmed.StartsWith("#");
         }
-        
-        private static bool IsFunctionLine(string line)
-        {
-            string trimmed = line.Trim();
-            return trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
-                   trimmed.Equals("end", StringComparison.OrdinalIgnoreCase);
-        }
-        
+
         private static int GetOriginalLineIndex(string[] originalLines, string content, int startIndex)
         {
             for (int i = startIndex; i < originalLines.Length; i++)
@@ -354,11 +348,5 @@ namespace SNEngine.Editor.SNILSystem.Validators
         InvalidJumpToFormat,
         InvalidFunctionDefinition,
         FunctionNotClosed
-    }
-
-    internal class ContentLineInfo
-    {
-        public int LineIndex { get; set; }
-        public string LineContent { get; set; }
     }
 }
