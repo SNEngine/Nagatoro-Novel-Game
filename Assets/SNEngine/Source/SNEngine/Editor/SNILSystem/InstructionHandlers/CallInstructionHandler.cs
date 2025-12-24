@@ -1,4 +1,6 @@
 using SiphoinUnityHelpers.XNodeExtensions;
+using SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes;
+using SNEngine.Editor.SNILSystem.FunctionSystem;
 using SNEngine.Graphs;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -48,7 +50,8 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
             if (callNode != null)
             {
                 callNode.name = $"Call {functionName}";
-                callNode.position = new Vector2(context.Nodes.Count * 250, 0);
+                // Размещаем GroupCallsNode немного выше основного потока для визуального отделения
+                callNode.position = new Vector2(context.Nodes.Count * 250, -150);
 
                 // Устанавливаем имя функции как параметр
                 var parameters = new Dictionary<string, string> { { "name", functionName } };
@@ -59,10 +62,88 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                 // Соединяем с предыдущей нодой
                 NodeConnectionUtility.ConnectNodeToLast(dialogueGraph, callNode, context);
 
+                // Создаем тело функции и подключаем его к GroupCallsNode
+                if (context.Functions.ContainsKey(functionName))
+                {
+                    var function = context.Functions[functionName] as SNILFunction;
+                    if (function != null)
+                    {
+                        // Создаем ноды тела функции
+                        var functionBodyContext = new InstructionContext
+                        {
+                            Graph = context.Graph,
+                            CurrentGraphName = context.CurrentGraphName,
+                            Functions = context.Functions
+                        };
+
+                        var functionBodyNodes = FunctionBodyCreator.CreateFunctionBody(dialogueGraph, function, functionBodyContext);
+
+                        // Подключаем первую ноду тела функции к порту _operations GroupCallsNode
+                        if (functionBodyNodes.Count > 0)
+                        {
+                            var groupNode = callNode as GroupCallsNode;
+                            if (groupNode != null)
+                            {
+                                var operationsPort = groupNode.GetOutputPort("_operations");
+                                var firstNode = functionBodyNodes[0] as BaseNode;
+                                var firstNodeInteraction = firstNode as BaseNodeInteraction;
+
+                                if (operationsPort != null && firstNodeInteraction != null)
+                                {
+                                    var firstNodeEnterPort = firstNodeInteraction.GetEnterPort();
+                                    if (firstNodeEnterPort != null)
+                                    {
+                                        operationsPort.Connect(firstNodeEnterPort);
+                                    }
+                                }
+
+                                // Соединяем ноды тела функции последовательно
+                                for (int i = 0; i < functionBodyNodes.Count - 1; i++)
+                                {
+                                    var currNode = functionBodyNodes[i] as BaseNodeInteraction;
+                                    var nextNode = functionBodyNodes[i + 1] as BaseNodeInteraction;
+
+                                    if (currNode != null && nextNode != null)
+                                    {
+                                        var outPort = currNode.GetExitPort();
+                                        var inPort = nextNode.GetEnterPort();
+                                        if (outPort != null && inPort != null)
+                                        {
+                                            outPort.Connect(inPort);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Позиционируем ноды тела функции выше основного потока
+                            PositionFunctionBodyNodes(callNode, functionBodyNodes);
+                        }
+                    }
+                }
+
                 return InstructionResult.Ok(callNode);
             }
 
             return InstructionResult.Error($"Failed to create function call node for function: {functionName}");
+        }
+
+        private static void PositionFunctionBodyNodes(BaseNode groupNode, List<object> bodyNodes)
+        {
+            if (bodyNodes.Count == 0) return;
+
+            // Получаем позицию GroupCallsNode для определения стартовой точки
+            float groupNodeX = groupNode.position.x;
+            float groupNodeY = groupNode.position.y; // Это будет -150 или другое отрицательное значение
+
+            // Размещаем ноды тела функции немного правее GroupCallsNode и выше основного потока
+            for (int i = 0; i < bodyNodes.Count; i++)
+            {
+                var node = bodyNodes[i] as BaseNode;
+                if (node != null)
+                {
+                    node.position = new Vector2(groupNodeX + (i + 1) * 250, groupNodeY - 50); // Ещё выше основного потока
+                }
+            }
         }
     }
 }
