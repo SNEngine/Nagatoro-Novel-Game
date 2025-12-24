@@ -11,4 +11,3 @@ call testFunc
 Jump To SecondScript
 function testFunc
 Wait 2 seconds
-end

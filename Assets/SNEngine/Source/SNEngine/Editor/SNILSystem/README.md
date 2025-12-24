@@ -292,7 +292,7 @@ The system supports functions similar to JavaScript, allowing you to group relat
 **Syntax**:
 ```
 function functionName
-  // function body with SNIL commands
+// function body with SNIL commands
 end
 ```
 
