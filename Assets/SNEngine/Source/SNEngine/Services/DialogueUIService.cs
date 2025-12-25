@@ -1,4 +1,5 @@
 ﻿using SNEngine.DialogSystem;
+using SNEngine.Source.SNEngine.DialogueSystem;
 using SNEngine.Utils;
 using TMPro;
 using UnityEngine;

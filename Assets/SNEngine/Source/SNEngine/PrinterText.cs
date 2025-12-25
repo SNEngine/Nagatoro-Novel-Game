@@ -14,7 +14,7 @@ namespace SNEngine
 {
     public abstract class PrinterText : MonoBehaviour, IPrinterText, IShowable, IHidden
     {
-        private CancellationTokenSource _cancellationTokenSource;
+        protected CancellationTokenSource _cancellationTokenSource;
 
         public event Action OnWriteSymbol;
         public event Action OnTextForceCompleted;
@@ -23,6 +23,17 @@ namespace SNEngine
 
         [SerializeField, Min(0)] private float _speedWriting = 0.3f;
         [SerializeField] private TextMeshProUGUI _textMessage;
+        public TextMeshProUGUI TextMessage
+        {
+            get { return _textMessage; }
+            set =>  _textMessage = value;
+        }
+        
+        public IInputSystem InputSystem
+        {
+            get { return _inputSystem; }
+            set => _inputSystem = value;
+        }
 
         private TMP_FontAsset _defaultFontTextDialog;
         private IInputSystem _inputSystem;
@@ -38,11 +49,27 @@ namespace SNEngine
             _inputSystem = NovelGame.Instance.GetService<InputService>();
         }
 
-        public void Hide() => gameObject.SetActive(false);
-        public void Show()
+        public void DisableTextPrinting()
+        {
+            TextMessage = null;
+        }
+        
+        public virtual void Hide() => gameObject.SetActive(false);
+        public virtual void Show()
         {
             _hasTextEffects = GetComponentInChildren<TextEffect>() != null;
             gameObject.SetActive(true);
+        }
+
+        public void InvokeTextForceCompleted()
+        {
+            OnTextForceCompleted?.Invoke();
+        }
+
+        public virtual void Print(string message)
+        {
+            Show();
+            StartOutputDialog(message);
         }
 
 #if UNITY_STANDALONE || UNITY_WEBGL

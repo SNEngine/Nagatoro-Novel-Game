@@ -1,6 +1,6 @@
 ﻿using SNEngine.CharacterSystem;
 
-namespace SNEngine.DialogSystem
+namespace SNEngine.Source.SNEngine.DialogueSystem
 {
     public interface IDialogNode : IPrinterNode
     {

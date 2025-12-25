@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using TMPro;
 using SNEngine.Debugging;
+using SNEngine.Source.SNEngine.DialogueSystem;
 
 namespace SNEngine.DialogSystem
 {

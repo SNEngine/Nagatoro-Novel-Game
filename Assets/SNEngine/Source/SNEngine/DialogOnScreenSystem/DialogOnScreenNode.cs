@@ -6,15 +6,9 @@ namespace SNEngine.DialogOnScreenSystem
     {
         public override void Execute()
         {
-            base.Execute();
-
             var service = NovelGame.Instance.GetService<DialogueOnScreenService>();
 
             service.ShowDialog(this);
         }
-
-       
-
-
     }
 }

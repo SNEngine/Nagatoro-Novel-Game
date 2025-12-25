@@ -1,0 +1,15 @@
+DialogueService
+    ↓
+DialogueGraph.Execute()
+    ↓
+MessengerDialogNode.Execute()
+    ↓
+DialogueExecutorService.ExecuteNode()
+    ↓
+DialogueMessagesUIService.ShowMessage()
+    ↓
+DialogueMessageWindow.AddMessage()
+    ↓
+MessageView.ShowMessage()
+    ↓
+MessagePrinterText.Print()
