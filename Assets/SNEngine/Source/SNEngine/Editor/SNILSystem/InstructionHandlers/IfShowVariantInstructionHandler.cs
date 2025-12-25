@@ -179,6 +179,9 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                         if (idx == 0) isTrueBranch = true; else isTrueBranch = false;
                     }
 
+                    // Save main flow last node so branch node creation doesn't alter the main flow (restore after processing branch)
+                    var savedMainLast = context.LastNode;
+
                     // Base positions for the branch first node (relative to the If node; X is computed dynamically so nodes can stack/align like other systems)
                     var branchBaseY = ifNodeSingle.position.y + (isTrueBranch ? -120f : 216f);
 
@@ -339,6 +342,9 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                             SNILDebug.LogWarning($"Unrecognized instruction inside If Show Variant block: {sTrim}");
                         }
                     }
+
+                    // restore the main flow last node so branch processing doesn't interfere with subsequent top-level nodes
+                    context.LastNode = savedMainLast;
 
                     continue; // continue main loop from the current i (we've already advanced)
                 }

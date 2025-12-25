@@ -24,7 +24,9 @@ namespace SNEngine.Editor.SNILSystem
                 { typeof(DialogNode), () => new DialogNodeWorker() },
                 { typeof(DebugNode), () => new DebugNodeWorker() },
                 { typeof(ErrorNode), () => new ErrorNodeWorker() },
-                { typeof(ShowVariantsNode), () => new ShowVariantsNodeWorker() }
+                { typeof(ShowVariantsNode), () => new ShowVariantsNodeWorker() },
+                // Ensure JumpToDialogueNode uses its specific worker so it registers pending jump references
+                { typeof(JumpToDialogueNode), () => new JumpToDialogueNodeWorker() }
             };
 
             _nodeNameWorkerMap = new Dictionary<string, Func<SNILWorker>>(StringComparer.OrdinalIgnoreCase)

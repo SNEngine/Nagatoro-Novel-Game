@@ -15,9 +15,16 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                 var currentNode = nodes[i] as BaseNode;
                 var nextNode = nodes[i + 1] as BaseNode;
 
+                // Only connect sequential nodes that are part of the main flow (not nodes controlled by If/Loop/Group)
                 if (currentNode is BaseNodeInteraction currentInteraction && 
                     nextNode is BaseNodeInteraction nextInteraction)
                 {
+                    // Skip nodes that are controlled by another node (e.g., branch nodes) to avoid cross-branch wiring
+                    if (currentInteraction.IsControlledAnotherNode || nextInteraction.IsControlledAnotherNode)
+                    {
+                        continue;
+                    }
+
                     var outPort = currentInteraction.GetExitPort();
                     var inPort = nextInteraction.GetEnterPort();
                     

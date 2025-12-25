@@ -51,8 +51,21 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 }
                 else if (trimmedLine.StartsWith("Jump To ", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    // Проверяем, что это последняя значимая строка
-                    if (!IsLastSignificantLine(mainScriptLines, i))
+                    // Allow 'Jump To' if it's the last significant line at top-level,
+                    // or if it's the last significant line inside the current branch of a block.
+                    bool allowed = false;
+                    if (!IsLineInsideBlock(mainScriptLines, i))
+                    {
+                        // top-level Jump To must be last significant line
+                        if (IsLastSignificantLine(mainScriptLines, i)) allowed = true;
+                    }
+                    else
+                    {
+                        // inside a block: must be the last significant instruction in the branch
+                        if (IsLastSignificantInBranch(mainScriptLines, i)) allowed = true;
+                    }
+
+                    if (!allowed)
                     {
                         errors.Add(new SNILValidationError
                         {
@@ -175,6 +188,33 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 }
             }
             return true; // Это последняя значимая строка
+        }
+
+        // Проверяет, является ли текущая строка последней значимой строкой внутри своей ветки
+        private static bool IsLastSignificantInBranch(string[] lines, int index)
+        {
+            int nesting = 0;
+            for (int i = index + 1; i < lines.Length; i++)
+            {
+                var t = lines[i].Trim();
+                if (string.IsNullOrEmpty(t) || IsCommentLine(t)) continue;
+                if (t.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase)) { nesting++; continue; }
+                if (t.Equals("endif", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (nesting == 0) return true; // дошли до конца внешнего блока
+                    nesting--;
+                    continue;
+                }
+                if (t.EndsWith(":" ) && nesting == 0)
+                {
+                    // следующий заголовок секции на том же уровне — ветка закончилась
+                    return true;
+                }
+                if (nesting == 0 && !t.EndsWith(":")) return false; // найдена значимая инструкция после
+            }
+
+            // если файл кончился, то это конец ветки
+            return true;
         }
 
         private static bool IsCommentLine(string line)

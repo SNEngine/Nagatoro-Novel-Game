@@ -1,0 +1,21 @@
+name: TestIfShowVariant
+Start
+If Show Variant
+Variants:
+Option A
+Option B
+True:
+Jump To SecondDialogue
+False:
+End
+endif
+
+
+---
+
+
+# Another dialogue target used by Jump To
+name: SecondDialogue
+Start
+Nagatoro says (Second dialogue reached)
+End

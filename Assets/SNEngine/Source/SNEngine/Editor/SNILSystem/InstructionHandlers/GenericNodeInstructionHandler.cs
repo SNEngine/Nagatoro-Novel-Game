@@ -83,8 +83,9 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                         jumpNode.name = $"Jump To {targetDialogue}";
                         jumpNode.position = new Vector2(context.Nodes.Count * 250, 0);
 
-                        var jumpParams = new Dictionary<string, string> { { "targetDialogue", targetDialogue } };
-                        SNILParameterApplier.ApplyParametersToNode(jumpNode, jumpParams, "JumpNode");
+                        var jumpParams = new Dictionary<string, string> { { "_dialogue", targetDialogue } };
+                        // Use the actual runtime node type name so we pick correct template/worker (e.g., JumpToDialogueNode)
+                        SNILParameterApplier.ApplyParametersToNode(jumpNode, jumpParams, jumpNode.GetType().Name);
 
                         AssetDatabase.AddObjectToAsset(jumpNode, dialogueGraph);
                         context.Nodes.Add(jumpNode);
@@ -106,8 +107,9 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                             jumpNode.name = $"Jump To {targetDialogue}";
                             jumpNode.position = new Vector2(context.Nodes.Count * 250, 0);
 
-                            var jumpParams = new Dictionary<string, string> { { "command", "Jump To" }, { "target", targetDialogue } };
-                            SNILParameterApplier.ApplyParametersToNode(jumpNode, jumpParams, "GenericNode");
+                            var jumpParams = new Dictionary<string, string> { { "_dialogue", targetDialogue } };
+                            // Use the actual runtime node type name so we pick correct template/worker
+                            SNILParameterApplier.ApplyParametersToNode(jumpNode, jumpParams, jumpNode.GetType().Name);
 
                             AssetDatabase.AddObjectToAsset(jumpNode, dialogueGraph);
                             context.Nodes.Add(jumpNode);
