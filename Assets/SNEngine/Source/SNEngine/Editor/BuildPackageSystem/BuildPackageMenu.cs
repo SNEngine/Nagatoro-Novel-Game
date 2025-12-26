@@ -21,8 +21,18 @@ namespace SNEngine.Editor.BuildPackageSystem
         [MenuItem(MENU_1)]
         public static async void Step1_Cleanup()
         {
-            if (!ValidateBranch()) return;
-            if (!EditorUtility.DisplayDialog("Step 1", "Clean project using C++ utility?", "Yes", "Cancel")) return;
+            Debug.Log("[SNEngine] Step 1 Started");
+
+            bool isBranchValid = ValidateBranch();
+            Debug.Log("[SNEngine] Branch validation result: " + isBranchValid);
+
+            if (!isBranchValid) return;
+
+            if (!EditorUtility.DisplayDialog("Step 1", "Clean project using C++ utility?", "Yes", "Cancel"))
+            {
+                Debug.Log("[SNEngine] Cleanup cancelled by user");
+                return;
+            }
 
             try
             {
@@ -35,60 +45,45 @@ namespace SNEngine.Editor.BuildPackageSystem
             catch (Exception e)
             {
                 AssetDatabase.StopAssetEditing();
-                Debug.LogError($"Cleanup failed: {e.Message}");
+                Debug.LogError("[SNEngine] Critical failure: " + e.Message);
             }
         }
 
         private static async Task RunCppCleanup()
         {
             string root = GetProjectRoot();
-            string exePath = Path.Combine(root, CLEANER_EXE_REL_PATH);
+            string fullPath = Path.GetFullPath(Path.Combine(root, CLEANER_EXE_REL_PATH));
+            string workDir = Path.GetDirectoryName(fullPath);
 
-            Debug.Log($"<color=orange>[Cleaner]</color> Attempting to run: {exePath}");
-            Debug.Log($"<color=orange>[Cleaner]</color> Project Root passed: {root}");
+            Debug.Log("[SNEngine] EXE Path: " + fullPath);
+            Debug.Log("[SNEngine] Project Root: " + root);
 
-            if (!File.Exists(exePath))
+            if (!File.Exists(fullPath))
             {
-                Debug.LogError($"<color=red>[Cleaner]</color> EXE NOT FOUND at: {exePath}");
+                Debug.LogError("[SNEngine] EXE NOT FOUND at: " + fullPath);
                 return;
             }
 
             ProcessStartInfo si = new ProcessStartInfo
             {
-                FileName = exePath,
-                Arguments = $"\"{root}\"",
+                FileName = fullPath,
+                Arguments = "\"" + root + "\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                WorkingDirectory = Path.GetDirectoryName(exePath),
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                WorkingDirectory = workDir
             };
 
-            try
+            using (Process p = Process.Start(si))
             {
-                using (Process p = Process.Start(si))
-                {
-                    if (p == null)
-                    {
-                        Debug.LogError("<color=red>[Cleaner]</color> Failed to start process (p is null).");
-                        return;
-                    }
-
-                    await Task.Run(() => p.WaitForExit());
-
-                    if (p.ExitCode != 0)
-                    {
-                        Debug.LogWarning($"<color=yellow>[Cleaner]</color> Process finished with code: {p.ExitCode}. Check if cleanup_list.txt exists next to exe.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"<color=red>[Cleaner]</color> Critical Error: {ex.Message}");
+                if (p == null) throw new Exception("Process failed to start");
+                await Task.Run(() => p.WaitForExit());
+                Debug.Log("[SNEngine] Process Exit Code: " + p.ExitCode);
             }
         }
 
         [MenuItem(MENU_2)] public static void Step2() => AssetDatabase.Refresh();
-        [MenuItem(MENU_3)] public static void Step3() => Debug.Log("Logic");
+        [MenuItem(MENU_3)] public static void Step3() => Debug.Log("Step 3");
 
         [MenuItem(MENU_4)]
         public static void Step4_Build()
@@ -110,7 +105,16 @@ namespace SNEngine.Editor.BuildPackageSystem
             RestoreGitState();
         }
 
-        private static bool ValidateBranch() => !IsOnMasterBranch();
+        private static bool ValidateBranch()
+        {
+            bool isMaster = IsOnMasterBranch();
+            if (isMaster)
+            {
+                EditorUtility.DisplayDialog("Blocked", "Master branch blocked. Switch to a feature branch.", "OK");
+                return false;
+            }
+            return true;
+        }
 
         private static string GetProjectRoot() => Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
 
@@ -130,10 +134,15 @@ namespace SNEngine.Editor.BuildPackageSystem
                 using (Process p = Process.Start(si))
                 {
                     string branch = p.StandardOutput.ReadToEnd().Trim();
+                    Debug.Log("[SNEngine] Current branch: " + branch);
                     return branch.Equals("master", StringComparison.OrdinalIgnoreCase) || branch.Equals("main", StringComparison.OrdinalIgnoreCase);
                 }
             }
-            catch { return false; }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[SNEngine] Git check failed: " + e.Message);
+                return false;
+            }
         }
 
         private static void RestoreGitState()
