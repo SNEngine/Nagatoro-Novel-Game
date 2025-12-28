@@ -15,7 +15,7 @@ namespace SNEngine.Editor.BuildPackageSystem
         private const string MENU_4 = "SNEngine/Package/4. Build Package";
         private const string MENU_5 = "SNEngine/Package/5. Restore Project (Git)";
 
-        private const string CLEANER_EXE_REL_PATH = "Assets/SNEngine/Source/SNEngine/Editor/Utils/SNEngine_Cleaner.exe";
+        private const string CLEANER_TOOL_FOLDER = "Assets/SNEngine/Source/SNEngine/Editor/Utils/SNEngine_Cleaner";
 
         [MenuItem(MENU_1)]
         public static async void Step1_Cleanup()
@@ -37,10 +37,21 @@ namespace SNEngine.Editor.BuildPackageSystem
         private static async Task RunCppCleanup()
         {
             string root = GetProjectRoot();
-            string fullPath = Path.GetFullPath(Path.Combine(root, CLEANER_EXE_REL_PATH));
+
+            // Определяем платформу и имя файла
+            string platformFolder = Application.platform == RuntimePlatform.WindowsEditor ? "Windows" : "Linux";
+            string exeName = Application.platform == RuntimePlatform.WindowsEditor ? "SNEngine_Cleaner.exe" : "SNEngine_Cleaner";
+
+            // Собираем полный путь с учетом новой структуры
+            string relativePath = Path.Combine(CLEANER_TOOL_FOLDER, platformFolder, exeName);
+            string fullPath = Path.GetFullPath(Path.Combine(root, relativePath));
             string workDir = Path.GetDirectoryName(fullPath);
 
-            if (!File.Exists(fullPath)) return;
+            if (!File.Exists(fullPath))
+            {
+                UnityEngine.Debug.LogError($"[Cleaner] EXE not found at: {fullPath}");
+                return;
+            }
 
             ProcessStartInfo si = new ProcessStartInfo
             {
