@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 960453726aa34c30952d50d6e06ddfce, type: 3}
-  m_Name: Message Dialog On Screen Service
+  m_Name: MessageService
   m_EditorClassIdentifier: 

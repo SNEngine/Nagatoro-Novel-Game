@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="b89130e0-aa16-453e-8049-976d3df9a6e1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Nagatoro-Novel-Game_myWork/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Nagatoro-Novel-Game_myWork/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/OpenSans-VariableFont_wdth,wght SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/OpenSans-VariableFont_wdth,wght SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/Silkscreen-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/Silkscreen-Bold SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/Silkscreen-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/Silkscreen-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble_2.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble_3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble_3.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble_4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/bubble_4.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/buuble_right.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Sprites/buuble_right.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/Bubble.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/Bubble.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/DialogueExecutorService.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="37NDXj2SIVNot1VTLJ0JzEedpCM" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "other-features",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b89130e0-aa16-453e-8049-976d3df9a6e1" name="Changes" comment="" />
+      <created>1766734680691</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1766734680691</updated>
+      <workItem from="1766734682635" duration="53000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="UnityProjectDiscoverer">
+    <option name="unityProjectFolder" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

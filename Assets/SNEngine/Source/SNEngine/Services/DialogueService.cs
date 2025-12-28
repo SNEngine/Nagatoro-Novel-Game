@@ -1,11 +1,9 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using System.Linq;
 using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.Graphs;
 using SNEngine.SaveSystem.Models;
-using SNEngine.Utils;
-using System;
-using System.Linq;
 using UnityEngine;
 using XNode;
 
@@ -18,6 +16,7 @@ namespace SNEngine.Services
         private IDialogue _startDialogue;
         private IOldRenderDialogue _oldRenderDialogueService;
 
+        public event Action<IDialogue> OnStartDialogue;
         public event Action<IDialogue> OnEndDialogue;
 
         public IDialogue CurrentDialogue => _currentDialogue;
@@ -27,7 +26,6 @@ namespace SNEngine.Services
             _oldRenderDialogueService = NovelGame.Instance.GetService<RenderOldDialogueService>();
 
             _startDialogue = Resources.Load<DialogueGraph>($"Dialogues/{nameof(_startDialogue)}");
-
         }
 
         public void JumpToStartDialogue()
@@ -37,22 +35,30 @@ namespace SNEngine.Services
 
         public void JumpToDialogue(IDialogue dialogue)
         {
-            NodeHighlighter.ClearAllHighlights(); 
+            NodeHighlighter.ClearAllHighlights();
             if (dialogue is null)
             {
                 NovelGameDebug.LogError("dialogue argument is null. Check your graph");
             }
 
             _currentDialogue?.Stop();
-
             _currentDialogue = dialogue;
+            
+            OnStartDialogue?.Invoke(_currentDialogue);
 
+            _currentDialogue.OnStartExecute += OnStartExecute;
             _currentDialogue.OnEndExecute += OnEndExecute;
 
             NovelGameDebug.Log($"Jump To Dialogue: {_currentDialogue.Name}");
 
             _currentDialogue.Execute();
             NovelGame.Instance.GetService<OpenPauseWindowButtonService>().Show();
+        }
+
+        private void OnStartExecute()
+        {
+            Debug.Log(nameof(OnStartExecute));
+            _currentDialogue.OnStartExecute -= OnStartExecute;
         }
 
         public void ToDialogue(SaveData saveData)
@@ -64,27 +70,28 @@ namespace SNEngine.Services
             if (targetDialogue != null)
             {
                 _currentDialogue = targetDialogue;
+                _currentDialogue.OnStartExecute += OnStartExecute;
                 _currentDialogue.OnEndExecute += OnEndExecute;
                 targetDialogue.LoadSave(saveData.CurrentNode, saveData);
                 NovelGame.Instance.GetService<OpenPauseWindowButtonService>().Show();
             }
-
         }
 
         public void StopCurrentDialogue()
         {
             if (_currentDialogue != null)
             {
+                _currentDialogue.OnStartExecute -= OnStartExecute;
                 _currentDialogue.OnEndExecute -= OnEndExecute;
                 _currentDialogue.Stop();
                 _currentDialogue = null;
                 NodeHighlighter.ClearAllHighlights();
-
             }
         }
 
         private void OnEndExecute()
         {
+            _currentDialogue.OnStartExecute -= OnStartExecute;
             _currentDialogue.OnEndExecute -= OnEndExecute;
 
             OnEndDialogue?.Invoke(_currentDialogue);
@@ -101,7 +108,6 @@ namespace SNEngine.Services
             _oldRenderDialogueService.DisplayFrame(capturedFrame);
 
             NovelGame.Instance.ResetStateServices();
-
         }
     }
 }

@@ -1,14 +1,10 @@
-﻿using SNEngine.Services;
-
-namespace SNEngine.DialogOnScreenSystem
+﻿namespace SNEngine.DialogOnScreenSystem
 {
     public class DialogOnScreenNode : PrinterTextNode, IDialogOnScreenNode
     {
         public override void Execute()
         {
-            var service = NovelGame.Instance.GetService<DialogueOnScreenService>();
-
-            service.ShowDialog(this);
+            base.Execute();
         }
     }
 }

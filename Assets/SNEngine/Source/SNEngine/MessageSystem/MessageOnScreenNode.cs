@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SNEngine.Source.SNEngine.MessageSystem
 {
-    [CreateNodeMenu("Dialog/Message OnScreen Node")]
+    //[CreateNodeMenu("Dialog/Message OnScreen Node")]
     public class MessageOnScreenNode : AsyncNode, IDialogOnScreenNode
     {
         [SerializeField, TextArea(5, 20)] private string _text;
@@ -14,9 +14,11 @@ namespace SNEngine.Source.SNEngine.MessageSystem
 
         public override void Execute()
         {
-            var service = NovelGame.Instance.GetService<MessageDialogOnScreenService>();
+            var service = NovelGame.Instance.GetService<MessageService>();
             service.ShowMessage(this);
         }
+
+        public bool IsEnd { get; set; }
 
         public void MarkIsEnd()
         {

@@ -1,4 +1,5 @@
-﻿using SNEngine.CharacterSystem;
+﻿using Cysharp.Threading.Tasks;
+using SNEngine.CharacterSystem;
 using SNEngine.Debugging;
 using SNEngine.Source.SNEngine.DialogueSystem;
 using SNEngine.Source.SNEngine.Services;
@@ -24,7 +25,7 @@ namespace SNEngine.DialogSystem
             base.Execute();
 
             var executorService = NovelGame.Instance.GetService<DialogueExecutorService>();
-            executorService.ExecuteNode(this);
+            _ = executorService.ExecuteNode(this);
         }
     }
 }

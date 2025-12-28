@@ -6,6 +6,7 @@ namespace SNEngine.DialogSystem
     {
         object Name { get; }
 
+        event Action OnStartExecute;
         event Action OnEndExecute;
 
         void Execute();

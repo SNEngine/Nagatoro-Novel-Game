@@ -11,12 +11,12 @@ namespace SNEngine.Source.SNEngine.Services
     public class DialogueExecutorService : ServiceBase
     {
         private DialogueUIService _vn;
-        private MessageDialogOnScreenService _msg;
+        private MessageService _msg;
 
         public override void Initialize()
         {
             _vn = NovelGame.Instance.GetService<DialogueUIService>();
-            _msg = NovelGame.Instance.GetService<MessageDialogOnScreenService>();
+            _msg = NovelGame.Instance.GetService<MessageService>();
         }
 
         public async UniTask ExecuteNode(IDialogNode node)

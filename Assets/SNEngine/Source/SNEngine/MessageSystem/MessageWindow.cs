@@ -1,4 +1,3 @@
-using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using SNEngine.DialogOnScreenSystem;
@@ -8,7 +7,7 @@ using UnityEngine.UI;
 
 namespace SNEngine.Source.SNEngine.MessageSystem
 {
-    public class MessageOnScreenWindow : MonoBehaviour, IMessageOnScreenWindow
+    public class MessageWindow : MonoBehaviour, IMessageWindow
     {
         [SerializeField] private MessageView _bubblePrefab;
         [SerializeField] private Transform _bubbleContainer;
@@ -16,17 +15,8 @@ namespace SNEngine.Source.SNEngine.MessageSystem
         [SerializeField, Min(0)] private float _scrollDuration = 0.25f;
         [SerializeField] private Ease _ease = Ease.OutQuad;
 
-        private IDialogOnScreenNode _node;
+        private IPrinterNode _node;
         private TMP_FontAsset _currentFont;
-
-        void OnEnable() => Debug.Log("WINDOW ENABLED________________________________", this);
-
-        void OnDisable()
-        {
-            Debug.LogError("WINDOW DISABLED", this);
-            Debug.LogError(Environment.StackTrace);
-        }
-
 
         public void SetData(IDialogOnScreenNode node)
         {
@@ -39,6 +29,34 @@ namespace SNEngine.Source.SNEngine.MessageSystem
                 return;
 
             CreateBubble(_node.GetText()).Forget();
+        }
+
+        public void ResetState()
+        {
+            if (_bubbleContainer != null)
+            {
+                for (int i = _bubbleContainer.childCount - 1; i >= 0; i--)
+                {
+                    Destroy(_bubbleContainer.GetChild(i).gameObject);
+                }
+            }
+        }
+
+        public void SetFontDialog(TMP_FontAsset font)
+        {
+            _currentFont = font;
+
+            if (_bubbleContainer == null || font == null)
+                return;
+
+            foreach (Transform child in _bubbleContainer)
+            {
+                var view = child.GetComponent<MessageView>();
+                if (view != null && view.Printer != null)
+                {
+                    view.Printer.SetFontDialog(font);
+                }
+            }
         }
 
         private async UniTask CreateBubble(string text)
@@ -80,34 +98,6 @@ namespace SNEngine.Source.SNEngine.MessageSystem
             await _scrollRect
                 .DONormalizedPos(new Vector2(0, 0), _scrollDuration)
                 .SetEase(_ease);
-        }
-
-        public void ResetState()
-        {
-            if (_bubbleContainer != null)
-            {
-                for (int i = _bubbleContainer.childCount - 1; i >= 0; i--)
-                {
-                    Destroy(_bubbleContainer.GetChild(i).gameObject);
-                }
-            }
-        }
-
-        public void SetFontDialog(TMP_FontAsset font)
-        {
-            _currentFont = font;
-
-            if (_bubbleContainer == null || font == null)
-                return;
-
-            foreach (Transform child in _bubbleContainer)
-            {
-                var view = child.GetComponent<MessageView>();
-                if (view != null && view.Printer != null)
-                {
-                    view.Printer.SetFontDialog(font);
-                }
-            }
         }
     }
 }
