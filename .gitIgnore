@@ -118,3 +118,7 @@ Assets/SNEngine/Source/SNEngine/Editor/Utils/SNIL Editor/Windows/settings.json.m
 Assets/SNEngine/Source/SNEngine/Editor/Utils/Yaml Editor/Windows/settings.json
 Assets/SNEngine/Source/SNEngine/Editor/Utils/Yaml Editor/Windows/settings.json.meta
 Assets/SNEngine/Source/SNEngine/Editor/Utils/SNIL Editor/Windows/session.json.meta
+Assets/SNEngine/Source/SNEngine/Editor/Utils/SNIL Editor/Windows/styles.yaml
+Assets/SNEngine/Source/SNEngine/Editor/Utils/SNIL Editor/Windows/styles.yaml.meta
+Assets/SNEngine/Source/SNEngine/Editor/Utils/Yaml Editor/Windows/session.json
+Assets/SNEngine/Source/SNEngine/Editor/Utils/Yaml Editor/Windows/session.json.meta
