@@ -1,4 +1,5 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions.Attributes;
+using SNEngine.Debugging;
 using UnityEngine;
 namespace SiphoinUnityHelpers.XNodeExtensions
 {
@@ -22,13 +23,28 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             switch (_logType)
             {
                 case LogType.Message:
+#if !SNEENGINE_SUPPORT
                     Debug.Log(value);
+
+#else
+                    NovelGameDebug.Log(value);
+#endif
                     break;
                 case LogType.Error:
+#if !SNEENGINE_SUPPORT
                     Debug.LogError(value);
+
+#else
+                    NovelGameDebug.LogError(value);
+#endif
                     break;
                 case LogType.Warning:
+#if !SNEENGINE_SUPPORT
                     Debug.LogWarning(value);
+
+#else
+                    NovelGameDebug.LogWarning(value);
+#endif
                     break;
                 default:
                     break;
