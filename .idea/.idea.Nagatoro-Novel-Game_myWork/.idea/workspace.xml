@@ -5,37 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="554a0c8d-cbf5-49d6-8587-17672e323a8c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/IMessageMenuWindow.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/IMessageMenuWindow.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/IOpenMessageWindowButton.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/IOpenMessageWindowButton.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/MessageMenuWindow.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/MessageMenuWindow.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/OpenMessageWindowButton.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/OpenMessageWindowButton.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageMenuWindowService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageMenuWindowService.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/OpenMessageWindowButtonService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/OpenMessageWindowButtonService.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Nagatoro-Novel-Game_myWork/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Nagatoro-Novel-Game_myWork/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/OpenSans-VariableFont_wdth,wght SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Demo/Fonts/SDF/OpenSans-VariableFont_wdth,wght SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/IMessageWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/IMessageOnScreenWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/IMessageWindow.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/IMessageOnScreenWindow.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenNode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenNode.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessagePrinterText.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessagePrinterText.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenOnScreenWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageWindow.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenOnScreenWindow.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/_MessageSystemDescription.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/_MessageSystemDescription.txt.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/PrinterText.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/PrinterText.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/Dialogues/testNode.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/Dialogues/testNode.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/MessageWindow.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/MessageWindow.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/OpenPauseWindowButton.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/OpenPauseWindowButton.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/SO/Services/Service Container.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/SO/Services/Service Container.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/DialogueService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/DialogueService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/MessageMenuWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/MessageMenuWindow.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/OpenMessageWindowButton.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/OpenMessageWindowButton.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenOnScreenWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenWindow.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenOnScreenWindow.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageSystem/MessageOnScreenWindow.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/MessageWindow.prefab" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Resources/UI/MessageWindow.prefab.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageMenuWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageMenuWindowService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,15 +146,13 @@
       <option name="MIXED_MODE_DEBUG" value="0" />
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="1160">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" value="1160" />
+      <option name="pid" />
       <option name="projectPathOnTarget" />
       <option name="runtimes">
-        <list>
-          <MonoRuntime />
-        </list>
+        <list />
       </option>
       <option name="selectedOptions">
         <list />
@@ -205,7 +181,8 @@
       <workItem from="1766734619908" duration="39000" />
       <workItem from="1766735222290" duration="10853000" />
       <workItem from="1766813728869" duration="24528000" />
-      <workItem from="1766889752649" duration="27497000" />
+      <workItem from="1766889752649" duration="31050000" />
+      <workItem from="1766977842223" duration="7066000" />
     </task>
     <servers />
   </component>
@@ -355,43 +332,17 @@
           <option name="timeStamp" value="63" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageMenuWindowService.cs</url>
-          <line>16</line>
-          <properties documentPath="D:\DEV\Unity\Nagatoro-Novel-Game_myWork\Assets\SNEngine\Source\SNEngine\Services\MessageMenuWindowService.cs" containingFunctionPresentation="Method 'Initialize'">
+          <url>file://$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/MessageMenu/OpenMessageWindowButton.cs</url>
+          <line>37</line>
+          <properties documentPath="D:\DEV\Unity\Nagatoro-Novel-Game_myWork\Assets\SNEngine\Source\SNEngine\MessageMenu\OpenMessageWindowButton.cs" containingFunctionPresentation="Method 'OnPointerDown'">
             <startOffsets>
-              <option value="521" />
+              <option value="1038" />
             </startOffsets>
             <endOffsets>
-              <option value="627" />
+              <option value="1103" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="64" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageMenuWindowService.cs</url>
-          <line>18</line>
-          <properties documentPath="D:\DEV\Unity\Nagatoro-Novel-Game_myWork\Assets\SNEngine\Source\SNEngine\Services\MessageMenuWindowService.cs" containingFunctionPresentation="Method 'Initialize'">
-            <startOffsets>
-              <option value="641" />
-            </startOffsets>
-            <endOffsets>
-              <option value="665" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="65" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/SNEngine/Source/SNEngine/Services/MessageMenuWindowService.cs</url>
-          <line>20</line>
-          <properties documentPath="D:\DEV\Unity\Nagatoro-Novel-Game_myWork\Assets\SNEngine\Source\SNEngine\Services\MessageMenuWindowService.cs" containingFunctionPresentation="Method 'Initialize'">
-            <startOffsets>
-              <option value="699" />
-            </startOffsets>
-            <endOffsets>
-              <option value="751" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="66" />
+          <option name="timeStamp" value="68" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

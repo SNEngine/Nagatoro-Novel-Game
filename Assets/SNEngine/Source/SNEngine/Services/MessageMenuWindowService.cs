@@ -14,22 +14,25 @@ namespace SNEngine.Source.SNEngine.Services
 
         public override void Initialize()
         {
-            var messageMenu = ResourceLoader.LoadCustomOrVanilla<MessageMenuWindow>(MESSAGE_MENU_WINDOW_VANILLA_PATH);
-
-            if (messageMenu == null) return;
-            
             var ui = NovelGame.Instance.GetService<UIService>();
 
-            var prefab = Instantiate(messageMenu);
-            
-            _messageMenu = messageMenu;
-            prefab.name = messageMenu.name;
-            
+            var input = ResourceLoader.LoadCustomOrVanilla<MessageMenuWindow>(MESSAGE_MENU_WINDOW_VANILLA_PATH);
+
+            if (input == null)
+            {
+                return;
+            }
+
+            var prefab = Object.Instantiate(input);
+
+            prefab.name = input.name;
+
+            _messageMenu = prefab;
+
             ui.AddElementToUIContainer(prefab.gameObject);
-            
+
             prefab.gameObject.SetActive(false);
         }
-
 
         public void Show()
         {

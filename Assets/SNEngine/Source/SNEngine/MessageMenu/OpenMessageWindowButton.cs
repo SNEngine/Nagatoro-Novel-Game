@@ -1,5 +1,6 @@
 using SNEngine.InputSystem;
 using SNEngine.Services;
+using SNEngine.Source.SNEngine.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -34,6 +35,7 @@ namespace SNEngine.Source.SNEngine.MessageMenu
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            NovelGame.Instance.GetService<MessageMenuWindowService>().Show();
         }
 
         private void OnMessageHotkey(KeyCode keyCode)

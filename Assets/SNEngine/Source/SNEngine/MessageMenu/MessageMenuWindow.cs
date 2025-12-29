@@ -1,5 +1,5 @@
+using System;
 using SNEngine.Services;
-using SNEngine.Source.SNEngine.Services;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,14 +10,16 @@ namespace SNEngine.Source.SNEngine.MessageMenu
         [SerializeField] private Button _dialogueHistoryButton;
         [SerializeField] private Button _closeButton;
 
-        private OpenMessageWindowButtonService _messageWindowButtonService;
         private InputService _inputService;
         
         private Button[] _buttons;
+        private float _currentTimeScale;
 
         private void OnEnable()
         {
-            _messageWindowButtonService = NovelGame.Instance.GetService<OpenMessageWindowButtonService>();
+            _currentTimeScale = Time.timeScale;
+            Time.timeScale = 0;
+            
             _inputService = NovelGame.Instance.GetService<InputService>();
 
             _buttons = new Button[]
@@ -31,28 +33,34 @@ namespace SNEngine.Source.SNEngine.MessageMenu
                 button.onClick.RemoveAllListeners();
             }
 
-            _dialogueHistoryButton.onClick.AddListener(CloseMenu);
+            _closeButton.onClick.AddListener(CloseMenu);
             _inputService.SetActiveInput(false);
+        }
+
+        private void OnDisable()
+        {
+            _inputService.SetActiveInput(true);
+            Time.timeScale = _currentTimeScale;
         }
 
         private void CloseMenu()
         {
-            _messageWindowButtonService.Hide();
+            gameObject.SetActive(false);
         }
 
         public void ResetState()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Show()
         {
-            throw new System.NotImplementedException();
+            gameObject.SetActive(true);
         }
 
         public void Hide()
         {
-            throw new System.NotImplementedException();
+            gameObject.SetActive(false);
         }
     }
 }

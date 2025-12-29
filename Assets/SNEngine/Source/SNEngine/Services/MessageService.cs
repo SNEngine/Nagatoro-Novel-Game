@@ -15,7 +15,7 @@ namespace SNEngine.Source.SNEngine.Services
     {
         private DialogueService _dialogueService;
         private IMessageOnScreenWindow _onScreenWindow;
-        private const string WINDOW_VANILLA_PATH = "UI/MessageWindow";
+        private const string WINDOW_VANILLA_PATH = "UI/MessageOnScreenWindow";
 
         private IDialogue _currentDialogue;
 
@@ -35,7 +35,7 @@ namespace SNEngine.Source.SNEngine.Services
             var instance = Object.Instantiate(prefabGO);
             instance.name = prefabGO.name;
 
-            var windowComponent = instance.GetComponent<MessageOnScreenOnScreenWindow>();
+            var windowComponent = instance.GetComponent<MessageOnScreenWindow>();
             if (windowComponent == null)
             {
                 Debug.LogError("MessageOnScreenWindow component missing on prefab!");
@@ -108,7 +108,7 @@ namespace SNEngine.Source.SNEngine.Services
                 return;
             }
 
-            var windowGO = ((MessageOnScreenOnScreenWindow)_onScreenWindow).gameObject;
+            var windowGO = ((MessageOnScreenWindow)_onScreenWindow).gameObject;
             windowGO.SetActive(true);
 
             _onScreenWindow.SetData(dialog);
