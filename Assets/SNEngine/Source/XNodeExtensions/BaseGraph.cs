@@ -12,11 +12,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 {
     public abstract class BaseGraph : NodeGraph
     {
-        [SerializeField] private string _guid;
+        [SerializeField]
+        private string _guid;
+
         private NodeQueue _queue;
-        private IDictionary<string, VaritableNode> _varitables;
-        
-        public event Action OnStartExecute;
+
+        private IDictionary<string, VariableNode> _Variables;
+
         public event Action OnEndExecute;
 
         public event Action<BaseNode> OnNextNode;
@@ -28,7 +30,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         protected NodeQueue Queue => _queue;
 
-        public IDictionary<string, VaritableNode> Varitables => _varitables;
+        public IDictionary<string, VariableNode> Variables => _Variables;
 
         public IReadOnlyDictionary<string, BaseNode> AllNodes
         {
@@ -83,24 +85,22 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 if (guids.Contains(node.GUID))
                 {
                     typeof(BaseNode)
-                        .GetMethod("ResetGuid",
-                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                        .GetMethod("ResetGuid", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                         .Invoke(node, null);
                 }
-
                 guids.Add(node.GUID);
             }
         }
 #endif
 
-        public virtual void Execute()
+        public virtual void Execute ()
         {
 #if UNITY_EDITOR
             FixDuplicateGUIDs();
 #endif
             var queue = new List<BaseNodeInteraction>();
             var normalizeNodes = TopologicalSortInteractionNodes();
-            BuidVaritableNodes();
+            BuidVariableNodes();
 
             for (int i = 0; normalizeNodes.Count > i; i++)
             {
@@ -111,63 +111,62 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             _queue = new NodeQueue(this, queue);
 
             ExecuteProcess().Forget();
-            OnStartExecute?.Invoke();
+
         }
 
-        protected void BuidVaritableNodes()
+        protected void BuidVariableNodes()
         {
-            if (_varitables is null)
+            if (_Variables is null)
             {
-                Dictionary<string, VaritableNode> nodes = new Dictionary<string, VaritableNode>();
+                Dictionary<string, VariableNode> nodes = new Dictionary<string, VariableNode>();
 
                 foreach (var node in this.nodes)
                 {
-                    if (node is VaritableNode)
+                    if (node is VariableNode)
                     {
-                        VaritableNode varitableNode = node as VaritableNode;
-                        nodes.Add(varitableNode.Name, varitableNode);
+                        VariableNode VariableNode = node as VariableNode;
+                        nodes.Add(VariableNode.Name, VariableNode);
                     }
                 }
 
-                _varitables = nodes;
+                _Variables = nodes;
             }
         }
 
-        public T GetValueFromVaritable<T>(string name)
+        public T GetValueFromVariable<T>(string name)
         {
-            var node = _varitables[name];
+            var node = _Variables[name];
 
             if (node is null)
             {
-                throw new NullReferenceException($"Varitable Node with name not found");
+                throw new NullReferenceException($"Variable Node with name not found");
             }
 
             var value = node.GetCurrentValue();
 
             if (value.GetType() != typeof(T))
             {
-                throw new InvalidCastException(
-                    $"varitable node {node.Name} have type {value.GetType()}. Argument type {typeof(T)}");
+                throw new InvalidCastException($"Variable node {node.Name} have type {value.GetType()}. Argument type {typeof(T)}");
             }
 
             return (T)value;
         }
 
-        public virtual void Continue()
-        {
-            IsPaused = false;
-        }
-
-        public virtual void Pause()
+        public virtual void Continue ()
         {
             IsPaused = true;
         }
 
-        public virtual void Stop()
+        public virtual void Pause ()
+        {
+            IsPaused = false;
+        }
+
+        public virtual void Stop ()
         {
             End();
 
-            _queue.Exit();
+            _queue.Exit();       
         }
 
         private List<BaseNodeInteraction> TopologicalSortInteractionNodes()
@@ -210,7 +209,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 {
                     sortedList.Add(currentNode);
                 }
-
                 foreach (var outputPort in currentNode.Ports.Where(p => p.IsOutput && p.IsConnected))
                 {
                     foreach (var connection in outputPort.GetConnections())
@@ -235,54 +233,58 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         }
 
         public virtual void JumptToNode(string targetGuid)
-        {
+    {
 #if UNITY_EDITOR
             FixDuplicateGUIDs();
 #endif
-            BuidVaritableNodes();
+            BuidVariableNodes();
 
-            var allInteractionNodes = nodes
-                .OfType<BaseNodeInteraction>()
-                .ToList();
+        var allInteractionNodes = nodes
+            .OfType<BaseNodeInteraction>()
+            .ToList();
 
             allInteractionNodes = TopologicalSortInteractionNodes();
 
-            int targetIndex = allInteractionNodes.FindIndex(node => node.GUID == targetGuid);
+        int targetIndex = allInteractionNodes.FindIndex(node => node.GUID == targetGuid);
 
-            List<BaseNodeInteraction> filteredNodes;
+        List<BaseNodeInteraction> filteredNodes;
 
-            if (targetIndex != -1)
-            {
-                filteredNodes = allInteractionNodes
-                    .Select((node, index) => new { Node = node, Index = index })
-                    .Where(item =>
+        if (targetIndex != -1)
+        {
+
+            filteredNodes = allInteractionNodes
+                .Select((node, index) => new { Node = node, Index = index })
+                .Where(item =>
+                {
+                    if (item.Index < targetIndex)
                     {
-                        if (item.Index < targetIndex)
+                        if (item.Node is IIncludeWaitingNode waitNode)
                         {
-                            if (item.Node is IIncludeWaitingNode waitNode)
-                            {
-                                waitNode.SkipWait();
-                            }
-
-                            return item.Node.CanSkip() == false;
+                            waitNode.SkipWait();
                         }
-                        else
-                        {
-                            return true;
-                        }
-                    })
-                    .Select(item => item.Node)
-                    .ToList();
-            }
-            else
-            {
-                filteredNodes = new List<BaseNodeInteraction>();
-            }
 
-            _queue = new NodeQueue(this, filteredNodes);
-
-            ExecuteProcess().Forget();
+                        return item.Node.CanSkip() == false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                })
+                .Select(item => item.Node)
+                .ToList();
         }
+        else
+        {
+            filteredNodes = new List<BaseNodeInteraction>();
+        }
+
+        _queue = new NodeQueue(this, filteredNodes);
+
+        ExecuteProcess().Forget();
+    }
+
+
+
 
 
         public BaseNode GetNodeByGuid(string guid)
@@ -290,7 +292,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             return nodes.OfType<BaseNode>().FirstOrDefault(n => n.GUID == guid);
         }
 
-        private async UniTask ExecuteProcess()
+        private async UniTask ExecuteProcess ()
         {
             _queue.OnEnd += End;
 
@@ -306,6 +308,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 }
 
                 OnNextNode?.Invoke(node);
+
+               
             }
         }
 
@@ -315,18 +319,18 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
             OnEndExecute?.Invoke();
 
-            ResetVaritables();
+            ResetVariables();
 
             XNodeExtensionsDebug.Log($"graph {name} end execute");
         }
 
-        private void ResetVaritables()
+        private void ResetVariables()
         {
-            foreach (var node in nodes.Where(node => node is VaritableNode))
+            foreach (var node in nodes.Where(node => node is VariableNode))
             {
-                VaritableNode varitableNode = node as VaritableNode;
+                VariableNode VariableNode = node as VariableNode;
 
-                varitableNode.ResetValue();
+                VariableNode.ResetValue();
             }
         }
     }

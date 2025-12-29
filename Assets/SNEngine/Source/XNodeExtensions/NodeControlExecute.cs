@@ -13,46 +13,68 @@ namespace SiphoinUnityHelpers.XNodeExtensions
     [NodeTint("#593d6b")]
     public abstract class NodeControlExecute : BaseNodeInteraction, IIncludeWaitingNode
     {
-        private CancellationTokenSource _cancellationTokenSource;
+        protected CancellationTokenSource _branchCts;
+        private bool _isBranchWorking;
 
-        public bool IsWorking => _cancellationTokenSource != null;
+        public bool IsWorking => _isBranchWorking;
 
         public void SkipWait()
         {
+            _branchCts?.Cancel();
         }
 
         protected async UniTask ExecuteNodesFromPort(NodePort port)
         {
             var connections = port.GetConnections();
 
-            if (connections != null)
+            if (connections != null && connections.Count > 0)
             {
-                _cancellationTokenSource = new CancellationTokenSource();
+                _isBranchWorking = true;
+                _branchCts = new CancellationTokenSource();
+
+                List<UniTask> branchTasks = new List<UniTask>();
 
                 foreach (var connect in connections)
                 {
-                    if (connect.Connection != null)
+                    var node = connect.node as BaseNodeInteraction;
+                    if (node != null)
                     {
-                        var node = connect.node as BaseNodeInteraction;
-
-                        node.Execute();
-
-                        if (node is IIncludeWaitingNode)
-                        {
-                            var asyncNode = node as IIncludeWaitingNode;
-
-                            XNodeExtensionsDebug.Log($"Wait node <b>{node.name} GUID: {node.GUID} (in {name} GUID {GUID})</b>");
-
-                            await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
-                        }
+                        branchTasks.Add(ExecuteAndHighlightBranch(node));
                     }
+                }
+
+                await UniTask.WhenAll(branchTasks);
+
+                _branchCts?.Cancel();
+                _branchCts = null;
+                _isBranchWorking = false;
+            }
+        }
+
+        private async UniTask ExecuteAndHighlightBranch(BaseNodeInteraction node)
+        {
+            if (_branchCts != null && _branchCts.IsCancellationRequested) return;
+
+            NodeHighlighter.HighlightNode(node, Color.cyan);
+
+            node.Execute();
+
+            if (node is IIncludeWaitingNode waitingNode)
+            {
+                await XNodeExtensionsUniTask.WaitAsyncNode(waitingNode, _branchCts);
+            }
+
+            var exitPort = node.GetExitPort();
+            if (exitPort != null && exitPort.IsConnected)
+            {
+                var nextNode = exitPort.Connection.node as BaseNodeInteraction;
+                if (nextNode != null)
+                {
+                    await ExecuteAndHighlightBranch(nextNode);
                 }
             }
 
-            _cancellationTokenSource?.Cancel();
-
-            _cancellationTokenSource = null;
+            NodeHighlighter.RemoveHighlight(node);
         }
-        
     }
 }

@@ -1,0 +1,22 @@
+name: ComprehensiveVariantsTest
+Start
+Nagatoro says Welcome to the comprehensive variants test!
+# Test 1: New array syntax
+Show Variants [Safe Choice, Risky Choice, Mysterious Choice]
+Nagatoro says Array syntax works!
+Suc
+# Test 2: Array with quotes
+Show Variants ["Choice with 'single quotes'", "Choice with \"double quotes\"", "Normal choice"]
+Nagatoro says Quote handling works!
+
+# Test 3: Comma-separated (old format)
+Show Variants Easy, Medium, Hard
+Nagatoro says Comma-separated format works!
+
+# Test 4: Dash-separated (old format) 
+Show Variants  - First Option - Second Option - Third Option
+Nagatoro says Dash-separated format works!
+Show
+Nagatoro says All variants formats work correctly!
+
+End

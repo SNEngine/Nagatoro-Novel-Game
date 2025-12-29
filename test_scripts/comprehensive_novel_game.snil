@@ -1,0 +1,183 @@
+# Comprehensive Nagatoro Novel Game Script
+# This script contains multiple interconnected dialogues with backgrounds and functions
+name: OpeningScene
+Start
+Show Background beachBackground
+Nagatoro says Welcome to our story! I hope you enjoy this adventure.
+Player says Hi Nagatoro! What are we going to do today?
+Nagatoro says Let's explore the beach first, then maybe go to the classroom later.
+Wait 2 seconds
+Nagatoro says The weather is perfect for a walk along the shore!
+Player says Yes, the view is beautiful here.
+call beachActivity
+Jump To BeachExploration
+
+function beachActivity
+Nagatoro says Look at all these seashells! Want to collect some?
+Player says Sure, that sounds fun!
+Nagatoro says I found a really pretty pink one!
+Wait 1 seconds
+Nagatoro says Oh, and there's a starfish too!
+end
+
+---
+
+name: BeachExploration
+Start
+Show Background beachBackground
+Nagatoro says Did you enjoy our time at the beach?
+Player says Very much! The ocean is so calming.
+Nagatoro says I love coming here when I need to think.
+Wait 3 seconds
+Nagatoro says But now, let's head to the classroom. I have something special planned!
+Player says What do you have planned?
+Nagatoro says You'll see! Follow me!
+Jump To ClassroomArrival
+
+---
+
+name: ClassroomArrival
+Start
+Show Background classBackground
+Nagatoro says Here we are! The classroom is quiet today.
+Player says It's different from being outside, more intimate somehow.
+Nagatoro says That's exactly what I was thinking!
+Wait 1 seconds
+Show Nagatoro with emotion Naga_Lean_Bikini_Sidelook_CatOpen
+Nagatoro says I prepared some tea for us.
+Player says You're so thoughtful, Nagatoro.
+call classroomActivity
+Jump To TeaTime
+
+function classroomActivity
+Nagatoro says Sit down, make yourself comfortable.
+Player says Thanks, this chair is really cozy.
+Wait 2 seconds
+Nagatoro says I've been working on a surprise for you.
+Player says Really? What kind of surprise?
+Nagatoro says You'll have to wait and see!
+end
+
+---
+
+name: TeaTime
+Start
+Show Background classBackground
+Nagatoro says Here's your tea. I hope you like it.
+Player says It smells wonderful! What's in it?
+Nagatoro says Just a special blend I found. It helps you relax.
+Wait 2 seconds
+Player says Mmm, it's delicious. You really know your teas!
+Nagatoro says I've had practice making tea for my friends.
+Player says You're always so caring.
+Nagatoro says That's what friends do for each other.
+call teaConversation
+Jump To StudyTime
+
+function teaConversation
+Player says So, what do you usually do in this classroom?
+Nagatoro says I like to read books and work on art projects here.
+Wait 1 seconds
+Player says Art projects? That sounds interesting.
+Nagatoro says Yes! I love drawing and painting in my free time.
+Player says I'd love to see your artwork sometime.
+Nagatoro says Maybe I'll show you some next time we meet!
+end
+
+---
+
+name: StudyTime
+Start
+Show Background classBackground
+Nagatoro says Would you like to study together?
+Player says Sure! What subject were you thinking?
+Nagatoro says How about literature? I brought some interesting books.
+Wait 1 seconds
+Show Nagatoro with emotion Naga_Lean_Bikini_Sidelook_CatClosed
+Nagatoro says I especially like romantic stories.
+Player says Really? That's sweet of you to share.
+Nagatoro says There's something special about sharing stories with friends.
+Player says I agree. Stories bring people together.
+call studyBreak
+Jump To SunsetView
+
+function studyBreak
+Wait 3 seconds
+Nagatoro says I think we deserve a break from studying.
+Player says Good idea. My brain was starting to feel full.
+Nagatoro says How about we look out the window for a moment?
+Player says The view is beautiful, especially during sunset.
+end
+
+---
+
+name: SunsetView
+Start
+Show Background classBackground
+Nagatoro says Look at the sunset! The sky is turning orange and pink.
+Player says It's breathtaking! The colors are so vibrant.
+Nagatoro says This is one of my favorite times of day.
+Wait 4 seconds
+Player says The light streaming through the window is so warm.
+Nagatoro says It makes everything look magical, doesn't it?
+Jump To BeachMemory
+
+---
+
+name: BeachMemory
+Start
+Show Background beachBackground
+# Flashback to the beach
+Nagatoro says Remember when we were at the beach earlier?
+Player says Yes, it feels like just now, but also like a long time ago.
+Nagatoro says Time moves differently when you're having fun.
+Wait 2 seconds
+Nagatoro says I'm glad we got to spend this time together today.
+Player says Me too, Nagatoro. These moments mean a lot to me.
+Nagatoro says That makes me happy to hear.
+Jump To ClassroomMemory
+
+---
+
+name: ClassroomMemory
+Start
+Show Background classBackground
+# Back in the classroom
+Nagatoro says Our time in the classroom was nice too.
+Player says Yes, the contrast between the open beach and cozy classroom was perfect.
+Nagatoro says I planned it that way intentionally.
+Wait 1 seconds
+Player says You really thought this through, didn't you?
+Nagatoro says Every detail matters when I'm with someone special.
+Player says That's really touching, Nagatoro.
+call finalWords
+Jump To ClosingScene
+
+function finalWords
+Nagatoro says Before you go, I want you to know something.
+Player says What is it?
+Wait 2 seconds
+Nagatoro says You make these ordinary moments feel extraordinary.
+Player says Nagatoro...
+Nagatoro says Thank you for spending today with me.
+end
+
+---
+
+name: ClosingScene
+Start
+Show Background beachBackground
+# Final scene back at the beach as the day ends
+Nagatoro says As the day comes to an end, I feel content.
+Player says Today was perfect. Thank you for everything, Nagatoro.
+Nagatoro says The pleasure was all mine.
+Wait 3 seconds
+Show Nagatoro with emotion Naga_Lean_Bikini_Sidelook_CatOpen
+Nagatoro says I hope we can do this again soon.
+Player says I'd like that very much.
+Nagatoro says Until next time, take care!
+Wait 2 seconds
+Player says Goodbye, Nagatoro. See you soon!
+Hide Nagatoro
+Clear Background
+End

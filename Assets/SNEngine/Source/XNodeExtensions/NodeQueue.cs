@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
 using SiphoinUnityHelpers.XNodeExtensions.Debugging;
-using SiphoinUnityHelpers.XNodeExtensions.Exceptions;
 using SiphoinUnityHelpers.XNodeExtensions.Extensions;
 using SNEngine.AsyncNodes;
 using System;
@@ -26,14 +25,14 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public event Action OnEnd;
 
-        private List<BaseNodeInteraction> _nodes;
-        private List<AsyncNode> _asyncNodes;
-        private List<ExitNode> _exitNodes;
+        private List<BaseNodeInteraction> _nodes = new List<BaseNodeInteraction>();
+        private List<AsyncNode> _asyncNodes = new List<AsyncNode>();
+        private List<ExitNode> _exitNodes = new List<ExitNode>();
         private BaseGraph _graph;
 
         public int Count => _nodes.Count;
-        public BaseNode Current => _nodes[_index];
-        public bool IsEnding => _index == Count;
+        public BaseNode Current => _index < _nodes.Count ? _nodes[_index] : null;
+        public bool IsEnding => _index >= Count;
 
         public IEnumerable<AsyncNode> AsyncNodes => _asyncNodes;
         public IEnumerable<ExitNode> ExitNodes => _exitNodes;
@@ -59,47 +58,34 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             if (parentGraph == null) throw new ArgumentNullException("parent graph is null");
             if (nodes == null) throw new ArgumentNullException("nodes is null");
 
-            _nodes = new List<BaseNodeInteraction>();
-            _asyncNodes = new List<AsyncNode>();
-            _exitNodes = new List<ExitNode>();
-            _cancellationTokenSource = new CancellationTokenSource();
             _graph = parentGraph;
+            _cancellationTokenSource = new CancellationTokenSource();
 
-            ValidateGraph(nodes);
             Build(nodes);
-        }
-
-        private void ValidateGraph(IEnumerable<BaseNodeInteraction> nodes)
-        {
-            Func<BaseNodeInteraction, bool> predicateFindStartNode = x => x is StartNode && x.Enabled && x.GetExitPort().Connection != null;
-            Func<BaseNodeInteraction, bool> predicateFindExitNode = x => x is ExitNode && x.GetEnterPort().Connection != null;
-
-            if (nodes.Count(predicateFindExitNode) == 0)
-                throw new NodeQueueException($"graph {_graph.name} not have Exit Nodes!");
-
-            if (nodes.Count(predicateFindStartNode) > 1)
-                throw new NodeQueueException($"graph {_graph.name} has more 1 Start Node!");
-
-            try
-            {
-                _startNode = nodes.Single(predicateFindStartNode) as StartNode;
-            }
-            catch
-            {
-                throw new NodeQueueException($"Start Node not found on graph {_graph.name}");
-            }
         }
 
         private void Build(IEnumerable<BaseNodeInteraction> nodes)
         {
-            _nodes.AddRange(nodes);
+            var allNodes = nodes.ToList();
+            var visited = new HashSet<BaseNodeInteraction>();
 
-            foreach (var item in nodes)
+            _nodes.Clear();
+            _asyncNodes.Clear();
+            _exitNodes.Clear();
+
+            var roots = allNodes.Where(n => n is StartNode || (n.GetEnterPort() != null && !n.GetEnterPort().IsConnected));
+
+            foreach (var root in roots)
             {
-                if (item is AsyncNode asyncNode)
+                TraverseMainFlow(root, visited);
+            }
+
+            foreach (var node in allNodes)
+            {
+                if (node is AsyncNode asyncNode)
                     _asyncNodes.Add(asyncNode);
 
-                if (item is ExitNode exitNode)
+                if (node is ExitNode exitNode)
                 {
                     _exitNodes.Add(exitNode);
                     exitNode.OnExit += OnExit;
@@ -112,6 +98,26 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 stringBuilder.AppendLine(node.name);
 
             XNodeExtensionsDebug.Log(stringBuilder.ToString());
+        }
+
+        private void TraverseMainFlow(BaseNodeInteraction node, HashSet<BaseNodeInteraction> visited)
+        {
+            if (node == null || visited.Contains(node)) return;
+
+            visited.Add(node);
+            _nodes.Add(node);
+
+            var exitPort = node.GetExitPort();
+            if (exitPort != null && exitPort.IsConnected)
+            {
+                foreach (var connection in exitPort.GetConnections())
+                {
+                    if (connection.node is BaseNodeInteraction nextNode)
+                    {
+                        TraverseMainFlow(nextNode, visited);
+                    }
+                }
+            }
         }
 
         public async UniTask<BaseNode> Next()
@@ -132,17 +138,16 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                     await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
                     NodeHighlighter.RemoveHighlight(node);
                 }
-
-                _index = Mathf.Clamp(_index + 1, 0, _nodes.Count - 1);
             }
 
+            _index = Mathf.Clamp(_index + 1, 0, _nodes.Count);
             return node;
         }
 
         private void OnExit(object sender, EventArgs e)
         {
             var node = sender as ExitNode;
-            node.OnExit -= OnExit;
+            if (node != null) node.OnExit -= OnExit;
             Exit();
         }
 

@@ -1,0 +1,2 @@
+Fade Character {_target} with value {_value} duration {_duration} ease {_ease}
+worker:FadeCharacterNodeWorker
