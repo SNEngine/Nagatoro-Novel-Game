@@ -1,0 +1,2 @@
+Dissolve Character {_target} type {_type} duration {_duration} ease {_ease} texture {_texture}
+worker:DissolveCharacterNodeWorker

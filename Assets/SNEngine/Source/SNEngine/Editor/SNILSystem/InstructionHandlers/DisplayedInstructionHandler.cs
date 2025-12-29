@@ -58,7 +58,6 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
             // Find the character by name and assign it to the node
             var character = FindCharacterByName(characterName);
 
-            // Create DialogNode (always created)
             var dialogNodeType = SNILTypeResolver.GetNodeType("DialogNode");
             if (dialogNodeType == null)
             {
@@ -93,9 +92,6 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
             {
                 textField.SetValue(dialogNode, text);
             }
-
-            // Capture the original context count to maintain proper positioning for subsequent instructions
-            int originalContextCount = context.Nodes.Count;
 
             // Always create and configure the ShowCharacterNode, but check emotion validity
             if (character != null)
@@ -134,29 +130,14 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
 
             AssetDatabase.AddObjectToAsset(showCharacterNode, dialogueGraph);
 
-            // Position the ShowCharacterNode appropriately using the original context count
-            showCharacterNode.position = new Vector2(originalContextCount * 250, 0);
+            // Position the ShowCharacterNode appropriately
+            showCharacterNode.position = new Vector2(context.Nodes.Count * 250, 0);
+
+            // Add to context after positioning
+            context.Nodes.Add(showCharacterNode);
 
             // Connect to previous node in main flow
-            // We'll connect the ShowCharacterNode to the previous node, but not add it to context.Nodes
-            // This maintains the context count as if only one node was added
-            if (context.LastNode != null)
-            {
-                var prevNode = context.LastNode as BaseNode;
-                var currNode = showCharacterNode as BaseNode;
-
-                if (prevNode is BaseNodeInteraction prevInteraction &&
-                    currNode is BaseNodeInteraction currInteraction)
-                {
-                    var outPort = prevInteraction.GetExitPort();
-                    var inPort = currInteraction.GetEnterPort();
-
-                    if (outPort != null && inPort != null)
-                    {
-                        outPort.Connect(inPort);
-                    }
-                }
-            }
+            NodeConnectionUtility.ConnectNodeToLast(dialogueGraph, showCharacterNode, context);
 
             // Position the DialogNode to the right of the ShowCharacterNode to avoid overlap
             dialogNode.position = new Vector2(showCharacterNode.position.x + 250, showCharacterNode.position.y);
@@ -169,7 +150,7 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                 exitPort.Connect(enterPort);
             }
 
-            // Add dialogNode to context after connection - this is what gets counted for positioning
+            // Add dialogNode to context after connection
             if (!context.Nodes.Contains(dialogNode))
             {
                 context.Nodes.Add(dialogNode);
