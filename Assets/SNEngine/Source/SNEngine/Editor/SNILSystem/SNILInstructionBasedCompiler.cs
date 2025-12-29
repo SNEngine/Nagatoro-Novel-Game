@@ -120,11 +120,11 @@ namespace SNEngine.Editor.SNILSystem
                 // Проверяем, является ли инструкция блочной (например, If Show Variant)
                 var handler = InstructionHandlerManager.Instance.GetHandlerForInstruction(trimmedLine);
 
-                // Check if it's the IfShowVariantInstructionHandler that can handle block instructions
-                if (handler is IfShowVariantInstructionHandler blockHandler)
+                // Check if it's a block instruction handler that can handle block instructions
+                if (handler is IBlockInstructionHandler blockHandler)
                 {
                     // Process the entire block using the special method
-                    var result = blockHandler.HandleBlock(mainScriptLines, ref i, context);
+                    var result = ((IBlockInstructionHandler)handler).HandleBlock(mainScriptLines, ref i, context);
                     if (!result.Success)
                     {
                         string errorMsg = $"Failed to process block instruction '{trimmedLine}': {result.ErrorMessage}";

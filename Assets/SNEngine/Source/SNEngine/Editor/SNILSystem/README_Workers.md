@@ -1,7 +1,5 @@
 ﻿# SNIL Commands Documentation
 
-## List of Commands
-
 ### Clear Background
 ```snil
 Clear Background
@@ -99,6 +97,18 @@ True:
 False:
 [Commands if no variant matched or cancelled]
 endif
+```
+
+### Switch Show Variant
+```snil
+Switch Show Variant
+Cases:
+Case [value]:
+[Commands for this case]
+Case [value]:
+[Commands for this case]
+[Additional cases...]
+endcase
 ```
 
 ### Create Variable or Set

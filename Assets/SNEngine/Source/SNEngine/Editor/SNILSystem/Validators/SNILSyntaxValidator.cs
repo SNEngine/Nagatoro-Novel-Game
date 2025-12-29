@@ -34,12 +34,14 @@ namespace SNEngine.Editor.SNILSystem.Validators
             var functionErrors = FunctionValidator.ValidateFunctions(lines);
             var instructionErrors = InstructionValidator.ValidateInstructions(lines);
             var ifBlockErrors = SNILIfShowVariantValidator.Validate(lines);
+            var switchBlockErrors = SNILSwitchShowVariantValidator.Validate(lines);
 
             // Собираем все ошибки
             errors.AddRange(nameErrors);
             errors.AddRange(functionErrors);
             errors.AddRange(instructionErrors);
             errors.AddRange(ifBlockErrors);
+            errors.AddRange(switchBlockErrors);
 
             if (errors.Count > 0)
             {
@@ -80,6 +82,13 @@ namespace SNEngine.Editor.SNILSystem.Validators
         IfMissingVariants,
         IfMissingBranches,
         IfMissingEnd,
-        IfEmptyBranchBody
+        IfEmptyBranchBody,
+
+        // Switch Show Variant block specific errors
+        SwitchMissingCases,
+        SwitchMissingBranches,
+        SwitchMissingEnd,
+        SwitchEmptyBranchBody,
+        SwitchInvalidCase
     }
 }

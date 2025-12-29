@@ -31,9 +31,7 @@ namespace SNEngine.Editor.SNIL
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("# SNIL Commands Documentation");
-            sb.AppendLine();
-            sb.AppendLine("## List of Commands");
+            sb.AppendLine("# List Commands");
             sb.AppendLine();
 
             string[] workerFiles = NovelDirectory.GetFiles(fullTemplatesPath, "*.snil", SearchOption.TopDirectoryOnly);

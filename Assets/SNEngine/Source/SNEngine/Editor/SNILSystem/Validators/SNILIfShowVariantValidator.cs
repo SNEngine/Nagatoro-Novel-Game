@@ -69,6 +69,7 @@ namespace SNEngine.Editor.SNILSystem.Validators
                         var line = lines[scan].Trim();
                         if (string.IsNullOrEmpty(line) || line.StartsWith("//") || line.StartsWith("#")) { scan++; continue; }
                         if (line.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase)) { nest++; scan++; continue; }
+                        if (line.Equals("Switch Show Variant", StringComparison.OrdinalIgnoreCase)) { nest++; scan++; continue; }
                         if (line.Equals("endif", StringComparison.OrdinalIgnoreCase))
                         {
                             if (nest == 0)
@@ -96,7 +97,9 @@ namespace SNEngine.Editor.SNILSystem.Validators
                                 if (string.IsNullOrEmpty(ln) || ln.StartsWith("//") || ln.StartsWith("#")) { k++; continue; }
                                 if (ln.EndsWith(":" ) && nestedIf == 0) break; // next section
                                 if (ln.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase)) { nestedIf++; }
+                                else if (ln.Equals("Switch Show Variant", StringComparison.OrdinalIgnoreCase)) { nestedIf++; }
                                 else if (ln.Equals("endif", StringComparison.OrdinalIgnoreCase)) { if (nestedIf > 0) nestedIf--; else break; }
+                                else if (ln.Equals("endcase", StringComparison.OrdinalIgnoreCase)) { if (nestedIf > 0) nestedIf--; else break; }
 
                                 if (nestedIf == 0 && !ln.EndsWith(":")) lastSignificant = k;
                                 k++;

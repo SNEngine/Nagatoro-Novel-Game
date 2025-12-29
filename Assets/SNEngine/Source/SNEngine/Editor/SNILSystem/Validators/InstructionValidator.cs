@@ -159,6 +159,16 @@ namespace SNEngine.Editor.SNILSystem.Validators
                             ok = true;
                         }
                     }
+                    // If the script ends with a top-level 'Switch Show Variant' block that itself guarantees termination
+                    // (all its cases end with 'End' or 'Jump To'), consider it valid.
+                    else if (lastTrim.Equals("endcase", StringComparison.OrdinalIgnoreCase))
+                    {
+                        int switchStartIdx = FindMatchingSwitchStart(mainScriptLines, lastSignificantIdx);
+                        if (switchStartIdx >= 0 && IsSwitchBlockTerminating(mainScriptLines, switchStartIdx, lastSignificantIdx))
+                        {
+                            ok = true;
+                        }
+                    }
                 }
 
                 if (!ok)
@@ -199,18 +209,25 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 var t = lines[i].Trim();
                 if (string.IsNullOrEmpty(t) || IsCommentLine(t)) continue;
                 if (t.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase)) { nesting++; continue; }
+                if (t.Equals("Switch Show Variant", StringComparison.OrdinalIgnoreCase)) { nesting++; continue; }
                 if (t.Equals("endif", StringComparison.OrdinalIgnoreCase))
                 {
                     if (nesting == 0) return true; // дошли до конца внешнего блока
                     nesting--;
                     continue;
                 }
-                if (t.EndsWith(":" ) && nesting == 0)
+                if (t.Equals("endcase", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (nesting == 0) return true; // дошли до конца внешнего блока
+                    nesting--;
+                    continue;
+                }
+                if ((t.EndsWith(":") || t.StartsWith("Case ")) && nesting == 0)
                 {
                     // следующий заголовок секции на том же уровне — ветка закончилась
                     return true;
                 }
-                if (nesting == 0 && !t.EndsWith(":")) return false; // найдена значимая инструкция после
+                if (nesting == 0 && !t.EndsWith(":") && !t.StartsWith("Case ")) return false; // найдена значимая инструкция после
             }
 
             // если файл кончился, то это конец ветки
@@ -243,7 +260,9 @@ namespace SNEngine.Editor.SNILSystem.Validators
             {
                 var t = lines[i].Trim();
                 if (t.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase)) open++;
+                if (t.Equals("Switch Show Variant", StringComparison.OrdinalIgnoreCase)) open++;
                 if (t.Equals("endif", StringComparison.OrdinalIgnoreCase) && open > 0) open--;
+                if (t.Equals("endcase", StringComparison.OrdinalIgnoreCase) && open > 0) open--;
             }
             return open > 0;
         }
@@ -342,6 +361,101 @@ namespace SNEngine.Editor.SNILSystem.Validators
             }
 
             // all branches checked
+            return true;
+        }
+
+        private static int FindMatchingSwitchStart(string[] lines, int endcaseIndex)
+        {
+            int depth = 0;
+            for (int i = endcaseIndex; i >= 0; i--)
+            {
+                var t = lines[i].Trim();
+                if (t.Equals("endcase", StringComparison.OrdinalIgnoreCase))
+                {
+                    depth++;
+                }
+                else if (t.Equals("Switch Show Variant", StringComparison.OrdinalIgnoreCase))
+                {
+                    depth--;
+                    if (depth == 0) return i;
+                }
+            }
+
+            return -1; // not found
+        }
+
+        private static bool IsSwitchBlockTerminating(string[] lines, int switchStart, int endcaseIndex)
+        {
+            // We consider the block terminating if every case present ends with 'End' or 'Jump To'
+            int i = switchStart + 1;
+            // Skip Cases: section
+            while (i < endcaseIndex && (string.IsNullOrWhiteSpace(lines[i]) || lines[i].TrimStart().StartsWith("//") || lines[i].TrimStart().StartsWith("#"))) i++;
+            if (i < endcaseIndex && lines[i].Trim().Equals("Cases:", StringComparison.OrdinalIgnoreCase))
+            {
+                i++; // skip header
+                while (i < endcaseIndex)
+                {
+                    var t = lines[i].Trim();
+                    if (string.IsNullOrEmpty(t) || t.StartsWith("//") || t.StartsWith("#")) { i++; continue; }
+                    if (t.StartsWith("Case ", StringComparison.OrdinalIgnoreCase)) break; // next case header
+                    i++;
+                }
+            }
+
+            // Now collect case sections until endcase
+            while (i < endcaseIndex)
+            {
+                var t = lines[i].Trim();
+                if (string.IsNullOrEmpty(t) || t.StartsWith("//") || t.StartsWith("#")) { i++; continue; }
+                if (t.StartsWith("Case ", StringComparison.OrdinalIgnoreCase))
+                {
+                    int sectionStart = i + 1;
+                    // collect until next header or endcase
+                    int j = sectionStart;
+                    int nestedSwitch = 0;
+                    int lastSignificant = -1;
+                    while (j < endcaseIndex)
+                    {
+                        var line = lines[j].Trim();
+                        if (line.Equals("Switch Show Variant", StringComparison.OrdinalIgnoreCase)) { nestedSwitch++; }
+                        else if (line.Equals("endcase", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (nestedSwitch > 0) { nestedSwitch--; }
+                            else break; // this would be handled by outer loop
+                        }
+
+                        if (nestedSwitch == 0 && !string.IsNullOrEmpty(line) && !line.StartsWith("//") && !line.StartsWith("#") && !line.StartsWith("Case ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            lastSignificant = j;
+                        }
+
+                        // stop when we see next case header at nesting 0
+                        if (nestedSwitch == 0 && j + 1 < endcaseIndex && lines[j + 1].Trim().StartsWith("Case ", StringComparison.OrdinalIgnoreCase)) { j++; break; }
+
+                        j++;
+                    }
+
+                    if (lastSignificant == -1)
+                    {
+                        // empty case -> not terminating
+                        return false;
+                    }
+
+                    var last = lines[lastSignificant].Trim();
+                    if (!(last.Equals("End", StringComparison.OrdinalIgnoreCase) || last.StartsWith("Jump To ", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false; // case doesn't end properly
+                    }
+
+                    i = j + 1;
+                    continue;
+                }
+
+                // Unexpected lines between sections - skip
+                i++;
+            }
+
+            // all cases checked
             return true;
         }
     }

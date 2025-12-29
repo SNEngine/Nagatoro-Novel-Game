@@ -29,6 +29,7 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
             RegisterHandler(new CallInstructionHandler());
             RegisterHandler(new SetVariableInstructionHandler()); // Add the set variable instruction handler
             RegisterHandler(new IfShowVariantInstructionHandler()); // Add the new block instruction handler
+            RegisterHandler(new SwitchShowVariantInstructionHandler()); // Add the new switch show variant instruction handler
             RegisterHandler(new GenericNodeInstructionHandler());
         }
 
