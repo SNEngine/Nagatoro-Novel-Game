@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 
 namespace SNEngine.Editor.SNILSystem.Validators
@@ -57,7 +58,6 @@ namespace SNEngine.Editor.SNILSystem.Validators
                     return ValidationInstructionResult.Error($"Invalid value '{arithmeticInstruction.Value}' in arithmetic instruction: {instruction}");
                 }
 
-                // Check for division by zero
                 if (arithmeticInstruction.Operator == "/" || arithmeticInstruction.Operator == "%")
                 {
                     if (IsNumericValue(arithmeticInstruction.Value) &&
