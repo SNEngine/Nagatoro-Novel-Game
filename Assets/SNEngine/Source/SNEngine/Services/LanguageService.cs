@@ -100,15 +100,21 @@ namespace SNEngine.Services
 
         public async UniTask LoadLanguage(string codeLanguage)
         {
-            NovelGameDebug.Log($"[{nameof(LanguageService)}] Attempting to load language: {codeLanguage}");
             CurrentLanguageCode = "None";
 
-            string langFolder = Path.Combine(NovelDirectory.StreamingAssetsPath, LanguageBaseDir, codeLanguage);
+            string basePath = Path.Combine(NovelDirectory.StreamingAssetsPath, LanguageBaseDir);
+
+            if (!Directory.Exists(basePath))
+            {
+                NovelGameDebug.Log($"[{nameof(LanguageService)}] Localization directory not found in StreamingAssets. Please read the documentation: https://github.com/SNEngine/SNEngineDocs/wiki/Localization");
+                return;
+            }
+
+            string langFolder = Path.Combine(basePath, codeLanguage);
 
             LanguageManifest manifest = await LoadManifestAsync(langFolder);
             if (manifest == null)
             {
-                NovelGameDebug.LogError($"[{nameof(LanguageService)}] Failed to load manifest for {codeLanguage}. Loading aborted.");
                 return;
             }
 
@@ -119,7 +125,6 @@ namespace SNEngine.Services
             await LoadUIAsync(langFolder, manifest);
 
             CurrentLanguageCode = codeLanguage;
-            NovelGameDebug.Log($"[{nameof(LanguageService)}] Successfully loaded language: {codeLanguage}");
             OnLanguageLoaded?.Invoke(codeLanguage);
         }
 
@@ -259,22 +264,24 @@ namespace SNEngine.Services
         public async UniTask<List<LanguageEntry>> GetAvailableLanguagesAsync()
         {
             string path = Path.Combine(NovelDirectory.StreamingAssetsPath, LanguageBaseDir, "language_manifest.json");
-            NovelGameDebug.Log($"[{nameof(LanguageService)}] Checking for available languages manifest at: {path}");
+
+            if (!File.Exists(path))
+            {
+                NovelGameDebug.Log($"[{nameof(LanguageService)}] Localization manifest not found. Please read the documentation: https://github.com/SNEngine/SNEngineDocs/wiki/Localization");
+                return new List<LanguageEntry>();
+            }
 
             try
             {
                 string json = await NovelFile.ReadAllTextAsync(path);
                 var manifest = JsonConvert.DeserializeObject<AvailableLanguagesManifest>(json);
-
                 return manifest?.Languages ?? new List<LanguageEntry>();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                NovelGameDebug.LogError($"Failed to load available languages manifest from {path}: {ex.Message}");
                 return new List<LanguageEntry>();
             }
         }
-
         public async UniTask<Dictionary<string, PreloadLanguageData>> LoadAvailableLanguagesPreloadDataAsync()
         {
             NovelGameDebug.Log($"[{nameof(LanguageService)}] Starting preload data loading for available languages.");

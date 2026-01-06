@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Service Container
   m_EditorClassIdentifier: 
   _services:
+  - {fileID: 11400000, guid: af0ee49a1d4f7274a8c6723a8dcbe57b, type: 2}
   - {fileID: 11400000, guid: 7a904b2c5510e344bafb33a872421b52, type: 2}
   - {fileID: 11400000, guid: 126d9ca1dea004548bb7ed83a11647be, type: 2}
   - {fileID: 11400000, guid: dc212f899f7e82b4094edddc61c80407, type: 2}
