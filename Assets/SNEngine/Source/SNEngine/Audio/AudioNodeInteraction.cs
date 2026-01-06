@@ -14,11 +14,6 @@ namespace SNEngine.Audio
         public override void Execute()
         {
             var input = GetInputValue<AudioObject>(nameof(_input));
-            if (!input)
-            {
-                NovelGameDebug.LogError($"invalid audio object input or input is null");
-                return;
-            }
             Interact(input);
         }
 

@@ -12,6 +12,7 @@ namespace SNEngine.Audio
 {
     public class PlaySoundNode : AudioNode
     {
+        [Input(ShowBackingValue.Never)] public AudioClip _remoteClip;
         [SerializeField] private AudioClip _sound;
         [Output(ShowBackingValue.Never), SerializeField] private AudioObject _result;
 
@@ -25,7 +26,7 @@ namespace SNEngine.Audio
             }
             var service = NovelGame.Instance.GetService<AudioService>();
             _result = service.GetFreeAudioObject() as AudioObject;
-            _result.CurrentSound = _sound;
+            _result.CurrentSound = GetInputValue<AudioClip>(nameof(_remoteClip), _sound);
             _result.Play();
 
         }

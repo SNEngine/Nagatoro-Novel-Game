@@ -108,6 +108,10 @@ namespace SNEngine.Services
 
         public override void ResetState()
         {
+            foreach (var item in _audioObjects.Objects)
+            {
+                item.ResetState();
+            }
         }
     }
 }

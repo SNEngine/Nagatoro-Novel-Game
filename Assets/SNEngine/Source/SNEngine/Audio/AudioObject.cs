@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -13,6 +14,7 @@ namespace SNEngine.Audio
         [SerializeField] private AudioSource _audioSource;
         private CancellationTokenSource _cts;
         private AudioMixerGroup _defaultMixer;
+        private static readonly Dictionary<int, int> _runtimeAudioRefCount = new();
 
         public bool Mute { get => _audioSource.mute; set => _audioSource.mute = value; }
         public bool Loop { get => _audioSource.loop; set => _audioSource.loop = value; }
@@ -32,7 +34,16 @@ namespace SNEngine.Audio
 
         public AudioRolloffMode RolloffMode { get => _audioSource.rolloffMode; set => _audioSource.rolloffMode = value; }
 
-        public AudioClip CurrentSound { get => _audioSource.clip; set => _audioSource.clip = value; }
+        public AudioClip CurrentSound
+        {
+            get => _audioSource.clip;
+            set
+            {
+                if (_audioSource.clip != null) TryCleanupRuntimeAudio();
+                _audioSource.clip = value;
+                if (value != null) RegisterRuntimeAudio(value);
+            }
+        }
         public AudioMixerGroup Mixer { get => _audioSource.outputAudioMixerGroup; set => _audioSource.outputAudioMixerGroup = value; }
 
         public bool IsPlaying => _audioSource.isPlaying;
@@ -66,8 +77,10 @@ namespace SNEngine.Audio
 
         public void PlayOneShot(AudioClip clip, float volumeScale = 1f)
         {
-            if (clip != null)
-                _audioSource.PlayOneShot(clip, volumeScale);
+            CurrentSound = clip;
+            Volume = volumeScale;
+            Loop = false;
+            Play();
         }
 
         public void SetPosition(Vector3 position) => _audioSource.transform.position = position;
@@ -93,6 +106,40 @@ namespace SNEngine.Audio
             SpatialBlend = spatialBlend;
             MinDistance = minDistance;
             MaxDistance = maxDistance;
+        }
+
+        private bool IsRuntimeAudio(AudioClip clip)
+        {
+            if (clip == null) return false;
+            return clip.name.StartsWith("download_audio_") || clip.name.StartsWith("[Remote]");
+        }
+
+        private void RegisterRuntimeAudio(AudioClip clip)
+        {
+            if (!IsRuntimeAudio(clip)) return;
+
+            int id = clip.GetInstanceID();
+            if (_runtimeAudioRefCount.ContainsKey(id))
+                _runtimeAudioRefCount[id]++;
+            else
+                _runtimeAudioRefCount[id] = 1;
+        }
+
+        private void TryCleanupRuntimeAudio()
+        {
+            AudioClip clip = _audioSource.clip;
+            if (clip == null || !IsRuntimeAudio(clip)) return;
+
+            int id = clip.GetInstanceID();
+            if (_runtimeAudioRefCount.ContainsKey(id))
+            {
+                _runtimeAudioRefCount[id]--;
+                if (_runtimeAudioRefCount[id] <= 0)
+                {
+                    _runtimeAudioRefCount.Remove(id);
+                    Destroy(clip);
+                }
+            }
         }
 
         public async UniTask FadeInAsync(float duration, float targetVolume = 1f)
@@ -151,10 +198,13 @@ namespace SNEngine.Audio
         private void OnDestroy()
         {
             CancelFade();
+            if (_audioSource.clip != null) TryCleanupRuntimeAudio();
         }
 
         public void ResetState()
         {
+            TryCleanupRuntimeAudio();
+            Stop();
             MinDistance = 1;
             MaxDistance = 500;
             CurrentSound = null;
