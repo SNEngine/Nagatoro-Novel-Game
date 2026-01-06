@@ -10,7 +10,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
     public abstract class BaseSwitchNodeEditor<T> : NodeEditor
     {
-        // Сколько места резервируем под порт
         private const float PortWidth = 24f;
 
         public override void OnBodyGUI()
@@ -43,30 +42,21 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 string portName = GetPortNameFromProperty(element);
                 NodePort port = node.GetOutputPort(portName);
 
-                // ─────────────────────────────
-                // LAYOUT
-                // ─────────────────────────────
                 EditorGUILayout.BeginHorizontal();
 
-                // Кнопка удаления
                 if (GUILayout.Button("-", GUILayout.Width(20)))
                 {
                     indexToRemove = i;
                 }
 
-                // Контейнер поля (динамическая высота)
                 EditorGUILayout.BeginVertical();
                 EditorGUILayout.PropertyField(element, GUIContent.none, true);
                 EditorGUILayout.EndVertical();
 
-                // 🔥 РЕЗЕРВ МЕСТА ПОД ПОРТ
                 GUILayout.Space(PortWidth);
 
                 EditorGUILayout.EndHorizontal();
 
-                // ─────────────────────────────
-                // PORT DRAW
-                // ─────────────────────────────
                 Rect rowRect = GUILayoutUtility.GetLastRect();
 
                 if (port != null)
@@ -82,7 +72,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 EditorGUILayout.Space(2);
             }
 
-            // Удаление case
             if (indexToRemove != -1)
             {
                 casesProp.DeleteArrayElementAtIndex(indexToRemove);
@@ -90,12 +79,51 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 SyncPorts();
             }
 
-            // Добавление case
             if (GUILayout.Button("Add Case", EditorStyles.miniButton))
             {
-                casesProp.InsertArrayElementAtIndex(casesProp.arraySize);
+                int lastIndex = casesProp.arraySize;
+                casesProp.InsertArrayElementAtIndex(lastIndex);
+
+                SerializedProperty newElem = casesProp.GetArrayElementAtIndex(lastIndex);
+
+                if (lastIndex > 0)
+                {
+                    SerializedProperty prevElem = casesProp.GetArrayElementAtIndex(lastIndex - 1);
+                    AutoIncrementValue(newElem, prevElem);
+                }
+                else
+                {
+                    ResetToDefault(newElem);
+                }
+
                 serializedObject.ApplyModifiedProperties();
                 SyncPorts();
+            }
+        }
+
+        private void AutoIncrementValue(SerializedProperty next, SerializedProperty prev)
+        {
+            switch (prev.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                    next.intValue = prev.intValue + 1;
+                    break;
+                case SerializedPropertyType.Float:
+                    next.doubleValue = prev.doubleValue + 1.0;
+                    break;
+            }
+        }
+
+        private void ResetToDefault(SerializedProperty prop)
+        {
+            switch (prop.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                    prop.intValue = 0;
+                    break;
+                case SerializedPropertyType.Float:
+                    prop.doubleValue = 0.0;
+                    break;
             }
         }
 
@@ -105,7 +133,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             if (node == null) return;
 
             SerializedProperty casesProperty = serializedObject.FindProperty("_cases");
-
             HashSet<string> requiredPorts = new HashSet<string>();
 
             for (int i = 0; i < casesProperty.arraySize; i++)
@@ -143,9 +170,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             }
         }
 
-        /// <summary>
-        /// Должен вернуть УНИКАЛЬНОЕ имя порта для case
-        /// </summary>
-        protected abstract string GetPortNameFromProperty(SerializedProperty prop);
+        protected string GetPortNameFromProperty(SerializedProperty prop)
+        {
+            string[] parts = prop.propertyPath.Split('[', ']');
+            return "case_" + parts[parts.Length - 2];
+        }
     }
 }

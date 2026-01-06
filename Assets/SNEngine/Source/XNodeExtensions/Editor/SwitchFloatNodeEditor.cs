@@ -8,10 +8,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         [CustomNodeEditor(typeof(SwitchFloatNode))]
         public class SwitchFloatNodeEditor : BaseSwitchNodeEditor<float>
         {
-            protected override string GetPortNameFromProperty(SerializedProperty prop)
-            {
-                return "cases " + prop.propertyPath.Split('[', ']')[1];
-            }
         }
     }
 }
