@@ -13,6 +13,8 @@ namespace SNEngine.Editor.BuildPackageSystem
             // Define the assets to be included in the package
             string[] assets = {
                 "Assets/SNEngine",
+                "Assets/WebGLTemplates",
+                "Assets/StreamingAssets/Splash"
             };
 
             // Ensure the directory exists

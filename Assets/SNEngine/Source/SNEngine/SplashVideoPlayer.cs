@@ -42,7 +42,7 @@ namespace SNEngine
         private void Initialize()
         {
             _videoPlayer.source = VideoSource.Url;
-            _videoPlayer.url = Path.Combine(Application.streamingAssetsPath, VIDEO_PATH);
+            _videoPlayer.url = Path.Combine(Application.streamingAssetsPath, "Splash", VIDEO_PATH);
             _videoPlayer.isLooping = false;
             _videoPlayer.playOnAwake = false;
             _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
