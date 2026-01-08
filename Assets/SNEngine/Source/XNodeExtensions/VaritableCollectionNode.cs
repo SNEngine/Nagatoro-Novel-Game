@@ -1,18 +1,20 @@
-﻿using UnityEngine;
-using XNode;
+﻿using Newtonsoft.Json.Linq;
 using SiphoinUnityHelpers.XNodeExtensions.Attributes;
-using SiphoinUnityHelpers.XNodeExtensions.Extensions;
-using System.Linq;
-using System.Collections.Generic;
-using System.Collections;
-using Newtonsoft.Json.Linq;
 using SiphoinUnityHelpers.XNodeExtensions.Debugging;
+using SiphoinUnityHelpers.XNodeExtensions.Extensions;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using XNode;
 
 namespace SiphoinUnityHelpers.XNodeExtensions
 {
-    public abstract class VariableCollectionNode<T> : VariableNode, IList<T>
+    public abstract class VariableCollectionNode<T> : VariableNode, IList<T>, IList
     {
-        private List<T> _startValue;
+        [SerializeField, HideInInspector]
+        private List<T> _startValue = new List<T>();
 
         [Space(10)]
         [SerializeField, Output(ShowBackingValue.Always, dynamicPortList = true), ReadOnly(ReadOnlyMode.OnEditor)]
@@ -24,6 +26,15 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public int Count => _elements.Count;
         public bool IsReadOnly => false;
+        public bool IsFixedSize => false;
+        public object SyncRoot => ((ICollection)_elements).SyncRoot;
+        public bool IsSynchronized => ((ICollection)_elements).IsSynchronized;
+
+        object IList.this[int index]
+        {
+            get => (index >= 0 && index < _elements.Count) ? _elements[index] : null;
+            set => _elements[index] = (T)value;
+        }
 
         public T this[int index]
         {
@@ -38,38 +49,52 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             if (port.fieldName != nameof(_enumerable))
             {
                 int index = RegexCollectionNode.GetIndex(port);
-                return _elements[index];
+                if (index >= 0 && index < _elements.Count)
+                {
+                    return _elements[index];
+                }
+                return null;
             }
 
             return _elements.AsEnumerable();
-        }
-
-        public void SetValue(IEnumerable<T> value)
-        {
-            _elements = value.ToList();
         }
 
         public void SetValue(int index, T value)
         {
             if (index < 0) return;
 
-            if (index >= _elements.Count - 1)
+            if (index >= _elements.Count)
             {
                 int countToAdd = index - _elements.Count + 1;
                 for (int i = 0; i < countToAdd; i++)
                 {
                     _elements.Add(default);
                 }
+#if UNITY_EDITOR
+                UpdatePorts();
+#endif
             }
 
             _elements[index] = value;
         }
 
-        public override object GetCurrentValue() => _elements.ToList();
-
-        public override void ResetValue()
+        public void RemoveAt(int index)
         {
-            _elements = _startValue.ToList();
+            if (index >= 0 && index < _elements.Count)
+            {
+                _elements.RemoveAt(index);
+#if UNITY_EDITOR
+                UpdatePorts();
+#endif
+            }
+        }
+
+        public void SetValue(IEnumerable<T> value)
+        {
+            _elements = value.ToList();
+#if UNITY_EDITOR
+            UpdatePorts();
+#endif
         }
 
         public override void SetValue(object value)
@@ -77,6 +102,9 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             if (value is IEnumerable<T> collection)
             {
                 _elements = collection.ToList();
+#if UNITY_EDITOR
+                UpdatePorts();
+#endif
             }
             else
             {
@@ -84,15 +112,66 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             }
         }
 
-        public void Add(T item) => _elements.Add(item);
-        public void Clear() => _elements.Clear();
-        public bool Contains(T item) => _elements.Contains(item);
-        public void CopyTo(T[] array, int arrayIndex) => _elements.CopyTo(array, arrayIndex);
-        public bool Remove(T item) => _elements.Remove(item);
-        public int IndexOf(T item) => _elements.IndexOf(item);
-        public void Insert(int index, T item) => _elements.Insert(index, item);
-        public void RemoveAt(int index) => _elements.RemoveAt(index);
+        public void Add(T item)
+        {
+            _elements.Add(item);
+#if UNITY_EDITOR
+            UpdatePorts();
+#endif
+        }
 
+        public int Add(object value)
+        {
+            _elements.Add((T)value);
+#if UNITY_EDITOR
+            UpdatePorts();
+#endif
+            return _elements.Count - 1;
+        }
+
+        public void Clear()
+        {
+            _elements.Clear();
+#if UNITY_EDITOR
+            UpdatePorts();
+#endif
+        }
+
+        public bool Remove(T item)
+        {
+            bool result = _elements.Remove(item);
+#if UNITY_EDITOR
+            if (result) UpdatePorts();
+#endif
+            return result;
+        }
+
+        public void Insert(int index, T item)
+        {
+            _elements.Insert(index, item);
+#if UNITY_EDITOR
+            UpdatePorts();
+#endif
+        }
+
+        public override object GetCurrentValue() => _elements.ToList();
+
+        public override void ResetValue()
+        {
+            _elements = _startValue != null ? _startValue.ToList() : new List<T>();
+#if UNITY_EDITOR
+            UpdatePorts();
+#endif
+        }
+
+        public void Remove(object value) => Remove((T)value);
+        public bool Contains(T item) => _elements.Contains(item);
+        public bool Contains(object value) => _elements.Contains((T)value);
+        public int IndexOf(T item) => _elements.IndexOf(item);
+        public int IndexOf(object value) => _elements.IndexOf((T)value);
+        public void Insert(int index, object value) => Insert(index, (T)value);
+        public void CopyTo(T[] array, int arrayIndex) => _elements.CopyTo(array, arrayIndex);
+        public void CopyTo(Array array, int index) => ((ICollection)_elements).CopyTo(array, index);
         public IEnumerator<T> GetEnumerator() => _elements.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -109,6 +188,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             if (!Application.isPlaying)
             {
                 _startValue = _elements.ToList();
+                UpdatePorts();
             }
         }
 

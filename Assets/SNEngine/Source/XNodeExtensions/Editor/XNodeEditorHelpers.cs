@@ -170,6 +170,76 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             }
             serializedObject.ApplyModifiedProperties();
         }
+
+        public static void DrawRemoveAtVariableBody(NodeEditor editor, SerializedObject serializedObject)
+        {
+            serializedObject.Update();
+
+            // Отрисовка входного порта выполнения (Flow)
+            XNode.NodePort enterPort = editor.target.GetInputPort("_enter");
+            EditorGUILayout.Space(2);
+            if (enterPort != null) NodeEditorGUILayout.PortField(enterPort);
+
+            XNode.NodePort variablePort = editor.target.GetInputPort("_variable");
+            XNode.NodePort indexPort = editor.target.GetInputPort("_index");
+
+            if (variablePort != null && variablePort.IsConnected)
+            {
+                NodeEditorGUILayout.PortField(variablePort);
+            }
+            else
+            {
+                DrawSelector(editor, serializedObject, "_targetGuid", VariableselectorWindow.SelectorMode.All);
+            }
+
+            EditorGUILayout.Space(2);
+
+            if (indexPort != null && indexPort.IsConnected)
+            {
+                NodeEditorGUILayout.PortField(indexPort);
+            }
+            else
+            {
+                SerializedProperty indexProp = serializedObject.FindProperty("_index");
+                if (indexProp != null)
+                {
+                    EditorGUILayout.PropertyField(indexProp, new GUIContent("Index"));
+                    EditorGUILayout.Space(2);
+                }
+            }
+
+            // Отрисовка выходного порта выполнения (Flow)
+            XNode.NodePort exitPort = editor.target.GetOutputPort("_exit");
+            if (exitPort != null) NodeEditorGUILayout.PortField(exitPort);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        public static void DrawGetCountInCollectionBody(NodeEditor editor, SerializedObject serializedObject)
+        {
+            serializedObject.Update();
+
+            XNode.NodePort collectionPort = editor.target.GetInputPort("_collection");
+            XNode.NodePort countPort = editor.target.GetOutputPort("_count");
+
+            if (collectionPort != null && collectionPort.IsConnected)
+            {
+                NodeEditorGUILayout.PortField(collectionPort);
+            }
+            else
+            {
+                DrawSelector(editor, serializedObject, "_targetGuid", VariableselectorWindow.SelectorMode.All);
+            }
+
+            EditorGUILayout.Space(2);
+
+            if (countPort != null)
+            {
+                NodeEditorGUILayout.PortField(new GUIContent("Count"), countPort);
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
         // --- INTERNAL HELPERS ---
 
         private static void DrawKeyPopup(SerializedProperty keyProp, VariableNode dictNode)
