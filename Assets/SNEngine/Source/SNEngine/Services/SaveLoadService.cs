@@ -100,8 +100,10 @@ namespace SNEngine.SaveSystem
                     textureToSave = ResizeTexture(originalTexture, WEBGL_PREVIEW_SIZE, WEBGL_PREVIEW_SIZE);
                     Object.Destroy(originalTexture);
                 }
-
+                var snapshotService = NovelGame.Instance.GetService<SnapshotService>();
+                snapshotService.BindToSlot(saveName);
                 return _provider.SaveAsync(saveName, data, textureToSave);
+
             });
         }
 

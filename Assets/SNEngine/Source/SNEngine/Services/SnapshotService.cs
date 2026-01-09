@@ -6,8 +6,10 @@ using SNEngine.SnapshotSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 
 namespace SNEngine.Services
@@ -19,30 +21,49 @@ namespace SNEngine.Services
         private ISnapshotProvider _provider;
         private bool _isWriting;
 
-        public void InitializeSession(string saveName)
+#if UNITY_EDITOR
+        private CancellationTokenSource _debugThrottleCts;
+#endif
+
+        public override void Initialize()
         {
-            Dispose();
+            _historyStack.Clear();
+        }
+
+        public void BindToSlot(string saveName)
+        {
+            if (_provider is IDisposable d) d.Dispose();
+
 #if UNITY_WEBGL && !UNITY_EDITOR
             _provider = new PlayerPrefsSnapshotProvider(saveName);
 #else
             _provider = new FileSnapshotProvider(saveName);
 #endif
+            SyncStackToDisk().Forget();
         }
 
         public void PushSnapshot(SaveData data)
         {
-            if (data == null) return;
+            if (data == null || string.IsNullOrEmpty(data.CurrentNode)) return;
 
-            if (_historyStack.Count > 0 && _historyStack.Peek().CurrentNode == data.CurrentNode)
+            if (_historyStack.Count > 0)
             {
-                NovelGameDebug.Log($"[SnapshotService] Skip push: Node {data.CurrentNode} is already at the top of stack.");
-                return;
+                if (string.Equals(_historyStack.Peek().CurrentNode, data.CurrentNode, StringComparison.Ordinal))
+                {
+                    return;
+                }
             }
 
             _historyStack.Push(data);
-            NovelGameDebug.Log($"[SnapshotService] Snapshot pushed to RAM. Node: {data.CurrentNode}. Stack size: {_historyStack.Count}");
 
-            SaveToProviderAsync(data).Forget();
+#if UNITY_EDITOR
+            ScheduleDebugWrite();
+#endif
+
+            if (_provider != null)
+            {
+                SaveToProviderAsync(data).Forget();
+            }
         }
 
         public async UniTask<SaveData> PopSnapshotAsync()
@@ -50,24 +71,37 @@ namespace SNEngine.Services
             if (_historyStack.Count > 0)
             {
                 var data = _historyStack.Pop();
-                _provider.PopLastAsync().Forget();
-                NovelGameDebug.Log($"[SnapshotService] Pop from RAM. New stack size: {_historyStack.Count}");
+                if (_provider != null) _provider.PopLastAsync().Forget();
+
+#if UNITY_EDITOR
+                ScheduleDebugWrite();
+#endif
                 return data;
             }
 
-            byte[] raw = await _provider.PopLastAsync();
-            if (raw != null)
+            if (_provider != null)
             {
-                var data = Deserialize(raw);
-                NovelGameDebug.Log($"[SnapshotService] Pop from Disk. Node: {data?.CurrentNode}");
-                return data;
+                byte[] raw = await _provider.PopLastAsync();
+                return raw != null ? Deserialize(raw) : null;
             }
 
-            NovelGameDebug.LogWarning("[SnapshotService] Try pop snapshot, but history is empty.");
             return null;
         }
 
-        private async UniTaskVoid SaveToProviderAsync(SaveData data)
+        private async UniTask SyncStackToDisk()
+        {
+            if (_provider == null || _historyStack.Count == 0) return;
+
+            var items = _historyStack.ToArray();
+            Array.Reverse(items);
+
+            foreach (var item in items)
+            {
+                await SaveToProviderAsync(item);
+            }
+        }
+
+        private async UniTask SaveToProviderAsync(SaveData data)
         {
             while (_isWriting) await UniTask.Yield();
             _isWriting = true;
@@ -81,14 +115,41 @@ namespace SNEngine.Services
             }
         }
 
+#if UNITY_EDITOR
+        private void ScheduleDebugWrite()
+        {
+            _debugThrottleCts?.Cancel();
+            _debugThrottleCts = new CancellationTokenSource();
+            WriteDebugWithDelay(_debugThrottleCts.Token).Forget();
+        }
+
+        private async UniTaskVoid WriteDebugWithDelay(CancellationToken token)
+        {
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(1.5f), cancellationToken: token);
+
+                var historyList = _historyStack.ToList();
+                string debugJson = JsonConvert.SerializeObject(historyList, Formatting.Indented);
+                string debugPath = Path.Combine(Application.persistentDataPath, "last_history_stack_debug.json");
+
+                await File.WriteAllTextAsync(debugPath, debugJson, token);
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                NovelGameDebug.LogWarning($"[SnapshotService] Debug write failed: {ex.Message}");
+            }
+        }
+#endif
+
         private byte[] Serialize(SaveData data)
         {
-            Guid id = DeriveSmartGuid(data.CurrentNode);
             string json = JsonConvert.SerializeObject(data);
             byte[] payload = Encoding.UTF8.GetBytes(json);
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
-            writer.Write(id.ToByteArray());
+            writer.Write(DeriveSmartGuid(data.CurrentNode).ToByteArray());
             writer.Write(payload.Length);
             writer.Write(payload);
             return ms.ToArray();
@@ -113,11 +174,23 @@ namespace SNEngine.Services
             return new Guid(h);
         }
 
+        public void ClearHistory()
+        {
+            _historyStack.Clear();
+            _provider?.ClearAsync().Forget();
+#if UNITY_EDITOR
+            ScheduleDebugWrite();
+#endif
+        }
+
         public void Dispose()
         {
             if (_provider is IDisposable d) d.Dispose();
             _provider = null;
             _historyStack.Clear();
+#if UNITY_EDITOR
+            _debugThrottleCts?.Cancel();
+#endif
         }
     }
 }

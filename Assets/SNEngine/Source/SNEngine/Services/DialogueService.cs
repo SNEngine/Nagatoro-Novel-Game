@@ -1,16 +1,14 @@
-﻿using System;
-using System.Linq;
-using SiphoinUnityHelpers.XNodeExtensions;
+﻿using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.Graphs;
 using SNEngine.SaveSystem;
-using SNEngine.SaveSystem.Models;
-using SNEngine.SaveSystem.UI;
-using SNEngine.Source.SNEngine.MessageSystem;
 using SNEngine.Source.SNEngine.Services;
+using System;
+using System.Linq;
 using UnityEngine;
 using XNode;
+using SaveData = SNEngine.SaveSystem.Models.SaveData;
 
 namespace SNEngine.Services
 {
@@ -35,6 +33,8 @@ namespace SNEngine.Services
 
         public void JumpToStartDialogue()
         {
+            var snapShotService = NovelGame.Instance.GetService<SnapshotService>();
+            snapShotService.ClearHistory();
             JumpToDialogue(_startDialogue);
         }
 
@@ -75,8 +75,6 @@ namespace SNEngine.Services
 
         private void OnStartExecute()
         {
-            var snapshotService = NovelGame.Instance.GetService<SnapshotService>();
-            snapshotService.InitializeSession("testSnss");
             _currentDialogue.OnStartExecute -= OnStartExecute;
         }
 
@@ -118,8 +116,6 @@ namespace SNEngine.Services
 
             ClearScreen();
             NodeHighlighter.ClearAllHighlights();
-            var snapshotService = NovelGame.Instance.GetService<SnapshotService>();
-            snapshotService.Dispose();
         }
 
 
