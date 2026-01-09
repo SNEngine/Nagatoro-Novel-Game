@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using SNEngine.Debugging;
+using SNEngine.IO;
 using SNEngine.SaveSystem.Models;
 using SNEngine.SnapshotSystem;
 using System;
@@ -48,7 +49,7 @@ namespace SNEngine.Services
 
             if (_historyStack.Count > 0)
             {
-                if (string.Equals(_historyStack.Peek().CurrentNode, data.CurrentNode, StringComparison.Ordinal))
+                if (_historyStack.Peek().Equals(data))
                 {
                     return;
                 }
@@ -133,7 +134,7 @@ namespace SNEngine.Services
                 string debugJson = JsonConvert.SerializeObject(historyList, Formatting.Indented);
                 string debugPath = Path.Combine(Application.persistentDataPath, "last_history_stack_debug.json");
 
-                await File.WriteAllTextAsync(debugPath, debugJson, token);
+                await NovelFile.WriteAllTextAsync(debugPath, debugJson);
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)
