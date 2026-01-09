@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d403931f374e32147a6d81c3c324c11c, type: 3}
   m_Name: SNEngineRuntimeSettings
   m_EditorClassIdentifier: 
-  ShowVideoSplash: 0
+  ShowVideoSplash: 1
   EnableCrossfade: 1
   CrossfadeDuration: 1.11
   CrossfadeEase: 18
