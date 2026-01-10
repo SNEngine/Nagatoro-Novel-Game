@@ -122,3 +122,7 @@ Assets/SNEngine/Source/SNEngine/Editor/Utils/SNIL Editor/Windows/styles.yaml
 Assets/SNEngine/Source/SNEngine/Editor/Utils/SNIL Editor/Windows/styles.yaml.meta
 Assets/SNEngine/Source/SNEngine/Editor/Utils/Yaml Editor/Windows/session.json
 Assets/SNEngine/Source/SNEngine/Editor/Utils/Yaml Editor/Windows/session.json.meta
+Assets/SNEngine/Source/SNEngine/Editor/Utils/SNEngine_Code_Counter/Windows/report.json.meta
+Assets/SNEngine/Source/SNEngine/Editor/Utils/SNEngine_Code_Counter/Windows/report.json
+Assets/SNEngine/Source/SNEngine/Editor/Utils/SNEngine_Novel_Counter/Windows/novel_report.json
+Assets/SNEngine/Source/SNEngine/Editor/Utils/SNEngine_Novel_Counter/Windows/novel_report.json.meta
