@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3672638008442108844}
   - component: {fileID: 3769047416325809442}
   - component: {fileID: 7775962525442938173}
-  - component: {fileID: 5020374386796637429}
+  - component: {fileID: 4000242502963856690}
   m_Layer: 0
   m_Name: VideoPlayer
   m_TagString: Untagged
@@ -41,8 +41,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 17.397, y: -9.4893}
+  m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!82 &4255123918923512493
 AudioSource:
@@ -225,7 +225,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1
+  m_AspectRatio: 1.7777778
 --- !u!114 &7775962525442938173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,7 +247,7 @@ MonoBehaviour:
   _defaultFilePath: 
   _playOnAwake: 0
   _isLooping: 0
---- !u!114 &5020374386796637429
+--- !u!114 &4000242502963856690
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -256,11 +256,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2497538121113376057}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59b41b646bbfd6b49a533a00c7cf6c65, type: 3}
+  m_Script: {fileID: 11500000, guid: d8cdaff546a455b4ea66b3add20e5e8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _videoPlayer: {fileID: 3672638008442108844}
-  _defaultAudioType: 0
+  _audioSource: {fileID: 4255123918923512493}
+  _defaultAudioType: 1
 --- !u!1 &3392821174540797711
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,7 +413,6 @@ MonoBehaviour:
   _key: video_loading
   _component: {fileID: 5665312958318698111}
   _autoLocalize: 1
-  _showKey: 1
 --- !u!1 &7962960195507519911
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,7 +448,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 875.30005, y: -447.5}
+  m_AnchoredPosition: {x: -875.3, y: -447.5}
   m_SizeDelta: {x: 164, y: 164}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2089493881143080348

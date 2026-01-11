@@ -37,39 +37,46 @@ namespace SNEngine.SaveSystem
 
         public SaveData CaptureCurrentState()
         {
-            var dialogueService = NovelGame.Instance.GetService<DialogueService>();
-            var globalVariablesService = NovelGame.Instance.GetService<VariablesContainerService>();
+            try
+            {
+                var dialogueService = NovelGame.Instance.GetService<DialogueService>();
+                var globalVariablesService = NovelGame.Instance.GetService<VariablesContainerService>();
 
-            if (dialogueService.CurrentDialogue is not DialogueGraph dialogueGraph)
+                if (dialogueService.CurrentDialogue is not DialogueGraph dialogueGraph)
+                {
+                    return null;
+                }
+
+                var nodeGuid = dialogueGraph.CurrentExecuteNode.GUID;
+                var variables = dialogueGraph.Variables;
+                var globalVariables = globalVariablesService.GlobalVariables;
+
+                Dictionary<string, object> variablesData = new();
+                foreach (var variable in variables)
+                {
+                    variablesData.Add(variable.Value.GUID, variable.Value.GetCurrentValue());
+                }
+
+                Dictionary<string, object> globalVariablesData = new();
+                foreach (var variable in globalVariables)
+                {
+                    globalVariablesData.Add(variable.Value.GUID, variable.Value.GetCurrentValue());
+                }
+
+                return new SaveData
+                {
+                    CurrentNode = nodeGuid,
+                    Variables = variablesData,
+                    GlobalVariables = globalVariablesData,
+                    DialogueGUID = dialogueGraph.GUID,
+                    DateSave = System.DateTime.Now,
+                    NodesData = ExtractSaveDataFromGraph(dialogueGraph),
+                };
+            }
+            catch
             {
                 return null;
             }
-
-            var nodeGuid = dialogueGraph.CurrentExecuteNode.GUID;
-            var variables = dialogueGraph.Variables;
-            var globalVariables = globalVariablesService.GlobalVariables;
-
-            Dictionary<string, object> variablesData = new();
-            foreach (var variable in variables)
-            {
-                variablesData.Add(variable.Value.GUID, variable.Value.GetCurrentValue());
-            }
-
-            Dictionary<string, object> globalVariablesData = new();
-            foreach (var variable in globalVariables)
-            {
-                globalVariablesData.Add(variable.Value.GUID, variable.Value.GetCurrentValue());
-            }
-
-            return new SaveData
-            {
-                CurrentNode = nodeGuid,
-                Variables = variablesData,
-                GlobalVariables = globalVariablesData,
-                DialogueGUID = dialogueGraph.GUID,
-                DateSave = System.DateTime.Now,
-                NodesData = ExtractSaveDataFromGraph(dialogueGraph),
-            };
         }
 
         public async UniTask SaveCurrentState(string saveName)

@@ -68,6 +68,10 @@ namespace SNEngine.Services
             {
                 var saveLoadService = NovelGame.Instance.GetService<SaveLoadService>();
                 SaveData saveData = saveLoadService.CaptureCurrentState();
+                if (saveData == null)
+                {
+                    return; 
+                }
                 var snapShotService = NovelGame.Instance.GetService<SnapshotService>();
                 snapShotService.PushSnapshot(saveData);
             }
