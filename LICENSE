@@ -1,0 +1,1159 @@
+# FILE: LICENSE_AR
+
+#--------------------------------------------------
+
+# ترخيص SNENGINE العالمي العام والخاصة (الإصدار 2.0-2026)
+
+## 1. الأحكام العامة
+1.1. استخدام SNEngine أو المنتجات البرمجية المبنية عليه يُعد موافقة كاملة على هذا الترخيص.
+
+1.2. للمطور الحق في استخدام الإطار لتطوير منتجات تجارية، وتحديد الأسعار بشكل مستقل، وتوزيعها دون دفع رسوم ترخيص إلى مالك SNEngine.
+
+1.3. حقوق الملكية الفكرية للمحتوى الذي أنشأه المطور (كود اللعبة، والرسومات، والموسيقى) تنتمي بشكل حصري إلى المطور.
+
+1.4. **تجارة التكنولوجيا (الانقسامات):** يُسمح ببيع إطار SNEngine مباشرة فقط في حالة إنشاء انقسام.
+   - يجب أن يحتوي الانقسام على اسم فريد، مختلف عن SNEngine.
+   - يجب أن يحتوي الانقسام على تغييرات كبيرة في الكود الأساسي.
+   - من الضروري الإشارة إلى المؤلف الأصلي لـ SNEngine.
+
+## 2. التعديل والكود المصدري
+2.1. **التعديلات الرسمية:** إذا نشر المطور الكود المصدري رسمياً، يُسمح للمستخدم بدراسة تعديله.
+
+2.2. **حظر القرصنة:** في جميع الحالات الأخرى، يُحظر تعديل الكود الكائني (الملفات الثنائية)، وفك التجميع، والهندسة العكسية.
+
+2.3. **تجارة التعديلات:** أي استخراج للأرباح من التعديلات (بيع التعديلات، والاشتراكات) يجب أن يتم تنسيقه مع المطور بشكل فردي. يُحظر استغلال منتجات الآخرين تجارياً دون إذن.
+
+## 3. نظام الأمان
+3.1. SNEngine محمي بنظام أمان مدمج يعمل في وضع تلقائي محلي.
+
+3.2. يقوم النظام بتحليل سلامة الملفات ومعرفة الجهاز (HWID) بشكل حصري على جهاز المستخدم دون نقل البيانات إلى الشبكات الخارجية. يعترف المستخدم بهذا كوسيلة مشروعة لحماية حقوق الملكية (DRM/TPM).
+
+3.3. **الإجراءات التلقائية:** عند اكتشاف محاولات لقرصنة الكود الكائني أو تجاوز الحماية، يتم إلغاء الترخيص تلقائيًا. قد يؤدي ذلك إلى عدم قابلية الملفات للعمل في دليل المنتج، وهو عمل للدفاع عن الحقوق.
+
+## 4. حماية البيانات والامتثال لقانون حماية البيانات العامة (GDPR)
+4.1. **GDPR وقوانين حماية البيانات:** يتوافق هذا الترخيص مع لائحة حماية البيانات العامة (GDPR) وقوانين حماية البيانات الأخرى المعمول بها. يحترم مالك الترخيص حقوق خصوصية جميع المستخدمين والمطورين.
+
+4.2. **استخدام معرف الجهاز (HWID):** يستخدم معرف الجهاز (HWID) فقط لأغراض ربط مفتاح الأمان بجهاز المطور لمنع الاستخدام غير المصرح به والقرصنة. تتم معالجة بيانات HWID محليًا على جهاز المستخدم ولا تُرسل إلى الشبكات الخارجية أو خوادم مالك الترخيص.
+
+4.3. **معالجة البيانات:** تتم معالجة أي بيانات شخصية وفقًا لقوانين حماية البيانات المعمول بها. للمستخدمين حقوق الوصول، والتصحيح، والحذف، وتقيد المعالجة، والاعتراض على المعالجة، ونقل البيانات كما هو محدد في GDPR.
+
+4.4. **الأساس القانوني:** الأساس القانوني لمعالجة بيانات HWID هو المصلحة المشروعة لحماية حقوق الملكية ومنع قرصنة البرامج.
+
+## 5. حقوق الملكية الفكرية
+5.1. SNEngine وكل الممتلكات الفكرية المرتبطة به مملوكة لمالك الترخيص. يمنح هذا الترخيص حقوقًا محدودة فقط لاستخدام البرنامج كما هو محدد هنا.
+
+5.2. يحتفظ مالك الترخص بجميع الحقوق والملكية والمنافع في SNEngine وأي أعمال مشتقة أنشأها مالك الترخيص.
+
+5.3. يُحظر استخدام علامة SNEngine التجارية أو اسمها التجاري أو شعارها بدون إذن.
+
+## 6. الضمانات وإخلاء المسؤولية
+6.1. يُقدم المنتج "كما هو" دون أي ضمانات من أي نوع، صريحة أو ضمنية، بما في ذلك على سبيل المثال لا الحصر ضمانات القابلية للتسويق، والملاءمة لغرض معين، وعدم التعدي.
+
+6.2. لا يقدم مالك الترخيص أي ضمان بأن البرنامج سيكون خاليًا من الأخطاء أو يعمل دون انقطاع.
+
+6.3. لن يكون مالك الترخيص مسؤولًا عن أي أضرار خاصة أو عرضية أو تبعية أو غير مباشرة ناتجة عن استخدام أو عدم القدرة على استخدام البرنامج، حتى لو تم إبلاغه باحتمال حدوث مثل هذه الأضرار.
+
+## 7. تحديد المسؤولية
+7.1. لن تتجاوز مسؤولية مالك الترخيص بموجب هذا الترخيص المبلغ المدفوع من قبل المستخدم للحصول على البرنامج، إن وجد.
+
+7.2. ليس مالك الترخيص مسؤولًا عن النزاعات بين المطور والمستخدم، وكذلك عن فقدان البيانات بسبب تنشيط الحماية الناتج عن انتهاك شروط هذا الترخيص.
+
+7.3. لن يكون مالك الترخيص مسؤولًا عن أي أضرار ناتجة عن فشل المستخدم في الالتزام بإجراءات الأمان الموضحة في القسم 3.
+
+## 8. التعويض
+8.1. يوافق المستخدم على تعويض مالك الترخيص وحمايته وتحصينه من أي مطالبات أو أضرار أو خسائر أو تكاليف ومصروفات (بما في ذلك أتعاب المحاماة المعقولة) تنشأ عن أو تتعلق بـ:
+   - انتهاك المستخدم لهذا الترخيص؛
+   - استخدام المستخدم لـ SNEngine بطريقة تنتهك القوانين المعمول بها؛
+   - مطالبات طرف ثالث بأن استخدام المستخدم لـ SNEngine ينتهك حقوق الملكية الفكرية الخاصة بهم.
+
+## 9. الإنهاء
+9.1. هذا الترخيص سارٍ حتى يتم إنهاؤه.
+
+9.2. يمكن لمالك الترخيص إنهاء هذا الترخيص فورًا عند الإخطار إذا انتهك المستخدم بشكل جوهري أي حكم من أحكام هذا الترخيص ولم يعالج مثل هذا الانتهاك خلال ثلاثين (30) يومًا بعد إشعار كتابي.
+
+9.3. عند الإنهاء، يجب على المستخدم التوقف عن استخدام SNEngine وتدمير جميع نسخ البرنامج التي لديه أو تحت سيطرته.
+
+9.4. تظل الأقسام 5 و6 و7 و8 و9 و10 سارية بعد إنهاء هذا الترخيص.
+
+## 10. القانون الواجب التطبيق وحل النزاعات
+10.1. يخضع هذا الترخيص ويُفسر وفقًا لقوانين المملكة العربية السعودية، دون regard لمبادئ تعارض القوانين.
+
+10.2. يتم حل أي نزاعات تنشأ عن أو تتعلق بهذا الترخيص بشكل حصري في المحاكم الموجودة في الرياض، المملكة العربية السعودية، ويوافق الطرفان على الاختصاص الشخصي لتلك المحاكم.
+
+10.3. إذا تم اعتبار أي حكم من أحكام هذا الترخيص غير سارٍ أو غير قابل للتنفيذ، تظل الأحكام الأخرى سارية بالكامل.
+
+## 11. متنوعات
+11.1. يمثل هذا الترخيص الاتفاق الكامل بين الطرفين فيما يتعلق بموضوعه ويحل محل جميع المفاوضات أو التصريحات أو الاتفاقات السابقة المتعلقة بهذا الموضوع.
+
+11.2. يمكن تعديل هذا الترخيص فقط من خلال تعديل مكتوب موقع من قبل الطرفين.
+
+11.3. يحتفظ مالك الترخيص بالحق في تحديث هذا الترخيص في أي وقت. يشكل الاستمرار في استخدام SNEngine بعد هذه التحديثات قبولًا للترخيص المعدل.
+
+11.4. إذا تم اعتبار أي جزء من هذا الترخيص غير قابل للتنفيذ، تظل البقية سارية بالكامل.
+
+## 12. قابلية نقل الترخيص
+12.1. **النقل:** يمكن نقل التراخيص الممنوحة بموجب هذا الاتفاق إلى أفراد أو كيانات أخرى، وفقًا للشروط الموضحة في هذا القسم.
+
+12.2. **شروط النقل:** يُسمح بنقل الترخيص بشرط أن:
+   - يتم إتمام النقل ككل، وليس جزئيًا
+   - يتوقف المستخدم الأصلي عن استخدام SNEngine بعد النقل
+   - يوافق المستلم على الالتزام بجميع شروط وأحكام هذا الترخيص
+
+12.3. **قيود التعديل:** لا يجوز تعديل التراخيص المنقولة بأي شكل. يتلقى المستلم الترخيص كما تم منحه في الأصل، مع جميع الشروط والأحكام دون تغيير.
+
+12.4. **الإخطار:** على الرغم من أنه غير مطلوب، إلا أن مالك الترخيص يشجع على إخطار نقل الترخيص لأغراض التسجيل.
+
+## 13. مدة الترخيص
+13.1. **المدة:** يبقى الترخيص الحالي سارًٍا حتى يتم استبداله بشروط ترخيص محدثة صادرة عن مالك الترخيص.
+
+13.2. **التجديد التلقائي:** يتم تمديد هذا الترخيص تلقائيًا حتى يتم إخطار رسمي بالإنهاء أو استبداله بإصدار محدث من هذا الترخيص.
+
+13.3. **التحديثات:** يشكل الاستمرار في استخدام SNEngine بعد نشر شروط الترخيص المحدثة قبولًا للشروط المعدلة.
+
+## 14. تعويض فشل نظام الأمان
+14.1. **مراعاة نظام الأمان:** يعترف مالك الترخيص بأن فشل أنظمة الأمان قد يحدث رغم أفضل الجهود للحفاظ على سلامة ووظائف النظام.
+
+14.2. **تحديد التعويض:** يقتصر التعويض عن فشل أنظمة الأمان على تصحيح المشكلة الأساسية من خلال تحديثات البرامج، وليس تعويضًا ماليًا.
+
+14.3. **عملية الحل:** يجب معالجة فشل أنظمة الأمان من خلال عمليات تطوير ودعم مالك الترخيص.
+
+## 15. الاتصال بمالك الترخيص لحل المشكلات
+15.1. **حق الشكوى:** للمستخدمين الذين يواجهون مشاكل مع SNEngine أو نظام الأمان الخاص به الحق في الاتصال بمالك الترخيص مباشرة للإبلاغ عن المشكلات والسعي للحصول على حل.
+
+15.2. **قنوات الدعم:** يوفر مالك الترخيص قنوات مخصصة لتقديم الشكاوى والمشكلات الفنية، بما في ذلك نظام الدعم الرسمي ومنتديات المجتمع.
+
+15.3. **التزام الاستجابة:** يلتزم مالك الترخيص بالاعتراف بالشكاوى وتوفير مساعدة معقولة لحل المشكلات المبلغ عنها.
+
+## 16. التحديثات والدعم
+16.1. **نظام التحديث ثنائي المستوى:** تعمل تحديثات SNEngine على نظام ثنائي المستوى يتكون من إطار SNEngine الأساسي ونظام الأمان المخصص.
+
+16.2. **دعم الإطار:** يتم الحفاظ على إطار SNEngine الأساسي من قبل مالك الترخيص مع مساهمات ودعم المجتمع.
+
+16.3. **دعم نظام الأمان:** يتم الحفاظ على نظام الأمان بشكل حصري من قبل مالك الترخيص مع تحديثات وتصحيحات مخصصة.
+
+16.4. **حقوق التحديث:** للمستخدمين الحق في تلقي التحديثات لكل من الإطار الأساسي ونظام الأمان كجزء من اتفاقية الترخيص الخاصة بهم.
+
+16.5. **نسخ التحديثات:** يمكن للمستخدمين نسخ ونشر التحديثات كجزء من استخدامهم المرخص لـ SNEngine.
+
+## 17. إجراءات سحب الموافقة
+17.1. **الموافقة التلقائية:** عند تثبيت SNEngine، يوافق المستخدم تلقائيًا على جمع معرف الجهاز (HWID) لأغراض إنشاء مفاتيح الأمان.
+
+17.2. **حق السحب:** يحتفظ المستخدمون بالحق في سحب موافقتهم على معالجة البيانات وفقًا للقوانين المعمول بها لحماية البيانات.
+
+17.3. **إجراء السحب:** لسحب الموافقة، يجب على المستخدمين تقديم طلب رسمي من خلال قنوات الدعم المحددة المذكورة في القسم 15.
+
+17.4. **أثر السحب:** قد يؤدي سحب الموافقة إلى عدم القدرة على إنشاء أو التحقق من مفاتيح الأمان، مما قد يؤثر على وظائف SNEngine.
+
+## 18. الحد الأدنى من متطلبات النظام
+18.1. **أساس Unity:** تم إنشاء SNEngine باستخدام تقنية Unity، وبالتالي فإن الحد الأدنى من متطلبات النظام يعتمد على متطلبات محرك Unity.
+
+18.2. **مواصفات الأجهزة:** تختلف الحد الأدنى من متطلبات الأجهزة بناءً على تعقيد الألعاب المطورة باستخدام SNEngine، حيث تتطلب الألعاب الأكثر تعقيدًا مواصفات أعلى.
+
+18.3. **مسؤولية المطور:** يتحمل المطورون مسؤولية تحديد متطلبات النظام للألعاب الفردية التي أنشأوها باستخدام SNEngine بناءً على التعقيد والميزات المطبقة.
+
+18.4. **الاعتبارات المتعلقة بالأداء:** قد يحتاج نظام الأمان إلى موارد إضافية اعتمادًا على عمليات تحديد هوية الأجهزة وعمليات التشفير.
+
+## 19. إشعار بتغيير ملكية الترخيص
+19.1. **إشعار تغيير الملكية:** في حالة حدوث تغيير في ملكية الترخيص، سيقوم مالك الترخيص بتقديم إشعار رسمي لجميع حاملي الترخيص النشطين.
+
+19.2. **فترة الانتقال:** أثناء انتقال الملكية، يمكن للمستخدمين الاستمرار في الرجوع إلى شروط الترخيص السابقة حتى يتم قبول الشروط الجديدة رسميًا.
+
+19.3. **استمرارية الحقوق:** تظل حقوق الترخيص الحالية سارية خلال فترة الانتقال حتى يتم استبدالها بشروط ملكية جديدة.
+
+19.4. **الاعتراف:** يعترف المستخدمون بأن ملكية الترخيص قد تتغير ويوافقون على الامتثال لإجراءات الإخطار المتعلق بهذه التغييرات.
+
+## 20. توافق الكود المتوفر
+20.1. **المكونات المتوفرة:** جميع مكونات SNEngine خارج نظام الأمان متاحة للمستخدمين، مما يسمح بالفحص والتعديل والتوزيع.
+
+20.2. **استثناء الملفات الثنائية:** تظل الملفات الثنائية ملكية خاصة وغير خاضعة لشروط الكود المتوفر، كما هو مفصل في القسم 2.2 بخصوص حظر القرصنة.
+
+20.3. **استبعاد نظام الأمان:** يعمل نظام الأمان كمكون مغلق، منفصل عن عناصر SNEngine ذات الكود المتوفر.
+
+20.4. **حقوق المستخدم:** للمستخدمين حقوق الوصول والتعديل والتوزيع للمكونات المتوفرة من SNEngine وفقًا لهذا الترخيص.
+
+## 21. الأضرار والمسؤولية
+21.1. **مسؤولية المطور:** يكون مطور الألعاب المنشأة باستخدام SNEngine مسؤولًا عن أي أضرار أو التزامات يتكبدها المستخدمون النهائيون للألعاب.
+
+21.2. **التعويض المباشر:** في حالة حدوث أضرار، يجب على المستخدمين النهائيين السعي للحصول على تعويض مباشرة من مطور اللعبة، وليس من مالك ترخيص SNEngine.
+
+21.3. **إعفاء مالك الترخيص:** لا يكون مالك ترخيص SNEngine مسؤولًا عن الأضرار الناتجة عن الألعاب المطورة باستخدام الإطار، بغض النظر عن طبيعة الضرر.
+
+## 22. مراقبة الامتثال
+22.1. **حقوق تعديل الترخيص:** لا يملك سوى مالك الترخيص الحق في تعديل شروط اتفاقية الترخيص هذه.
+
+22.2. **التغييرات غير المصرح بها:** لا يجوز لأي طرف آخر غير مالك الترخيص تعديل أو إضافة أو تغيير أي شروط من شروط هذا الترخيص.
+
+22.3. **التحقق من الامتثال:** يحتفظ مالك الترخيص بالحق في التحقق من الامتثال لشروط الترخيص من خلال نظام الأمان المدمج.
+
+## 23. بند القابلية للانفصال
+23.1. **استقلال البند:** إذا تم اعتبار أي حكم من أحكام هذا الترخيص غير سارٍ أو غير قابل للتنفيذ من قبل محكمة ذات اختصاص، تظل الأحكام الأخرى سارية بالكامل.
+
+23.2. **عدم الصلاحية الجزئية:** لا يؤثر عدم صلاحية أو عدم قابلية تنفيذ أي حكم محدد على صلاحية أو قابلية تنفيذ بقية اتفاقية الترخيص.
+
+23.3. **البند البديل:** إذا أمكن، يجب استبدال الأحكام غير الصالحة بأحكام صالحة تقترب من النية الأصلية للبند غير الصالح.
+
+## 24. عدم السماح بالمقارنة
+24.1. **حظر التحليل المقارن:** يُحظر على حاملي الترخيص إجراء تحليل أداء مقارن أو معايير أو تقييم تنافسي لـ SNEngine لأغراض إنشاء منتجات تنافسية أو نشر تقارير مقارنة.
+
+24.2. **تقييد التحليل التقني:** يُحظر بشكل صارم فك أو تحليل آليات SNEngine الداخلية لأغراض الاستخبارات التنافسية دون موافقة خطية مسبقة من مالك الترخيص.
+
+24.3. **تقييد النشر:** لا يجوز لحاملي الترخيص نشر تقارير أو دراسات أو تحليلات تتعلق بالهندسة المعمارية الداخلية أو خصائص الأداء لـ SNEngine لأغراض تنافسية دون إذن صريح.
+
+## 25. المكونات من طرف ثالث والتقديرات
+25.1. **إشعار متكامل:** SNEngine هو منتج برمجي معقد يتضمن مكتبات مفتوحة المصدر مختلفة (بما في ذلك但不限于 GLFW و GLM وغيرها) ومحرك Unity®.
+
+25.2. **منحة الترخيص العامة:** تُستخدم جميع المكونات من طرف ثالث المضمنة في SNEngine بموجب تراخيصها المقابلة (مثل zlib و MIT و Apache 2.0). من خلال قبول هذا الترخيص، يوافق المستخدم أيضًا على الالتزام بشروط تراخيص الطرف الثالث هذه.
+
+25.3. **لا يوجد ضمان للكود من طرف ثالث:** لا يوفر مالك الترخيص أي ضمانات ولا يتحمل أي مسؤولية عن أداء أو استقرار أو أمن مكونات الطرف الثالث.
+
+25.4. **توافر الشروط الأصلية:** تتوفر نصوص التراخيص والإشعارات بحقوق الملكية الأصلية لكل المكونات من طرف ثالث في مستودعات المصادر الرسمية للمشاريع المقابلة أو داخل توزيع مصدر SNEngine (إن وُفر).
+
+## 26. علاقة محرك Unity
+26.1. **الأساس:** تم إنشاء SNEngine باستخدام تقنية Unity®. يخضع استخدام SNEngine لشروط خدمة Unity واتفاقية ترخيص المستخدم النهائي لUnity (EULA).
+
+26.2. **الأفضلية:** في حالة وجود أي تعارض بين شروط هذا الترخيص وشروط خدمة Unity، تكون شروط Unity هي السائدة فيما يتعلق بالمكونات المملوكة لـ Unity Technologies.
+
+26.3. **الكود المخصص:** لا يمنح هذا الترخيص أي حقوق لتعديل أو فك تجميع أو توزيع ملفات الكود الثنائية الأساسية أو الكود المصدري لمحرك Unity نفسه.
+
+26.4. **علامات طرف ثالث التجارية:** Unity® علامة تجارية لشركة Unity Technologies. لا يمنح هذا الترخيص أي حقوق لاستخدام علامات Unity التجارية أو شعاراتها أو ميزات علامتها التجارية.
+
+للحصول على مزيد من المعلومات حول شروط Unity، يرجى زيارة: https://unity.com/legal/terms-of-service
+
+## 27. الاعتبارات الإسلامية
+27.1. **الامتثال للشريعة الإسلامية:** يجب أن يتوافق استخدام SNEngine وتطوير الألعاب باستخدامه مع المبادئ الإسلامية والشريعة الإسلامية.
+
+27.2. **احترام المشاعر الدينية:** يجب على المطورين تجنب إنشاء محتوى يسيء إلى المشاعر الدينية أو ينتهك القيم الإسلامية في الألعاب المطورة باستخدام SNEngine.
+
+27.3. **الرقابة على المحتوى:** تحتفظ السلطات المختصة في الدول الإسلامية بالحق في مراجعة الألعاب المطورة باستخدام SNEngine للتأكد من امتثالها للمعايير الإسلامية.
+
+
+==================================================
+
+
+# FILE: LICENSE_EN
+
+#--------------------------------------------------
+
+# SNENGINE GLOBAL PUBLIC & PROPRIETARY LICENSE (v2.0-2026)
+
+## 1. GENERAL PROVISIONS
+1.1. Use of SNEngine or Software Products based on it constitutes full agreement with this license.
+
+1.2. The Developer has the right to use the framework to create commercial products, set their own prices independently, and distribute them without paying royalties to the SNEngine Licensor.
+
+1.3. Intellectual property rights to author content (game code, graphics, music) created by the Developer belong exclusively to the Developer.
+
+1.4. **Commercialization of Technology (Forks):** Direct sale of the SNEngine framework itself is permitted only in the case of creating a Fork.
+   - The Fork must have a unique name, different from SNEngine.
+   - The Fork must contain significant changes to the core source code.
+   - A reference to the original SNEngine authorship is mandatory.
+
+## 2. MODIFICATION AND SOURCE CODE
+2.1. **Official modifications:** If the Developer officially published the Source Code, the User is allowed to study and modify it.
+
+2.2. **Hacking prohibition:** In all other cases, modification, decompilation, and reverse engineering of the Object Code (binary files) are strictly prohibited.
+
+2.3. **Commercialization of modifications:** Any profit extraction from modifications (selling mods, subscriptions) must be coordinated with the Developer on an individual (unique) basis. Unauthorized commercialization of someone else's product is prohibited.
+
+## 3. SECURITY SYSTEM
+3.1. SNEngine is protected by an embedded Security System operating in local autonomous mode.
+
+3.2. The system analyzes file integrity and HWID exclusively on the User's device without transmitting data to external networks. The User acknowledges this as a legitimate means of copyright protection (DRM/TPM).
+
+3.3. **Automated measures:** Upon detection of attempts to hack the Object Code or bypass protection, the license is automatically canceled. This may lead to the inoperability of files in the product directory, which is an act of self-defense of rights.
+
+## 4. DATA PROTECTION AND GDPR COMPLIANCE
+4.1. **GDPR and Data Protection Laws:** This license complies with the General Data Protection Regulation (GDPR) and other applicable data protection laws. The Licensor respects the privacy rights of all Users and Developers.
+
+4.2. **HWID Usage:** Hardware IDentification (HWID) is used solely for the purpose of binding the security key to the Developer's hardware to prevent unauthorized use and piracy. HWID data is processed locally on the User's device and is not transmitted to external networks or stored on Licensor's servers.
+
+4.3. **Data Processing:** Any processing of personal data is performed in accordance with applicable data protection laws. Users have rights to access, rectify, erase, restrict processing, object to processing, and data portability as provided by GDPR.
+
+4.4. **Legal Basis:** The legal basis for processing HWID data is legitimate interest for copyright protection and prevention of software piracy.
+
+## 5. INTELLECTUAL PROPERTY RIGHTS
+5.1. SNEngine and all associated intellectual property are owned by the Licensor. This license grants only limited rights to use the software as specified herein.
+
+5.2. The Licensor retains all rights, title, and interest in and to SNEngine and any derivative works created by the Licensor.
+
+5.3. Any unauthorized use of the SNEngine trademark, trade name, or logo is strictly prohibited.
+
+## 6. WARRANTIES AND DISCLAIMERS
+6.1. THE PRODUCT IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+6.2. THE LICENSOR MAKES NO WARRANTY THAT THE SOFTWARE WILL BE ERROR-FREE OR OPERATE WITHOUT INTERRUPTION.
+
+6.3. IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR INDIRECT DAMAGES ARISING FROM THE USE OF OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+## 7. LIMITATION OF LIABILITY
+7.1. The Licensor's total liability under this license shall not exceed the amount paid by the Licensee for the software, if any.
+
+7.2. The Licensor is not responsible for disputes between the Developer and the User, as well as for data loss due to protection activation caused by violation of the terms of this license.
+
+7.3. The Licensor shall not be liable for any damages resulting from the Licensee's failure to comply with the security measures described in Section 3.
+
+## 8. INDEMNIFICATION
+8.1. The Licensee agrees to indemnify, defend, and hold harmless the Licensor from and against any claims, damages, losses, costs, and expenses (including reasonable attorneys' fees) arising out of or related to:
+   - The Licensee's breach of this license;
+   - The Licensee's use of SNEngine in violation of applicable law;
+   - Third-party claims that the Licensee's use of SNEngine infringes upon their intellectual property rights.
+
+## 9. TERMINATION
+9.1. This license is effective until terminated.
+
+9.2. The Licensor may terminate this license immediately upon notice if the Licensee materially breaches any provision of this license and fails to cure such breach within thirty (30) days after written notice.
+
+9.3. Upon termination, the Licensee must cease all use of SNEngine and destroy all copies of the software in the Licensee's possession or control.
+
+9.4. Sections 5, 6, 7, 8, 9, and 10 shall survive termination of this license.
+
+## 10. GOVERNING LAW AND DISPUTE RESOLUTION
+10.1. This license shall be governed by and construed in accordance with the laws of Russian Federation, without regard to its conflict of law principles.
+
+10.2. Any disputes arising out of or relating to this license shall be resolved exclusively in the courts located in Yekaterinburg, Russian Federation, and both parties consent to the personal jurisdiction of such courts.
+
+10.3. If any provision of this license is held to be invalid or unenforceable, the remaining provisions shall remain in full force and effect.
+
+## 11. MISCELLANEOUS
+11.1. This license represents the complete agreement between the parties concerning the subject matter hereof and supersedes all prior negotiations, representations, or agreements relating to such subject matter.
+
+11.2. This license may only be modified by a written amendment signed by both parties.
+
+11.3. The Licensor reserves the right to update this license at any time. Continued use of SNEngine after such updates constitutes acceptance of the revised license.
+
+11.4. If any portion of this license is held unenforceable, the remainder shall remain in full force and effect.
+
+## 12. LICENSE PORTABILITY
+12.1. **Transferability:** Licenses granted under this agreement may be transferred to other individuals or entities, subject to the conditions outlined in this section.
+
+12.2. **Transfer Conditions:** License transfers are permitted provided that:
+   - The transfer is completed in whole, not in part
+   - The original licensee ceases all use of SNEngine following the transfer
+   - The transferee agrees to be bound by all terms and conditions of this license
+
+12.3. **Modification Restrictions:** Transferred licenses may not be modified in any way. The transferee receives the license exactly as originally granted, with all terms and conditions intact.
+
+12.4. **Notification:** While not required, the Licensor encourages notification of license transfers for record-keeping purposes.
+
+## 13. LICENSE TERM
+13.1. **Duration:** The current license remains valid until superseded by updated license terms issued by the Licensor.
+
+13.2. **Automatic Renewal:** This license automatically extends until formal notification of termination or replacement by an updated version of this license.
+
+13.3. **Updates:** Continued use of SNEngine after publication of updated license terms constitutes acceptance of the revised terms.
+
+## 14. COMPENSATION FOR SECURITY SYSTEM FAILURES
+14.1. **Security System Consideration:** The Licensor acknowledges that security system failures may occur despite best efforts to maintain system integrity and functionality.
+
+14.2. **Limitation of Compensation:** Compensation for security system failures is limited to correction of the underlying issue through software updates, rather than financial compensation.
+
+14.3. **Resolution Process:** Security system failures shall be addressed through the Licensor's development and support processes.
+
+## 15. CONTACTING THE LICENSOR FOR ISSUE RESOLUTION
+15.1. **Right to Complaint:** Users experiencing problems with SNEngine or its security system have the right to contact the Licensor directly to report issues and seek resolution.
+
+15.2. **Support Channels:** The Licensor provides designated channels for submitting complaints and technical issues, including the official support system and community forums.
+
+15.3. **Response Commitment:** The Licensor commits to acknowledging complaints and providing reasonable assistance to address reported problems.
+
+## 16. UPDATES AND SUPPORT
+16.1. **Two-Tier Update System:** Updates to SNEngine operate on a two-tier system consisting of the core SNEngine framework and the proprietary security system.
+
+16.2. **Framework Support:** The core SNEngine framework is maintained by the Licensor with community contributions and support.
+
+16.3. **Security System Support:** The security system is maintained exclusively by the Licensor with proprietary updates and patches.
+
+16.4. **Update Rights:** Licensees have the right to receive updates for both the core framework and security system as part of their license agreement.
+
+16.5. **Copying Updates:** Licensees may copy and distribute updates as part of their licensed use of SNEngine.
+
+## 17. CONSENT WITHDRAWAL PROCEDURE
+17.1. **Automatic Consent:** By installing SNEngine, the User automatically consents to the collection of HWID for the purpose of generating security keys.
+
+17.2. **Withdrawal Right:** Users retain the right to withdraw their consent for data processing in accordance with applicable data protection laws.
+
+17.3. **Withdrawal Procedure:** To withdraw consent, Users must submit a formal request through the designated support channels specified in Section 15.
+
+17.4. **Effect of Withdrawal:** Withdrawal of consent may result in the inability to generate or validate security keys, potentially affecting the functionality of SNEngine.
+
+## 18. MINIMUM SYSTEM REQUIREMENTS
+18.1. **Unity Foundation:** SNEngine is built upon Unity technology, therefore minimum system requirements are dependent on the Unity engine requirements.
+
+18.2. **Hardware Specifications:** Minimum hardware requirements vary based on the complexity of games developed with SNEngine, with more complex games requiring higher specifications.
+
+18.3. **Developer Responsibility:** Developers are responsible for specifying system requirements for their individual games created with SNEngine based on the complexity and features implemented.
+
+18.4. **Performance Considerations:** The security system may require additional resources depending on the hardware identification processes and encryption operations.
+
+## 19. NOTIFICATION OF LICENSE OWNERSHIP CHANGES
+19.1. **Ownership Change Notification:** In the event of a change in license ownership, the Licensor will provide formal notification to all active license holders.
+
+19.2. **Transition Period:** During ownership transitions, users may continue to reference the previous license terms until the new terms are formally accepted.
+
+19.3. **Continuity of Rights:** Existing license rights remain in effect during the transition period until superseded by new ownership terms.
+
+19.4. **Acknowledgment:** Users acknowledge that license ownership may change and agree to comply with notification procedures for such changes.
+
+## 20. AVAILABLE SOURCE COMPATIBILITY
+20.1. **Available Components:** All components of SNEngine outside of the security system are made available to users, allowing for inspection, modification, and distribution under this license.
+
+20.2. **Binary Files Exception:** Binary files remain proprietary and are not subject to available source provisions, as detailed in Section 2.2 regarding hacking prohibition.
+
+20.3. **Security System Exclusion:** The security system operates as a closed component, separate from the available source elements of SNEngine.
+
+20.4. **User Rights:** Users have rights to access, modify, and distribute available components of SNEngine in accordance with this license.
+
+## 21. DAMAGES AND LIABILITY
+21.1. **Developer Liability:** The developer of games created with SNEngine is responsible for any damages or liabilities incurred by end users of their games.
+
+21.2. **Direct Compensation:** In case of damages, end users should seek compensation directly from the game developer, not from the SNEngine Licensor.
+
+21.3. **Licenser Exemption:** The SNEngine Licensor is not liable for damages caused by games developed using the framework, regardless of the nature of the damage.
+
+## 22. COMPLIANCE MONITORING
+22.1. **License Modification Rights:** Only the Licensor has the right to modify the terms of this license agreement.
+
+22.2. **Unauthorized Changes:** No party other than the Licensor may alter, amend, or change any terms of this license.
+
+22.3. **Compliance Verification:** The Licensor reserves the right to verify compliance with license terms through the embedded security system.
+
+## 23. SEVERABILITY CLAUSE
+23.1. **Provision Independence:** If any provision of this license is held to be invalid or unenforceable by a court of competent jurisdiction, the remaining provisions shall remain in full force and effect.
+
+23.2. **Partial Invalidity:** The invalidity or unenforceability of any specific provision shall not affect the validity or enforceability of the rest of the license agreement.
+
+23.3. **Replacement Provision:** If possible, invalid provisions shall be replaced with valid provisions that most closely approximate the original intent of the invalid provision.
+
+## 24. NO BENCHMARKING
+24.1. **Prohibition on Comparative Analysis:** Licensees are prohibited from conducting comparative performance analysis, benchmarking, or competitive evaluation of SNEngine for the purpose of creating competing products or publishing comparative reports.
+
+24.2. **Technical Dissection Limitation:** The dissection or analysis of SNEngine's internal mechanisms for competitive intelligence purposes is strictly forbidden without prior written consent from the Licensor.
+
+24.3. **Publication Restriction:** Licensees may not publish reports, studies, or analyses regarding the internal architecture or performance characteristics of SNEngine for competitive purposes without explicit authorization.
+
+## 25. THIRD-PARTY COMPONENTS & ACKNOWLEDGMENTS
+25.1. **Integrated Notice:** SNEngine is a complex software product that incorporates various third-party open-source libraries (including but not limited to GLFW, GLM, and others) and the Unity® Engine.
+
+25.2. **General License Grant:** All third-party components included in SNEngine are used under their respective licenses (e.g., zlib, MIT, Apache 2.0). By accepting this License, the User also agrees to abide by the terms of these third-party licenses.
+
+25.3. **No Warranty for Third-Party Code:** The Licensor provides no warranties and assumes no liability for the performance, stability, or security of third-party components.
+
+25.4. **Availability of Original Terms:** The original license texts and copyright notices for all third-party components are available in the official source repositories of the respective projects or within the SNEngine source distribution (if provided).
+
+## 26. UNITY ENGINE RELATIONSHIP
+26.1. **Foundation:** SNEngine is built using Unity® technology. Use of SNEngine is subject to the Unity Terms of Service and Unity End User License Agreement (EULA).
+
+26.2. **Precedence:** In the event of any conflict between the terms of this License and the Unity Terms of Service, the Unity terms shall prevail regarding the components owned by Unity Technologies.
+
+26.3. **Proprietary Code:** This license does not grant any rights to modify, decompile, or distribute the proprietary core binaries or source code of the Unity Engine itself.
+
+26.4. **Third-Party Trademarks:** Unity® is a trademark of Unity Technologies. This license does not grant any rights to use Unity's trademarks, logos, or brand features.
+
+For more information about Unity's terms, visit: https://unity.com/legal/terms-of-service
+
+## 27. WESTERN HEMISPHERE CONSIDERATIONS
+27.1. **Geographic Scope:** This license applies globally, but particular attention should be paid to legal requirements in Western Hemisphere countries including the United States, Canada, Mexico, Brazil, Argentina, Chile, Peru, Colombia, Venezuela, and all other nations located in North and South America.
+
+27.2. **Export Controls:** Users in Western Hemisphere countries must comply with applicable export control laws, including but not limited to the Export Administration Regulations (EAR) in the United States and similar legislation in other Western Hemisphere jurisdictions.
+
+27.3. **Local Compliance:** Licensees in Western Hemisphere countries are responsible for ensuring compliance with local laws and regulations that may supplement or differ from the terms of this license.
+
+
+==================================================
+
+
+# FILE: LICENSE_JA
+
+#--------------------------------------------------
+
+# SNENGINE グローバルパブリック＆プロプライエタリライセンス（v2.0-2026）
+
+## 1. 一般規定
+1.1. SNEngineまたはそれに基づくソフトウェア製品の使用は、本ライセンスへの完全な同意を意味します。
+
+1.2. 開発者は、商用製品を作成するためにフレームワークを使用し、独自に価格を設定し、SNEngineライセンサーにロイヤリティを支払うことなく配布する権利を有します。
+
+1.3. 開発者が作成した著作物（ゲームコード、グラフィックス、音楽）に関する知的財産権は、開発者に専属的に帰属します。
+
+1.4. **技術の商業化（フォーク）：** SNEngineフレームワーク自体の直接販売は、フォークを作成する場合に限り許可されます。
+   - フォークには、SNEngineとは異なる固有の名前が必要です。
+   - フォークには、コアソースコードに対する重要な変更が含まれている必要があります。
+   - 元のSNEngine著作権表示は義務です。
+
+## 2. 修正およびソースコード
+2.1. **公式修正：** 開発者が正式にソースコードを公開した場合、ユーザーはそれを研究および修正することが許可されます。
+
+2.2. **ハッキング禁止：** 他のすべての場合において、オブジェクトコード（バイナリファイル）の修正、逆コンパイル、およびリバースエンジニアリングは厳しく禁止されています。
+
+2.3. **修正の商業化：** 修正から利益を得る行為（MODの販売、サブスクリプションなど）は、開発者と個別に調整する必要があります。他人の製品の無断商業化は禁止されています。
+
+## 3. セキュリティシステム
+3.1. SNEngineは、ローカル自律モードで動作する組み込みセキュリティシステムによって保護されています。
+
+3.2. システムは、ファイルの整合性とHWIDをユーザーのデバイス上で分析し、外部ネットワークへのデータ送信は行いません。ユーザーは、これを著作権保護（DRM/TPM）の正当な手段として認めます。
+
+3.3. **自動措置：** オブジェクトコードのハッキングや保護回避の試みを検出した場合、ライセンスは自動的にキャンセルされます。これにより、製品ディレクトリ内のファイルが動作不能になる可能性があり、これは権利の自己防衛行為です。
+
+## 4. データ保護およびGDPR準拠
+4.1. **GDPRおよびデータ保護法：** 本ライセンスは、一般データ保護規則（GDPR）およびその他の適用されるデータ保護法に準拠しています。ライセンサーは、すべてのユーザーおよび開発者のプライバシー権を尊重します。
+
+4.2. **HWID使用：** ハードウェア識別（HWID）は、不正使用および海賊版防止のために開発者のハードウェアにセキュリティキーをバインドする目的でのみ使用されます。HWIDデータはユーザーのデバイス上でローカルに処理され、外部ネットワークやライセンサーサーバーには送信されません。
+
+4.3. **データ処理：** 個人データの処理は、適用されるデータ保護法に従って行われます。ユーザーは、GDPRによって提供されるアクセス、訂正、削除、処理制限、処理に異議申し立て、データ移植性の権利を有します。
+
+4.4. **法的根拠：** HWIDデータ処理の法的根拠は、著作権保護およびソフトウェア海賊版防止のための正当な利益です。
+
+## 5. 知的財産権
+5.1. SNEngineおよび関連するすべての知的財産はライセンサーに帰属します。本ライセンスは、 herein に指定された通りにソフトウェアを使用する限定的な権利のみを付与します。
+
+5.2. ライセンサーは、ライセンサーが作成したSNEngineおよび派生作品に関するすべての権利、所有権、および利益を保持します。
+
+5.3. SNEngine商標、商号、またはロゴの無許可使用は一切禁止されています。
+
+## 6. 保証および免責事項
+6.1. 製品は「現状有姿」で提供され、「商品性」「特定目的への適合性」「非侵害性」を含む明示または黙示の保証は一切ありません。
+
+6.2. ライセンサーは、ソフトウェアがエラーなしで動作すること、または中断しないことを保証しません。
+
+6.3. ライセンサーは、ソフトウェアの使用または使用不能から生じる特別損害、偶発的損害、結果的損害、間接損害について、損害の可能性を知らされていた場合でも一切責任を負いません。
+
+## 7. 責任制限
+7.1. 本ライセンスに基づくライセンサーの総責任額は、ソフトウェアに対してライセンシーが支払った金額を超えないものとします（該当する場合）。
+
+7.2. ライセンサーは、開発者とユーザーとの間の紛争、および本ライセンス条件違反による保護機能作動によるデータ損失については責任を負いません。
+
+7.3. ライセンサーは、第3項に記載されたセキュリティ対策にライセンシーが準拠しなかったために生じた損害について責任を負いません。
+
+## 8. 賠償
+8.1. ライセンシーは、以下の事由から生じる請求、損害、損失、費用、および支出（合理的な弁護士報酬を含む）について、ライセンサーを補償し、防御し、免責することに同意します：
+   - ライセンシーによる本ライセンスの違反；
+   - 適用法に違反してライセンシーがSNEngineを使用したこと；
+   - 第三者がライセンシーによるSNEngineの使用が知的財産権を侵害していると主張すること。
+
+## 9. 解除
+9.1. 本ライセンスは解除されるまで有効です。
+
+9.2. ライセンサーは、ライセンシーが本ライセンスの重要な条項を重大に違反し、書面による通知後30日以内にその違反を是正しない場合、直ちに本ライセンスを解除することができます。
+
+9.3. 解除時、ライセンシーはSNEngineのすべての使用を停止し、保有または管理下にあるソフトウェアのすべてのコピーを破棄しなければなりません。
+
+9.4. 第5項、第6項、第7項、第8項、第9項、および第10項は、本ライセンスの解除後も存続します。
+
+## 10. 準拠法および紛争解決
+10.1. 本ライセンスは、法律の衝突原則を無視して、ロシア連邦の法律に準拠し、それに従って解釈されます。
+
+10.2. 本ライセンスに起因または関連する紛争は、すべてロシア連邦エカテリンブルクの裁判所で排他的に解決され、両当事者はその管轄裁判所の個人管轄権に同意します。
+
+10.3. 本ライセンスのいずれかの条項が無効または執行不能と判断された場合でも、残りの条項は完全に有効に存続します。
+
+## 11. その他
+11.1. 本ライセンスは、当事者間における本件に関する完全な合意を表し、その主題に関するすべての以前の交渉、表明、または合意を代替します。
+
+11.2. 本ライセンスは、両当事者によって署名された書面による修正案でのみ変更できます。
+
+11.3. ライセンサーは、いつでも本ライセンスを更新する権利を留保します。そのような更新後のSNEngineの継続使用は、改定されたライセンスの受諾を構成します。
+
+11.4. 本ライセンスのいずれかの部分が執行不能と判断された場合でも、残りは完全に有効に存続します。
+
+## 12. ライセンスの移植性
+12.1. **譲渡可能性：** 本契約に基づいて付与されたライセンスは、このセクションに記載された条件に従って、他の個人または法人に譲渡できます。
+
+12.2. **譲渡条件：** ライセンスの譲渡は、以下の条件を満たす場合に許可されます：
+   - 譲渡は部分ではなく全体で完了すること
+   - 元のライセンシーは譲渡後にSNEngineの使用をすべて停止すること
+   - 承継者は本ライセンスのすべての条項および条件に拘束されることに同意すること
+
+12.3. **修正制限：** 譲渡されたライセンスはいかなる方法でも修正できません。承継者は、すべての条項および条件が変更されていない状態で元々付与された通りのライセンスを受け取ります。
+
+12.4. **通知：** 必須ではありませんが、ライセンサーは記録保管のためにライセンス譲渡の通知を推奨します。
+
+## 13. ライセンス期間
+13.1. **期間：** 現在のライセンスは、ライセンサーが発行した更新されたライセンス条件に取って代わられるまで有効です。
+
+13.2. **自動更新：** 本ライセンスは、正式な終了通知または更新されたバージョンによる代替があるまで自動的に延長されます。
+
+13.3. **更新：** 更新されたライセンス条件の発行後のSNEngineの継続使用は、改定された条件の受諾を構成します。
+
+## 14. セキュリティシステム障害の補償
+14.1. **セキュリティシステム考慮：** ライセンサーは、システムの完全性と機能性を維持するための最善の努力にもかかわらず、セキュリティシステムの障害が発生する可能性を認めます。
+
+14.2. **補償の制限：** セキュリティシステムの障害に対する補償は、金銭的補償ではなく、ソフトウェア更新による根本的な問題の修正に限定されます。
+
+14.3. **解決プロセス：** セキュリティシステムの障害は、ライセンサーの開発およびサポートプロセスを通じて対処されます。
+
+## 15. 問題解決のためのライセンサーへの連絡
+15.1. **苦情権：** SNEngineまたはそのセキュリティシステムに問題を経験しているユーザーは、問題を報告し解決を求めるためにライセンサーに直接連絡する権利を有します。
+
+15.2. **サポートチャネル：** ライセンサーは、公式サポートシステムおよびコミュニティフォーラムを含む、苦情および技術的問題を提出するための指定されたチャネルを提供します。
+
+15.3. **応答コミットメント：** ライセンサーは、苦情を確認し、報告された問題に対処するために合理的な支援を提供することを約束します。
+
+## 16. 更新およびサポート
+16.1. **二段階更新システム：** SNEngineの更新は、コアSNEngineフレームワークとプロプライエタリセキュリティシステムで構成される二段階システムで動作します。
+
+16.2. **フレームワークサポート：** コアSNEngineフレームワークは、コミュニティの貢献とサポートとともにライセンサーによってメンテナンスされます。
+
+16.3. **セキュリティシステムサポート：** セキュリティシステムは、プロプライエタリ更新およびパッチとともにライセンサーによって独占的にメンテナンスされます。
+
+16.4. **更新権：** ライセンシーは、ライセンス契約の一部として、コアフレームワークおよびセキュリティシステムの両方の更新を受ける権利を有します。
+
+16.5. **更新の複製：** ライセンシーは、ライセンスされたSNEngineの使用の一環として、更新を複製および配布できます。
+
+## 17. 同意撤回手順
+17.1. **自動同意：** SNEngineをインストールすることにより、ユーザーはセキュリティキー生成のためにHWIDの収集に自動的に同意します。
+
+17.2. **撤回権：** ユーザーは、適用されるデータ保護法に従ってデータ処理に関する同意を撤回する権利を保持します。
+
+17.3. **撤回手順：** 同意を撤回するには、ユーザーはセクション15に指定された指定サポートチャネルを通じて正式なリクエストを提出する必要があります。
+
+17.4. **撤回の影響：** 同意の撤回により、セキュリティキーの生成または検証ができなくなる可能性があり、SNEngineの機能に影響を与える可能性があります。
+
+## 18. 最小システム要件
+18.1. **Unity基盤：** SNEngineはUnityテクノロジー上に構築されているため、最小システム要件はUnityエンジンの要件に依存します。
+
+18.2. **ハードウェア仕様：** 最小ハードウェア要件は、SNEngineで開発されたゲームの複雑さによって異なり、より複雑なゲームではより高い仕様が必要になります。
+
+18.3. **開発者の責任：** 開発者は、実装された複雑さおよび機能に基づいて、SNEngineで作成された個々のゲームのシステム要件を指定する責任を負います。
+
+18.4. **パフォーマンス考慮事項：** セキュリティシステムは、ハードウェア識別プロセスおよび暗号化操作に応じて追加リソースを必要とする場合があります。
+
+## 19. ライセンス所有権変更の通知
+19.1. **所有権変更通知：** ライセンス所有権の変更が発生した場合、ライセンサーはすべてのアクティブなライセンス保有者に正式な通知を提供します。
+
+19.2. **移行期間：** 所有権移行中、ユーザーは新しい条件が正式に受け入れられるまで以前のライセンス条件を参照し続けることができます。
+
+19.3. **権利の継続：** 既存のライセンス権は、新しい所有権条件に取って代わられるまで移行期間中も有効に存続します。
+
+19.4. **認識：** ユーザーは、ライセンス所有権が変更される可能性を認識し、そのような変更に関する通知手順に従うことに同意します。
+
+## 20. 利用可能ソース互換性
+20.1. **利用可能コンポーネント：** セキュリティシステム以外のSNEngineのすべてのコンポーネントはユーザーに対して完全に利用可能であり、検査、修正、および配布を許可します。
+
+20.2. **バイナリファイル例外：** バイナリファイルはプロプライエタリであり、ハッキング禁止に関するセクション2.2に詳細に記載されているように、利用可能ソース規定の対象外です。
+
+20.3. **セキュリティシステム除外：** セキュリティシステムは、SNEngineの利用可能ソース要素とは分離されたクローズドコンポーネントとして動作します。
+
+20.4. **ユーザーライト：** ユーザーは、本ライセンスに従ってSNEngineの利用可能コンポーネントにアクセス、修正、および配布する権利を有します。
+
+## 21. 損害および責任
+21.1. **開発者責任：** SNEngineで作成されたゲームの開発者は、そのゲームのエンドユーザーが被った損害または責任のすべてについて責任を負います。
+
+21.2. **直接補償：** 損害が発生した場合、エンドユーザーはSNEngineライセンサーではなくゲーム開発者に直接補償を求める必要があります。
+
+21.3. **ライセンサー免除：** SNEngineライセンサーは、フレームワークを使用して開発されたゲームによって引き起こされた損害について、損害の性質に関係なく責任を負いません。
+
+## 22. 違反監視
+22.1. **ライセンス修正権：** 本ライセンス契約の条項を修正できるのはライセンサーのみです。
+
+22.2. **無許可変更：** ライセンサー以外の当事者が本ライセンスのいずれかの条項を変更、修正、または変更することはできません。
+
+22.3. **準拠検証：** ライセンサーは、組み込みセキュリティシステムを通じてライセンス条項への準拠を検証する権利を留保します。
+
+## 23. 分離可能性条項
+23.1. **条項独立性：** 本ライセンスのいずれかの条項が管轄裁判所によって無効または執行不能とされた場合でも、残りの条項は完全に有効に存続します。
+
+23.2. **部分的無効性：** 特定の条項の無効性または執行不能性は、ライセンス契約の残りの部分の有効性または執行可能性に影響を与えません。
+
+23.3. **代替条項：** 可能であれば、無効な条項はその無効条項の元の意図に最も近い有効な条項で置き換えられます。
+
+## 24. ベンチマーキング禁止
+24.1. **比較分析禁止：** ライセンシーは、競合する製品を作成する目的または比較レポートを発行する目的で、SNEngineの比較性能分析、ベンチマーキング、または競争評価を実施することが禁止されています。
+
+24.2. **技術的解析制限：** 競争相手の情報収集目的でのSNEngine内部メカニズムの解析または検討は、ライセンサーからの事前の書面による同意なしには厳しく禁止されています。
+
+24.3. **発行制限：** ライセンシーは、明示的な承認なしに、競争目的でSNEngineの内部アーキテクチャまたは性能特性に関するレポート、研究、または分析を発行することはできません。
+
+## 25. サードパーティコンポーネントおよび謝辞
+25.1. **統合通知：** SNEngineは、さまざまなサードパーティのオープンソースライブラリ（GLFW、GLMなどを含むがこれらに限定されない）およびUnity®エンジンを組み込んだ複雑なソフトウェア製品です。
+
+25.2. **一般ライセンス付与：** SNEngineに含まれるすべてのサードパーティコンポーネントは、それぞれのライセンス（zlib、MIT、Apache 2.0など）に基づいて使用されています。本ライセンスを受け入れることにより、ユーザーはこれらのサードパーティライセンスの条件に従うことに同意します。
+
+25.3. **サードパーティコードの保証なし：** ライセンサーは、サードパーティコンポーネントの性能、安定性、または安全性について保証をせず、責任を負いません。
+
+25.4. **元の条件の可用性：** すべてのサードパーティコンポーネントに関する元のライセンステキストおよび著作権表示は、それぞれのプロジェクトの公式ソースリポジトリまたはSNEngineソース配布内（提供されている場合）で入手できます。
+
+## 26. Unityエンジンとの関係
+26.1. **基盤：** SNEngineはUnity®テクノロジーを使用して構築されています。SNEngineの使用は、Unity利用規約およびUnityエンドユーザー使用許諾契約（EULA）の対象となります。
+
+26.2. **優先順位：** 本ライセンスの条件とUnity利用規約との間に競合が生じた場合、Unity Technologiesが所有するコンポーネントに関してはUnityの条件が優先します。
+
+26.3. **プロプライエタリコード：** 本ライセンスは、Unityエンジン自体のプロプライエタリコアバイナリまたはソースコードを修正、逆コンパイル、または配布する権利を一切付与しません。
+
+26.4. **第三者商標：** Unity®はUnity Technologiesの商標です。本ライセンスは、Unityの商標、ロゴ、またはブランド機能を使用する権利を一切付与しません。
+
+Unityの条件の詳細については、https://unity.com/legal/terms-of-service をご覧ください。
+
+## 27. 日本法特有の条項
+27.1. **準拠法：** 本ライセンス契約は、日本の法律に準拠し、それに従って解釈されます。国際私法の原則は適用されません。
+
+27.2. **管轄裁判所：** 本ライセンス契約に起因または関連するすべての紛争は、日本国内の裁判所の専属管轄に服します。
+
+27.3. **執行可能性：** 本ライセンスのいずれかの条項が日本の法律により無効または執行不能と判断された場合でも、残りの条項は完全に有効に存続します。
+
+
+==================================================
+
+
+# FILE: LICENSE_RU
+
+#--------------------------------------------------
+
+# ГЛОБАЛЬНАЯ ОТКРЫТАЯ И СОБСТВЕННАЯ ЛИЦЕНЗИЯ SNENGINE (v2.0-2026)
+
+## 1. ОБЩИЕ ПОЛОЖЕНИЯ
+1.1. Использование SNEngine или программных продуктов, основанных на нем, означает полное согласие с настоящей лицензией.
+
+1.2. Разработчик имеет право использовать фреймворк для создания коммерческих продуктов, устанавливать свои собственные цены независимо и распространять их без уплаты роялти лицензиару SNEngine.
+
+1.3. Права на интеллектуальную собственность на авторский контент (игровой код, графика, музыка), созданный Разработчиком, принадлежат исключительно Разработчику.
+
+1.4. **Коммерциализация технологии (Форки):** Прямая продажа фреймворка SNEngine разрешена только в случае создания Форка.
+   - Форк должен иметь уникальное имя, отличное от SNEngine.
+   - Форк должен содержать значительные изменения в исходный код ядра.
+   - Ссылка на оригинальное авторство SNEngine обязательна.
+
+## 2. МОДИФИКАЦИЯ И ИСХОДНЫЙ КОД
+2.1. **Официальные модификации:** Если Разработчик официально опубликовал Исходный код, Пользователю разрешается изучать и изменять его.
+
+2.2. **Запрет на взлом:** Во всех других случаях модификация, декомпиляция и обратная разработка Объектного кода (бинарные файлы) строго запрещены.
+
+2.3. **Коммерциализация модификаций:** Любое извлечение прибыли из модификаций (продажа модов, подписок) должно быть согласовано с Разработчиком на индивидуальной (уникальной) основе. Несанкционированная коммерциализация чужого продукта запрещена.
+
+## 3. СИСТЕМА БЕЗОПАСНОСТИ
+3.1. SNEngine защищен встроенной системой безопасности, работающей в локальном автономном режиме.
+
+3.2. Система анализирует целостность файлов и HWID исключительно на устройстве Пользователя без передачи данных во внешние сети. Пользователь признает это как законное средство защиты авторских прав (DRM/TPM).
+
+3.3. **Автоматические меры:** При обнаружении попыток взлома Объектного кода или обхода защиты лицензия автоматически аннулируется. Это может привести к неработоспособности файлов в каталоге продукта, что является актом самообороны прав.
+
+## 4. ЗАЩИТА ДАННЫХ И СООТВЕТСТВИЕ GDPR
+4.1. **GDPR и законы о защите данных:** Настоящая лицензия соответствует Общему регламенту по защите данных (GDPR) и другим применимым законам о защите данных. Лицензиар уважает права на конфиденциальность всех Пользователей и Разработчиков.
+
+4.2. **Использование HWID:** Идентификация аппаратного обеспечения (HWID) используется исключительно в целях привязки ключа безопасности к оборудованию Разработчика для предотвращения несанкционированного использования и пиратства. Данные HWID обрабатываются локально на устройстве Пользователя и не передаются во внешние сети или на серверы Лицензиара.
+
+4.3. **Обработка данных:** Любая обработка персональных данных осуществляется в соответствии с применимым законодательством о защите данных. Пользователи имеют права на доступ, исправление, удаление, ограничение обработки, возражение против обработки и переносимость данных, предусмотренные GDPR.
+
+4.4. **Правовая основа:** Правовой основой для обработки данных HWID является законный интерес в целях защиты авторских прав и предотвращения программного пиратства.
+
+## 5. ПРАВА НА ИНТЕЛЛЕКТУАЛЬНУЮ СОБСТВЕННОСТЬ
+5.1. SNEngine и вся связанная с ним интеллектуальная собственность принадлежат Лицензиару. Настоящая лицензия предоставляет только ограниченные права на использование программного обеспечения, как указано здесь.
+
+5.2. Лицензиар сохраняет за собой все права, титул и интерес к SNEngine и любым производным работам, созданным Лицензиаром.
+
+5.3. Любое несанкционированное использование торговой марки, наименования или логотипа SNEngine строго запрещено.
+
+## 6. ГАРАНТИИ И ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ
+6.1. ПРОДУКТ ПРЕДОСТАВЛЯЕТСЯ "КАК ЕСТЬ" БЕЗ КАКОЙ-ЛИБО ГАРАНТИИ, ЯВНОЙ ИЛИ ПОДРАЗУМЕВАЕМОЙ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ, ГАРАНТИЯМИ КОММЕРЧЕСКОЙ ЦЕННОСТИ, ПРИГОДНОСТИ ДЛЯ КОНКРЕТНОЙ ЦЕЛИ И НАРУШЕНИЯ ПРАВ.
+
+6.2. ЛИЦЕНЗИАР НЕ ДАЕТ ГАРАНТИЙ, ЧТО ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ БУДЕТ РАБОТАТЬ БЕЗ ОШИБОК ИЛИ БЕЗ ПЕРЕБОЕВ.
+
+6.3. В НИКАКОМ СЛУЧАЕ ЛИЦЕНЗИАР НЕ НЕСЕТ ОТВЕТСТВЕННОСТИ ЗА КАКИЕ-ЛИБО СПЕЦИАЛЬНЫЕ, СЛУЧАЙНЫЕ, ПОСЛЕДОВАВШИЕ ИЛИ КОСВЕННЫЕ УБЫТКИ, ВОЗНИКШИЕ В РЕЗУЛЬТАТЕ ИСПОЛЬЗОВАНИЯ ИЛИ НЕВОЗМОЖНОСТИ ИСПОЛЬЗОВАНИЯ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ, ДАЖЕ ЕСЛИ БЫЛО СООБЩЕНО О ВОЗМОЖНОСТИ ТАКИХ УБЫТКОВ.
+
+## 7. ОГРАНИЧЕНИЕ ОТВЕТСТВЕННОСТИ
+7.1. Общая ответственность Лицензиара по настоящей лицензии не должна превышать сумму, уплаченную Лицензиатом за программное обеспечение, если таковая имеется.
+
+7.2. Лицензиар не несет ответственности за споры между Разработчиком и Пользователем, а также за потерю данных из-за активации защиты, вызванной нарушением условий настоящей лицензии.
+
+7.3. Лицензиар не несет ответственности за какие-либо убытки, возникшие в результате несоблюдения Лицензиатом мер безопасности, описанных в разделе 3.
+
+## 8. ВОЗМЕЩЕНИЕ УБЫТКОВ
+8.1. Лицензиат соглашается возместить, защищать и освободить Лицензиара от любых претензий, убытков, потерь, затрат и расходов (включая разумные гонорары адвокатов), возникающих из или связанных с:
+   - Нарушением Лицензиатом настоящей лицензии;
+   - Использованием SNEngine Лицензиатом с нарушением применимого законодательства;
+   - Претензиями третьих лиц о том, что использование SNEngine Лицензиатом нарушает их права интеллектуальной собственности.
+
+## 9. ПРЕКРАЩЕНИЕ
+9.1. Настоящая лицензия действует до прекращения.
+
+9.2. Лицензиар может немедленно прекратить действие настоящей лицензии по уведомлению, если Лицензиат существенно нарушит какие-либо положения настоящей лицензии и не устранит такое нарушение в течение тридцати (30) дней после письменного уведомления.
+
+9.3. По окончании срока действия Лицензиат должен прекратить все использование SNEngine и уничтожить все копии программного обеспечения, находящиеся в распоряжении или под контролем Лицензиата.
+
+9.4. Разделы 5, 6, 7, 8, 9 и 10 сохраняют силу после прекращения действия настоящей лицензии.
+
+## 10. ПРИМЕНИМОЕ ПРАВО И РАЗРЕШЕНИЕ СПОРОВ
+10.1. Настоящая лицензия регулируется и толкуется в соответствии с законами Российской Федерации, без учета ее норм коллизионного права.
+
+10.2. Любые споры, возникающие из настоящей лицензии или в связи с ней, будут рассматриваться исключительно в судах, расположенных в Екатеринбурге, Российская Федерация, и обе стороны соглашаются с персональной юрисдикцией таких судов.
+
+10.3. Если какое-либо положение настоящей лицензии будет признано недействительным или не подлежащим исполнению, остальные положения сохраняют полную силу и действие.
+
+## 11. РАЗНОЕ
+11.1. Настоящая лицензия представляет собой полное соглашение между сторонами в отношении предмета настоящего документа и заменяет все предыдущие переговоры, представления или соглашения, касающиеся такого предмета.
+
+11.2. Настоящая лицензия может быть изменена только письменным дополнением, подписанным обеими сторонами.
+
+11.3. Лицензиар оставляет за собой право обновлять настоящую лицензию в любое время. Продолжение использования SNEngine после таких обновлений означает принятие измененной лицензии.
+
+11.4. Если какая-либо часть настоящей лицензии будет признана недействительной, остальная часть сохраняет полную силу и действие.
+
+## 12. ПОРТАТИВНОСТЬ ЛИЦЕНЗИИ
+12.1. **Передача:** Лицензии, предоставленные в соответствии с настоящим соглашением, могут быть переданы другим лицам или организациям, при соблюдении условий, изложенных в настоящем разделе.
+
+12.2. **Условия передачи:** Передача лицензий разрешена при условии, что:
+   - Передача осуществляется полностью, а не частично
+   - Первоначальный лицензиат прекращает все использование SNEngine после передачи
+   - Получатель соглашается быть связанным всеми положениями и условиями настоящей лицензии
+
+12.3. **Ограничения на модификацию:** Переданные лицензии не могут быть каким-либо образом изменены. Получатель получает лицензию точно так же, как она была первоначально предоставлена, со всеми положениями и условиями без изменений.
+
+12.4. **Уведомление:** Хотя это не требуется, Лицензиар рекомендует уведомлять о передаче лицензий для ведения записей.
+
+## 13. СРОК ДЕЙСТВИЯ ЛИЦЕНЗИИ
+13.1. **Продолжительность:** Действие текущей лицензии остается в силе до тех пор, пока не будут заменены обновленными условиями лицензии, выпущенными Лицензиаром.
+
+13.2. **Автоматическое продление:** Действие настоящей лицензии автоматически продлевается до официального уведомления о прекращении или замене обновленной версией настоящей лицензии.
+
+13.3. **Обновления:** Продолжение использования SNEngine после публикации обновленных условий лицензии означает принятие измененных условий.
+
+## 14. КОМПЕНСАЦИЯ ПРИ СБОЯХ СИСТЕМЫ БЕЗОПАСНОСТИ
+14.1. **Рассмотрение системы безопасности:** Лицензиар признает, что сбои системы безопасности могут произойти несмотря на лучшие усилия по поддержанию целостности и функциональности системы.
+
+14.2. **Ограничение компенсации:** Компенсация за сбои системы безопасности ограничена исправлением основной проблемы через обновления программного обеспечения, а не денежной компенсацией.
+
+14.3. **Процесс решения:** Сбои системы безопасности должны решаться через процессы разработки и поддержки Лицензиара.
+
+## 15. ОБРАЩЕНИЕ К ЛИЦЕНЗИАРУ ДЛЯ РЕШЕНИЯ ПРОБЛЕМ
+15.1. **Право на жалобу:** Пользователи, сталкивающиеся с проблемами при использовании SNEngine или его системы безопасности, имеют право напрямую обратиться к Лицензиару для сообщения о проблемах и поиска решения.
+
+15.2. **Каналы поддержки:** Лицензиар предоставляет назначенные каналы для подачи жалоб и технических проблем, включая официальную систему поддержки и форумы сообщества.
+
+15.3. **Обязательство по ответу:** Лицензиар обязуется признавать жалобы и оказывать разумную помощь в решении сообщенных проблем.
+
+## 16. ОБНОВЛЕНИЯ И ПОДДЕРЖКА
+16.1. **Двухуровневая система обновлений:** Обновления SNEngine работают по двухуровневой системе, состоящей из основного фреймворка SNEngine и проприетарной системы безопасности.
+
+16.2. **Поддержка фреймворка:** Основной фреймворк SNEngine поддерживается Лицензиаром с участием сообщества и поддержкой.
+
+16.3. **Поддержка системы безопасности:** Система безопасности поддерживается исключительно Лицензиаром с проприетарными обновлениями и исправлениями.
+
+16.4. **Права на обновления:** Лицензиаты имеют право получать обновления как для основного фреймворка, так и для системы безопасности в рамках своего лицензионного соглашения.
+
+16.5. **Копирование обновлений:** Лицензиаты могут копировать и распространять обновления в рамках своего лицензированного использования SNEngine.
+
+## 17. ПРОЦЕДУРА ОТЗЫВА СОГЛАСИЯ
+17.1. **Автоматическое согласие:** При установке SNEngine Пользователь автоматически соглашается на сбор HWID в целях генерации ключей безопасности.
+
+17.2. **Право на отзыв:** Пользователи сохраняют право отозвать свое согласие на обработку данных в соответствии с применимым законодательством о защите данных.
+
+17.3. **Процедура отзыва:** Для отзыва согласия Пользователи должны подать официальный запрос через назначенные каналы поддержки, указанные в разделе 15.
+
+17.4. **Последствия отзыва:** Отзыв согласия может привести к невозможности генерации или проверки ключей безопасности, что потенциально может повлиять на функциональность SNEngine.
+
+## 18. МИНИМАЛЬНЫЕ СИСТЕМНЫЕ ТРЕБОВАНИЯ
+18.1. **Основа Unity:** SNEngine построен на технологии Unity, поэтому минимальные системные требования зависят от требований движка Unity.
+
+18.2. **Спецификации оборудования:** Минимальные требования к оборудованию варьируются в зависимости от сложности игр, созданных с помощью SNEngine, более сложные игры требуют более высоких спецификаций.
+
+18.3. **Ответственность разработчика:** Разработчики несут ответственность за указание системных требований для своих индивидуальных игр, созданных с помощью SNEngine, на основе сложности и реализованных функций.
+
+18.4. **Соображения производительности:** Система безопасности может требовать дополнительных ресурсов в зависимости от процессов идентификации оборудования и операций шифрования.
+
+## 19. УВЕДОМЛЕНИЕ ОБ ИЗМЕНЕНИИ ВЛАДЕЛЬЦА ЛИЦЕНЗИИ
+19.1. **Уведомление об изменении владения:** В случае изменения владельца лицензии Лицензиар предоставит официальное уведомление всем активным держателям лицензий.
+
+19.2. **Переходный период:** Во время перехода владения пользователи могут продолжать ссылаться на предыдущие условия лицензии до тех пор, пока новые условия не будут официально приняты.
+
+19.3. **Непрерывность прав:** Существующие права лицензии остаются в силе в течение переходного периода до тех пор, пока не будут заменены новыми условиями владения.
+
+19.4. **Признание:** Пользователи признают, что владелец лицензии может измениться, и соглашаются соблюдать процедуры уведомления об таких изменениях.
+
+## 20. СОВМЕСТИМОСТЬ С ДОСТУПНЫМ ИСХОДНЫМ КОДОМ
+20.1. **Доступные компоненты:** Все компоненты SNEngine, кроме системы безопасности, доступны пользователям, позволяя проверку, модификацию и распространение в рамках этой лицензии.
+
+20.2. **Исключение бинарных файлов:** Бинарные файлы остаются проприетарными и не подпадают под положения доступного исходного кода, как подробно описано в разделе 2.2 о запрете взлома.
+
+20.3. **Исключение системы безопасности:** Система безопасности работает как закрытый компонент, отдельно от элементов SNEngine с доступным исходным кодом.
+
+20.4. **Права пользователей:** Пользователи имеют права на доступ, изменение и распространение доступных компонентов SNEngine в соответствии с настоящей лицензией.
+
+## 21. УБЫТКИ И ОТВЕТСТВЕННОСТЬ
+21.1. **Ответственность разработчика:** Разработчик игр, созданных с помощью SNEngine, несет ответственность за любые убытки или обязательства, понесенные конечными пользователями их игр.
+
+21.2. **Прямая компенсация:** В случае убытков конечные пользователи должны искать компенсацию непосредственно у разработчика игры, а не у Лицензиара SNEngine.
+
+21.3. **Освобождение Лицензиара:** Лицензиар SNEngine не несет ответственности за ущерб, причиненный играми, разработанными с использованием фреймворка, независимо от характера ущерба.
+
+## 22. КОНТРОЛЬ СОБЛЮДЕНИЯ УСЛОВИЙ
+22.1. **Права на изменение лицензии:** Только Лицензиар имеет право изменять условия настоящего лицензионного соглашения.
+
+22.2. **Неавторизованные изменения:** Ни одна сторона, кроме Лицензиара, не имеет права изменять, дополнять или изменять какие-либо условия лицензии.
+
+22.3. **Проверка соблюдения:** Лицензиар сохраняет за собой право проверять соблюдение условий лицензии через встроенную систему безопасности.
+
+## 23. УСЛОВИЕ ОТДЕЛИМОСТИ
+23.1. **Независимость положений:** Если какое-либо положение настоящей лицензии будет признано недействительным или не подлежащим исполнению судом компетентной юрисдикции, остальные положения остаются в полной силе и действии.
+
+23.2. **Частичная недействительность:** Недействительность или неисполнимость какого-либо конкретного положения не повлияет на действительность или исполнимость остальной части лицензионного соглашения.
+
+23.3. **Замена положения:** При возможности недействительные положения должны быть заменены действительными положениями, которые наиболее близко соответствуют первоначальному намерению недействительного положения.
+
+## 24. ЗАПРЕТ НА БЕНЧМАРКИНГ
+24.1. **Запрет на сравнительный анализ:** Лицензиатам запрещено проводить сравнительный анализ производительности, бенчмаркинг или конкурентную оценку SNEngine с целью создания конкурирующих продуктов или публикации сравнительных отчетов.
+
+24.2. **Ограничение технического вскрытия:** Вскрытие или анализ внутренних механизмов SNEngine в целях получения конкурентной разведки строго запрещено без предварительного письменного согласия Лицензиара.
+
+24.3. **Ограничение публикации:** Лицензиаты не могут публиковать отчеты, исследования или анализы, касающиеся внутренней архитектуры или характеристик производительности SNEngine в конкурентных целях без явного разрешения.
+
+## 25. СТОРОННИЕ КОМПОНЕНТЫ И ПРИЗНАНИЯ
+25.1. **Интегрированное уведомление:** SNEngine - это сложный программный продукт, который включает в себя различные сторонние библиотеки с открытым исходным кодом (включая, помимо прочего, GLFW, GLM и другие) и движок Unity®.
+
+25.2. **Общее лицензионное соглашение:** Все сторонние компоненты, включенные в SNEngine, используются в соответствии с их соответствующими лицензиями (например, zlib, MIT, Apache 2.0). Принимая настоящую лицензию, пользователь также соглашается соблюдать условия этих сторонних лицензий.
+
+25.3. **Отсутствие гарантий для стороннего кода:** Лицензиар не предоставляет никаких гарантий и не несет ответственности за производительность, стабильность или безопасность сторонних компонентов.
+
+25.4. **Доступность оригинальных условий:** Оригинальные тексты лицензий и уведомления об авторских правах для всех сторонних компонентов доступны в официальных репозиториях исходного кода соответствующих проектов или в дистрибутиве исходного кода SNEngine (если предоставлено).
+
+## 26. ОТНОШЕНИЯ С ДВИЖКОМ UNITY
+26.1. **Основа:** SNEngine построен с использованием технологии Unity®. Использование SNEngine подчиняется Условиям обслуживания Unity и Лицензионному соглашению конечного пользователя Unity (EULA).
+
+26.2. **Приоритет:** В случае любого конфликта между условиями настоящей лицензии и Условиями обслуживания Unity, приоритет имеют условия Unity в отношении компонентов, принадлежащих Unity Technologies.
+
+26.3. **Проприетарный код:** Настоящая лицензия не предоставляет никаких прав на изменение, декомпиляцию или распространение проприетарных основных двоичных файлов или исходного кода самого движка Unity.
+
+26.4. **Товарные знаки третьих лиц:** Unity® является товарным знаком Unity Technologies. Настоящая лицензия не предоставляет никаких прав на использование товарных знаков, логотипов или фирменных признаков Unity.
+
+Для получения дополнительной информации об условиях Unity посетите: https://unity.com/legal/terms-of-service
+
+## 27. ПОЛОЖЕНИЯ, СВЯЗАННЫЕ С УГОЛОВНЫМ КОДЕКСОМ РОССИЙСКОЙ ФЕДЕРАЦИИ
+27.1. **Соблюдение законодательства:** Использование SNEngine должно полностью соответствовать законодательству Российской Федерации, включая положения Уголовного кодекса РФ.
+
+27.2. **Киберпреступления:** В соответствии со статьями 272-274 Уголовного кодекса РФ, любые действия, направленные на неправомерный доступ к компьютерной информации, создание или использование вредоносного программного обеспечения, а также нарушение режима компьютерной информации, могут повлечь уголовную ответственность.
+
+27.3. **Ответственность за нарушение:** В случае выявления действий, подпадающих под действие положений Уголовного кодекса РФ, лицензиар оставляет за собой право немедленно прекратить действие лицензии и сообщить о факте нарушения в соответствующие органы.
+
+
+==================================================
+
+
+# FILE: LICENSE_ZH
+
+#--------------------------------------------------
+
+# SNENGINE全球公共及专有许可证（v2.0-2026）
+
+## 1. 一般条款
+1.1. 使用SNEngine或基于它的软件产品即表示完全同意本许可证。
+
+1.2. 开发者有权使用该框架创建商业产品，独立设定价格并进行分发，无需向SNEngine许可方支付版税。
+
+1.3. 开发者创建的作者内容（游戏代码、图形、音乐）的知识产权专属开发者所有。
+
+1.4. **技术商业化（分支）：** 只有在创建分支的情况下才允许直接销售SNEngine框架本身。
+   - 分支必须具有与SNEngine不同的唯一名称。
+   - 分支必须包含对核心源代码的重要更改。
+   - 必须引用原始SNEngine作者身份。
+
+## 2. 修改和源代码
+2.1. **官方修改：** 如果开发者正式发布了源代码，则允许用户学习和修改它。
+
+2.2. **禁止破解：** 在所有其他情况下，严格禁止对目标代码（二进制文件）进行修改、反编译和逆向工程。
+
+2.3. **修改的商业化：** 从修改中提取任何利润（出售MOD、订阅）必须与开发者单独协调。未经授权将他人产品商业化是被禁止的。
+
+## 3. 安全系统
+3.1. SNEngine受到嵌入式安全系统的保护，在本地自主模式下运行。
+
+3.2. 该系统仅在用户的设备上分析文件完整性和硬件ID，不会将数据传输到外部网络。用户承认这是版权保护的合法手段（DRM/TPM）。
+
+3.3. **自动措施：** 检测到尝试破解目标代码或绕过保护时，许可证会自动取消。这可能导致产品目录中的文件无法运行，这是权利自我保护行为。
+
+## 4. 数据保护和GDPR合规性
+4.1. **GDPR和数据保护法：** 本许可证符合《通用数据保护条例》（GDPR）和其他适用的数据保护法。许可方尊重所有用户和开发者的隐私权。
+
+4.2. **硬件ID使用：** 硬件识别（HWID）仅用于将安全密钥绑定到开发者的硬件以防止未授权使用和盗版。硬件ID数据在用户的设备上本地处理，不会传输到外部网络或存储在许可方服务器上。
+
+4.3. **数据处理：** 个人数据的任何处理均按照适用的数据保护法进行。用户拥有访问、更正、删除、限制处理、反对处理和数据可携带性的权利，如GDPR所规定。
+
+4.4. **法律依据：** 处理硬件ID数据的法律依据是为了版权保护和防止软件盗版的合法权益。
+
+## 5. 知识产权
+5.1. SNEngine和所有相关知识产权归许可方所有。本许可证仅授予按此处指定方式使用软件的有限权利。
+
+5.2. 许可方保留其创建的SNEngine和任何衍生作品的所有权利、所有权和权益。
+
+5.3. 未经许可使用SNEngine商标、商号或标识是严格禁止的。
+
+## 6. 保证和免责声明
+6.1. 产品按"现状"提供，不提供任何形式的明示或暗示保证，包括但不限于适销性、特定用途适用性和非侵权性保证。
+
+6.2. 许可方不保证软件无错误或不间断运行。
+
+6.3. 在任何情况下，即使已被告知可能发生此类损害，许可方也不对因使用或无法使用软件而产生的特殊、偶然、后果性或间接损害承担责任。
+
+## 7. 责任限制
+7.1. 根据本许可证，许可方的总责任不得超过被许可方为软件支付的金额（如有）。
+
+7.2. 许可方不对开发者和用户之间的争议负责，也不对因违反本许可证条款而导致保护激活引起的数据丢失负责。
+
+7.3. 许可方不对被许可方未能遵守第3节所述安全措施而导致的任何损害承担责任。
+
+## 8. 赔偿
+8.1. 被许可方同意赔偿、辩护并使许可方免受任何索赔、损害、损失、费用和开支（包括合理律师费）的影响，这些索赔、损害、损失、费用和开支源于或与以下情况相关：
+   - 被许可方违反本许可证；
+   - 被许可方违反适用法律使用SNEngine；
+   - 第三方声称被许可方使用SNEngine侵犯了他们的知识产权。
+
+## 9. 终止
+9.1. 本许可证在终止前一直有效。
+
+9.2. 如果被许可方严重违反本许可证的任何条款且在收到书面通知后三十（30）天内未能纠正此类违约，则许可方可立即终止本许可证。
+
+9.3. 终止后，被许可方必须停止使用SNEngine，并销毁其拥有或控制的所有软件副本。
+
+9.4. 第5、6、7、8、9和10节在本许可证终止后继续生效。
+
+## 10. 适用法律和争议解决
+10.1. 本许可证应根据俄罗斯联邦法律管辖并据此解释，不考虑其法律冲突原则。
+
+10.2. 因本许可证产生或与之相关的任何争议应专门在俄罗斯联邦叶卡捷琳堡的法院解决，双方同意接受此类法院的个人管辖权。
+
+10.3. 如果本许可证的任何条款被认定为无效或不可执行，其余条款仍完全有效。
+
+## 11. 杂项
+11.1. 本许可证代表双方就本主题事项达成的完整协议，并取代之前与此主题事项相关的所有谈判、陈述或协议。
+
+11.2. 本许可证只能通过双方签署的书面修订进行修改。
+
+11.3. 许可方保留随时更新本许可证的权利。在此类更新后继续使用SNEngine即表示接受修订后的许可证。
+
+11.4. 如果本许可证的任何部分被认定为不可执行，其余部分仍完全有效。
+
+## 12. 许可证便携性
+12.1. **转让性：** 根据本协议授予的许可证可以转让给其他个人或实体，但需遵守本节中概述的条件。
+
+12.2. **转让条件：** 许可证转让在满足以下条件时获准：
+   - 转让必须完整完成，不得部分转让
+   - 原始被许可方在转让后必须停止使用SNEngine
+   - 受让人同意受本许可证的所有条款和条件约束
+
+12.3. **修改限制：** 转让的许可证不得以任何方式进行修改。受让人收到的许可证与最初授予的完全相同，所有条款和条件均保持不变。
+
+12.4. **通知：** 虽然不要求，但许可方鼓励就许可证转让发出通知以便记录。
+
+## 13. 许可证期限
+13.1. **期限：** 当前许可证在被许可方发布的更新许可证条款取代之前一直有效。
+
+13.2. **自动续期：** 本许可证自动延长，直到收到终止通知或被更新版本的许可证替代。
+
+13.3. **更新：** 发布更新的许可证条款后继续使用SNEngine即表示接受修订后的条款。
+
+## 14. 安全系统故障补偿
+14.1. **安全系统考虑：** 许可方承认，尽管尽最大努力维护系统完整性和功能性，但仍可能发生安全系统故障。
+
+14.2. **补偿限制：** 安全系统故障的补偿仅限于通过软件更新修正根本问题，而非金钱补偿。
+
+14.3. **解决流程：** 安全系统故障应通过许可方的开发和支持流程解决。
+
+## 15. 联系许可方解决问题
+15.1. **投诉权：** 遇到SNEngine或其安全系统问题的用户有权直接联系许可方报告问题并寻求解决方案。
+
+15.2. **支持渠道：** 许可方提供指定渠道用于提交投诉和技术问题，包括官方支持系统和社区论坛。
+
+15.3. **响应承诺：** 许可方承诺确认投诉并提供合理协助以解决报告的问题。
+
+## 16. 更新和支持
+16.1. **双层更新系统：** SNEngine的更新采用双层系统，由核心SNEngine框架和专有安全系统组成。
+
+16.2. **框架支持：** 核心SNEngine框架由许可方维护，有社区贡献和支持。
+
+16.3. **安全系统支持：** 安全系统由许可方独家维护，提供专有更新和补丁。
+
+16.4. **更新权利：** 被许可方有权作为其许可证协议的一部分接收核心框架和安全系统的更新。
+
+16.5. **复制更新：** 被许可方可以在其授权使用SNEngine的范围内复制和分发更新。
+
+## 17. 撤回同意程序
+17.1. **自动同意：** 安装SNEngine时，用户自动同意收集硬件ID以生成安全密钥。
+
+17.2. **撤回权：** 用户保留根据适用数据保护法撤回数据处理同意的权利。
+
+17.3. **撤回程序：** 要撤回同意，用户必须通过第15节指定的指定支持渠道提交正式请求。
+
+17.4. **撤回影响：** 撤回同意可能导致无法生成或验证安全密钥，可能影响SNEngine的功能。
+
+## 18. 最低系统要求
+18.1. **Unity基础：** SNEngine基于Unity技术构建，因此最低系统要求取决于Unity引擎的要求。
+
+18.2. **硬件规格：** 最低硬件要求因使用SNEngine开发的游戏复杂程度而异，更复杂的游戏需要更高的规格。
+
+18.3. **开发者责任：** 开发者负责根据实现的复杂性和功能为其使用SNEngine创建的各个游戏指定系统要求。
+
+18.4. **性能考虑：** 安全系统可能需要额外资源，具体取决于硬件识别过程和加密操作。
+
+## 19. 许可证所有权变更通知
+19.1. **所有权变更通知：** 如发生许可证所有权变更，许可方将向所有活跃许可证持有者提供正式通知。
+
+19.2. **过渡期：** 在所有权过渡期间，用户可以继续参考之前的许可证条款，直到新条款正式接受。
+
+19.3. **权利连续性：** 现有许可证权利在过渡期内保持有效，直到被新的所有权条款取代。
+
+19.4. **确认：** 用户确认许可证所有权可能会发生变化，并同意遵守此类变更的通知程序。
+
+## 20. 可用源码兼容性
+20.1. **可用组件：** 除安全系统外，SNEngine的所有组件都对用户完全开放，允许检查、修改和分发。
+
+20.2. **二进制文件例外：** 二进制文件仍为专有，不受可用源码条款约束，如第2.2节关于禁止破解的详细说明。
+
+20.3. **安全系统排除：** 安全系统作为封闭组件运行，与SNEngine的可用源码元素分开。
+
+20.4. **用户权利：** 用户有权根据本许可证访问、修改和分发SNEngine的可用组件。
+
+## 21. 损害和责任
+21.1. **开发者责任：** 使用SNEngine创建的游戏的开发者对这些游戏的最终用户遭受的任何损害或责任负责。
+
+21.2. **直接补偿：** 发生损害时，最终用户应直接向游戏开发者寻求补偿，而不是向SNEngine许可方寻求。
+
+21.3. **许可方豁免：** 无论损害性质如何，SNEngine许可方均不对使用该框架开发的游戏造成的损害负责。
+
+## 22. 合规监控
+22.1. **许可证修改权：** 只有许可方有权修改本许可证协议的条款。
+
+22.2. **未经授权的更改：** 除许可方外，任何一方均不得修改、修订或更改本许可证的任何条款。
+
+22.3. **合规验证：** 许可方保留通过嵌入式安全系统验证许可证条款合规性的权利。
+
+## 23. 可分割性条款
+23.1. **条款独立性：** 如果本许可证的任何条款被有管辖权的法院认定为无效或不可执行，其余条款仍完全有效。
+
+23.2. **部分无效：** 任何特定条款的无效或不可执行不会影响许可证协议其余部分的有效性或可执行性。
+
+23.3. **替代条款：** 如果可能，无效条款应被最接近无效条款原始意图的有效条款替换。
+
+## 24. 禁止基准测试
+24.1. **比较分析禁止：** 被许可方禁止进行比较性能分析、基准测试或竞争评估SNEngine，以创建竞争产品或发布比较报告。
+
+24.2. **技术拆解限制：** 未经许可方事先书面同意，严禁为竞争情报目的拆解或分析SNEngine的内部机制。
+
+24.3. **发布限制：** 未经明确授权，被许可方不得发布有关SNEngine内部架构或性能特征的报告、研究或分析，以用于竞争目的。
+
+## 25. 第三方组件和致谢
+25.1. **综合通知：** SNEngine是一个复杂的软件产品，包含各种第三方开源库（包括但不限于GLFW、GLM等）和Unity®引擎。
+
+25.2. **一般许可证授予：** 包含在SNEngine中的所有第三方组件均根据其各自的许可证（例如zlib、MIT、Apache 2.0）使用。接受本许可证即表示用户也同意遵守这些第三方许可证的条款。
+
+25.3. **第三方代码无担保：** 许可方不对第三方组件的性能、稳定性或安全性提供任何担保，也不承担任何责任。
+
+25.4. **原始条款可用性：** 所有第三方组件的原始许可证文本和版权声明可在相应项目的官方源代码仓库或SNEngine源代码分发中获得（如提供）。
+
+## 26. Unity引擎关系
+26.1. **基础：** SNEngine使用Unity®技术构建。使用SNEngine受Unity服务条款和Unity最终用户许可协议（EULA）约束。
+
+26.2. **优先级：** 如果本许可证条款与Unity服务条款之间存在任何冲突，Unity条款应在涉及Unity Technologies拥有的组件方面优先。
+
+26.3. **专有代码：** 本许可证不授予修改、反编译或分发Unity引擎本身的专有核心二进制文件或源代码的任何权利。
+
+26.4. **第三方商标：** Unity®是Unity Technologies的商标。本许可证不授予使用Unity商标、标志或品牌功能的任何权利。
+
+有关Unity条款的更多信息，请访问：https://unity.com/legal/terms-of-service
+
+## 27. 中国法特有条款
+27.1. **适用法律：** 本许可证协议受中华人民共和国法律管辖并按其解释。国际私法规则不适用。
+
+27.2. **网络安全与数据安全：** 使用本软件须遵守《网络安全法》、《数据安全法》和《个人信息保护法》等相关法律法规。所有数据处理活动必须符合中国的数据本地化和跨境数据传输规定。
+
+27.3. **知识产权保护：** 根据中国知识产权法律，任何侵犯软件著作权、专利权或商标权的行为都将依法承担法律责任。
+
+27.4. **争议解决：** 因本许可证协议引起的任何争议应提交中国有管辖权的法院解决，且适用中国法律进行裁决。
+
+27.5. **政治内容审查：** 如果使用本软件开发的产品包含政治敏感内容或违反中国法律法规的政治倾向，这将被视为严重违反本许可证协议。中国政府有权对相关产品和开发活动进行审查。
